@@ -1,0 +1,171 @@
+name: build and test application
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - unlocked
+    branches:
+      - release
+
+jobs:
+  # perform type checks
+  check:
+    name: ✅ type checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: run type check
+        run: npm run type:check
+
+  # run end to end tests
+  e2e:
+    name: 🗺️ end to end tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: install test broswers
+        run: npx playwright install --with-deps
+
+      - name: execute tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # lint code
+  lint:
+    name: ℹ linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: run checks
+        run: npm run lint
+
+  # perform security scan
+  security:
+    name: 🚔 security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: perform security scan
+        run: echo "security scan"
+
+  # run unit tests
+  test:
+    name: 🧪 unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: execute tests
+        run: npm run test:unit
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 30
+
+  # build application
+  build:
+    name: 🏗️ build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: check the application build
+        run: npm run build
+
+  docker-build:
+    name: 💽 development image build
+    needs: [build, check, e2e, lint, security, test]
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: log in to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ vars.DOCKER_HUB }}/${{ vars.DOCKER_PROJECT }}/${{ vars.DOCKER_IMAGE }}:${{ github.event.number }}

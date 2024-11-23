@@ -1,0 +1,44 @@
+name: Deploy public adequate app
+
+on:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ${{ vars.DOCKER_HUB }}/${{ vars.DOCKER_PROJECT }}/${{ vars.DOCKER_IMAGE }}:latest
+    steps:
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.1
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Deploy to VPS
+        env:
+          HOST: ${{ secrets.HOST_IP }}
+          USERNAME: ${{ secrets.HOST_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << EOF
+
+            # Create Docker network if it doesn’t exist
+            docker network create app_network || true
+
+           # Pull the latest Docker image from Docker Hub
+            docker pull ${{ env.IMAGE }}
+
+            # Stop and remove any existing container if it exists
+            if [ \$(docker ps -q -f name=docker-image-name) ]; then
+              docker stop docker-image-name
+            fi
+
+            if [ \$(docker ps -aq -f name=docker-image-name) ]; then
+              docker rm docker-image-name
+            fi
+
+            # Run the container with the required port mapping and environment variables
+            docker run -d --name docker-container-name --network app_network -p 3000:3000 \
+              -e NEXT_PUBLIC_NODE_ENV=production \
+              $DOCKER_IMAGE
+          EOF
