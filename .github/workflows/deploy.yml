@@ -2,7 +2,7 @@ name: Deploy public adequate app
 
 on:
   workflow_dispatch:
-    inputs:
+    # inputs:
 
 jobs:
   deploy:
