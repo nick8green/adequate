@@ -1,0 +1,42 @@
+name: build and test application
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: the instance to test against
+        options:
+          - local
+          - staging
+          - prod
+
+jobs:
+  # run end to end tests
+  functional-testing:
+    name: ⚙️ functional testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: install test broswers
+        run: npx playwright install --with-deps
+
+      - name: execute tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

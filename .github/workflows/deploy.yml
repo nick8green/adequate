@@ -8,7 +8,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE: ${{ vars.DOCKER_HUB }}/${{ vars.DOCKER_PROJECT }}/${{ vars.DOCKER_IMAGE }}:latest
+      IMAGE:
+        ${{ vars.DOCKER_HUB }}/${{ vars.DOCKER_PROJECT }}/${{ vars.DOCKER_IMAGE
+        }}:latest
     steps:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.1

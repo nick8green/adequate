@@ -53,7 +53,7 @@
     "test": "npm run test:unit && npm run test:e2e",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
-    "test:unit": "jest --coverage",
+    "test:unit": "jest --coverage --verbose",
     "test:unit:watch": "npm test -- --watch",
     "type:check": "tsc -b",
     "prepare": "husky install"

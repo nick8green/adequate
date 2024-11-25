@@ -17,9 +17,6 @@ RUN npm ci
 # RUN snyk test
 RUN npm run build
 
-RUN ls -la
-RUN ls -la public
-
 # Build into the usable image
 FROM node:$NODE_VERSION-alpine AS server
 

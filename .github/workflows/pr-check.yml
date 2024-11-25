@@ -1,12 +1,12 @@
 name: build and test application
 
 on:
-  workflow_dispatch:
   pull_request:
     types:
       - opened
       - edited
       - reopened
+      - synchronize
       - unlocked
     branches:
       - staging
@@ -143,6 +143,7 @@ jobs:
       - name: check the application build
         run: npm run build
 
+  # build docker usable
   docker-build:
     name: 💽 development image build
     needs: [build, check, e2e, lint, security, test]
@@ -172,4 +173,30 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ vars.DOCKER_PROJECT }}/${{ vars.DOCKER_IMAGE }}:${{ github.event.number }}
+          tags:
+            ghcr.io/${{ github.repository }}:${{ github.event.number }}
+
+  # comment on pr
+  comment:
+    if: always() && github.event_name == 'pull_request'
+    name: 🖊️ report back
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.docker-build.result == 'success'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :white_check_mark: PR checks successful! :white_check_mark:
+
+            See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: needs.docker-build.result != 'success'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :x: PR checks failed! :x:
+
+            See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

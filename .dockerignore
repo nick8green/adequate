@@ -4,3 +4,7 @@ node_modules
 README.md
 .git
 .gitignore
+playwright
+src/utils/e2eTesting
+./**/*.spec.*
+./**/*.test.*
