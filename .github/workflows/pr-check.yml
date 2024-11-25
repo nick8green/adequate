@@ -9,7 +9,7 @@ on:
       - reopened
       - unlocked
     branches:
-      - release
+      - staging
 
 jobs:
   # perform type checks
