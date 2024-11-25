@@ -167,6 +167,8 @@ jobs:
       - name: build and push docker image
         uses: docker/build-push-action@v5
         with:
+          build-arg: |
+            NODE_VERSION=21.5
           context: .
           file: ./Dockerfile
           push: true
