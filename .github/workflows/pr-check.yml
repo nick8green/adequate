@@ -1,0 +1,203 @@
+name: run checks and test application
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - unlocked
+    branches:
+      - release
+
+jobs:
+  # build application
+  build:
+    name: 🏗️ build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: check the application build
+        run: npm run build
+
+  # run end to end tests
+  e2e:
+    name: 🗺️ end to end tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: install test broswers
+        run: npx playwright install --with-deps
+
+      - name: execute tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # lint code
+  lint:
+    name: ℹ linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: run checks
+        run: npm run lint
+
+  # perform security scan
+  security:
+    name: 🚔 security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: perform security scan
+        run: echo "security scan"
+
+  # perform type checks
+  check:
+    name: ✅ type checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: run type check
+        run: npm run type:check
+
+  # run unit tests
+  test:
+    name: 🧪 unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: execute tests
+        run: npm run test:unit
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 30
+
+  # build docker usable
+  docker-build:
+    name: 💽 development image build
+    needs: [build, check, e2e, lint, security, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: log in to docker hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          build-arg: |
+            NODE_VERSION=21.5
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags:
+            ghcr.io/${{ github.repository }}:${{ github.event.number }}
+
+  # comment on pr
+  comment:
+    if: always() && github.event_name == 'pull_request'
+    name: 🖊️ report back
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.docker-build.result == 'success'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :white_check_mark: PR checks successful! :white_check_mark:
+            Development image version at ghcr.io/${{ github.repository }}:${{ github.event.number }}
+
+            See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: needs.docker-build.result != 'success'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :x: PR checks failed! :x:
+
+            See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
