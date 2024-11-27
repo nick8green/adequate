@@ -9,12 +9,12 @@ on:
       - synchronize
       - unlocked
     branches:
-      - staging
+      - release
 
 jobs:
-  # perform type checks
-  check:
-    name: ✅ type checks
+  # build application
+  build:
+    name: 🏗️ build
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
@@ -28,8 +28,8 @@ jobs:
       - name: install dependencies
         run: npm ci
 
-      - name: run type check
-        run: npm run type:check
+      - name: check the application build
+        run: npm run build
 
   # run end to end tests
   e2e:
@@ -98,6 +98,25 @@ jobs:
       - name: perform security scan
         run: echo "security scan"
 
+  # perform type checks
+  check:
+    name: ✅ type checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: run type check
+        run: npm run type:check
+
   # run unit tests
   test:
     name: 🧪 unit tests
@@ -123,25 +142,6 @@ jobs:
           name: unit-test-coverage
           path: coverage/
           retention-days: 30
-
-  # build application
-  build:
-    name: 🏗️ build
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 21.5
-
-      - name: install dependencies
-        run: npm ci
-
-      - name: check the application build
-        run: npm run build
 
   # build docker usable
   docker-build:
@@ -188,6 +188,7 @@ jobs:
         with:
           message: |
             :white_check_mark: PR checks successful! :white_check_mark:
+            Development image version at ghcr.io/${{ github.repository }}:${{ github.event.number }}
 
             See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

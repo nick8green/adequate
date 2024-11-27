@@ -1,0 +1,103 @@
+name: build and test application
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+
+jobs:
+  # run unit tests
+  test:
+    name: 🧪 unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: execute tests
+        run: npm run test:unit
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 30
+
+  # run end to end tests
+  e2e:
+    name: 🗺️ end to end tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: install test broswers
+        run: npx playwright install --with-deps
+
+      - name: execute tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # building notes
+  check:
+    name: 📝 update notes
+    needs: [ test, e2e ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.5
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: run type check
+        run: npx semantic-release
+
+      - name: Run semantice release
+        run: npx semantic-release
+
+      - name: Print package.json version (before)
+        run: |
+          echo "package.json version (before): $(jq -r .version package.json)"
+
+      - name: Fetch Latest Commit
+        run: |
+          git fetch
+          git reset --hard origin/release
+
+      - name: Print package.json version (after)
+        run: |
+          echo "package.json version (after): $(jq -r .version package.json)"
+
+      - name: Print Build Version
+        run: |
+          echo "Build version: $(jq -r .version package.json)"

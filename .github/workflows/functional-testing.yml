@@ -8,7 +8,7 @@ on:
         description: the instance to test against
         options:
           - local
-          - staging
+          - release
           - prod
 
 jobs:
