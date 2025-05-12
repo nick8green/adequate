@@ -1,0 +1,11 @@
+**/node_modules/**
+**/dist/**
+**/build/**
+**/.next/**
+**/.turbo/**
+**/coverage/**
+**/out/**
+
+packages/docs/blog
+packages/docs/src
+packages/docs/static

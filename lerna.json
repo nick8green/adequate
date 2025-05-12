@@ -1,0 +1,11 @@
+{
+  "version": "independent",
+  "useWorkspaces": true,
+  "npmClient": "npm",
+  "packages": ["apps/*"],
+  "command": {
+    "publish": {
+      "conventionalCommits": true
+    }
+  }
+}
