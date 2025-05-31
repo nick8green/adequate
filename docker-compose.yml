@@ -1,0 +1,95 @@
+services:
+  admin:
+    command: yarn workspace admin dev
+    container_name: adequate-admin
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: node:${NODE_VERSION:-24}
+    networks:
+      - admin
+    ports:
+      - '3001:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
+  app:
+    command: yarn workspace app dev
+    container_name: adequate-app
+    environment:
+      - APP_NAME=adequate-dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: node:${NODE_VERSION:-24}
+    networks:
+      - app
+    ports:
+      - '3000:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
+  grafana:
+    container_name: adequate-grafana
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp:25 # TO BE DONE: Use a real SMTP server
+      - GF_SMTP_USER=adequate # TO BE DONE: Use a real SMTP user
+      - GF_SMTP_PASSWORD=adequate # TO BE DONE: Use a real SMTP password
+      - GF_SMTP_SKIP_TLS=true
+      - GF_SMTP_SKIP_SSL=true
+      - GF_SMTP_SKIP_VERIFY=true
+      - GF_SMTP_FROM_ADDRESS=monitoring@nick8green.co.uk
+    image: grafana/grafana-enterprise:${GRAFANA_VERSION}
+    networks:
+      - monitoring
+    ports:
+      - '8080:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./development/grafana/alerts/:/etc/grafana/alerts/
+      - ./development/grafana/dashboards/:/etc/grafana/dashboards/
+      - ./development/grafana/provisioning/:/etc/grafana/provisioning/
+
+  prometheus:
+    command: --config.file=/etc/prometheus/prometheus.yml
+    container_name: adequate-prometheus
+    depends_on:
+      - app
+    image: prom/prometheus:${PROMETHEUS_VERSION}
+    networks:
+      - app
+      - admin
+      - monitoring
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./development/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  pushgateway:
+    container_name: adequate-pushgateway
+    image: prom/pushgateway:${PROMETHEUS_PUSHGATEWAY_VERSION}
+    networks:
+      - monitoring
+    ports:
+      - '9091:9091'
+
+networks:
+  admin:
+    name: adequate-admin
+  app:
+    name: adequate-dev
+  monitoring:
+    name: adequate-monitoring
+
+volumes:
+  grafana-storage:
+    name: adequate-grafana-storage

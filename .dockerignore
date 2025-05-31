@@ -1,9 +1,11 @@
-node_modules
+./**/node_modules
 ./**/.DS_Store
-.next
-README.md
+./**/.next
+./**/README.md
 .git
 .gitignore
-playwright
+./**/playwright
 ./**/*.spec.*
 ./**/*.test.*
+
+apps/app/dev
