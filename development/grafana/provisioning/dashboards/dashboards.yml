@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: 'Adequate Metrics'
+    orgId: 1
+    type: file
+    disableDeletion: true
+    editable: false
+    options:
+      path: /etc/grafana/dashboards

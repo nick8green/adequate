@@ -1,17 +1,19 @@
-import { Metadata, ResolvingMetadata } from 'next';
-
 import Page from '@app/components/Page';
+import { Metadata /*, ResolvingMetadata*/ } from 'next';
 
 type Props = {
-  params: Promise<{ slug: string[] }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+  params: Promise<{ slug: string[] }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export const generateMetadata = async ({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
+// https://nextjs.org/docs/app/getting-started/metadata-and-og-images#generated-metadata
+export const generateMetadata = async () // { params, searchParams }: Props,
+// parent: ResolvingMetadata,
+: Promise<Metadata> => {
   return {
     title: 'Adequate',
     description: 'Basic framework for building a web application',
-  }
+  };
 };
 
 // This is a server component, so it can use async/await.
