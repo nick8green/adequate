@@ -11,7 +11,14 @@ export const middleware = (request: NextRequest) => {
     return new NextResponse(null, { status: 404 });
   }
 
-  return NextResponse.next();
+  // const hostname = request.nextUrl.hostname;
+  // const brand = hostname.includes('client1') ? 'brand-a' : 'brand-b';
+  const brand = 'n8g';
+
+  const response = NextResponse.next();
+  response.headers.set('x-brand', brand);
+
+  return response;
 };
 
 export const config = {

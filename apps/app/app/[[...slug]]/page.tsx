@@ -1,17 +1,20 @@
-import { Metadata, ResolvingMetadata } from 'next';
-
 import Page from '@app/components/Page';
+import { reportToPrometheus as httpRequestCount } from '@app/utilities/metrics/httpRequestCount';
+import { Metadata /*, ResolvingMetadata*/ } from 'next';
 
 type Props = {
-  params: Promise<{ slug: string[] }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
+  params: Promise<{ slug: string[] }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export const generateMetadata = async ({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> => {
+// https://nextjs.org/docs/app/getting-started/metadata-and-og-images#generated-metadata
+export const generateMetadata = async () // { params, searchParams }: Props,
+// parent: ResolvingMetadata,
+: Promise<Metadata> => {
   return {
     title: 'Adequate',
     description: 'Basic framework for building a web application',
-  }
+  };
 };
 
 // This is a server component, so it can use async/await.
@@ -20,6 +23,13 @@ export const generateMetadata = async ({ params, searchParams }: Props, parent: 
 
 const PageRoute = async ({ params, searchParams }: Readonly<Props>) => {
   const { slug } = await params;
+
+  httpRequestCount({
+    method: 'GET',
+    route: `/${slug?.join('/') ?? ''}`,
+    statusCode: '200',
+  });
+
   return <Page slug={slug} params={await searchParams} />;
 };
 

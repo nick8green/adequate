@@ -3,15 +3,15 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "tools/*"
   ],
   "scripts": {
     "check": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint . --cache --cache-location .eslintcache --ext .ts,.tsx,.js,.jsx apps packages",
-    "lint:check": "npm run lint -- --max-warnings 0",
-    "lint:fix": "npm run lint -- --fix",
-    "start:app": "npm run dev --workspace=app",
+    "lint:check": "yarn lint --max-warnings 0",
+    "lint:fix": "yarn lint --fix",
     "build": "lerna run build",
     "release": "lerna publish"
   },
@@ -25,16 +25,17 @@
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-simple-import-sort": "12.1.1",
     "lerna": "7.4.2",
-    "prettier": "^3.5.3",
+    "prettier": "3.5.3",
     "typescript": "5.8.3"
   },
   "dependencies": {
-    "@nick8green/components": "^0.6.0",
-    "@opentelemetry/api-logs": "^0.200.0",
-    "@opentelemetry/instrumentation": "^0.200.0",
-    "@opentelemetry/sdk-logs": "^0.200.0",
-    "@vercel/otel": "^1.12.0",
+    "@nick8green/components": "1.0.0",
+    "@opentelemetry/api-logs": "0.200.0",
+    "@opentelemetry/instrumentation": "0.200.0",
+    "@opentelemetry/sdk-logs": "0.200.0",
+    "@vercel/otel": "1.12.0",
     "next": "15.3.2",
+    "prom-client": "^15.1.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

@@ -1,0 +1,17 @@
+config:
+  phases:
+    - duration: 60
+      arrivalRate: 5
+  plugins:
+    publish-metrics:
+      - type: prometheus
+        pushgateway: 'http://localhost:9091'
+        serviceName: adequate-home-base
+        metrics: true
+        traces: true
+  target: http://localhost:3000
+
+scenarios:
+  - flow:
+      - get:
+          url: '/'

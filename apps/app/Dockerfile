@@ -1,21 +1,26 @@
 ARG NODE_VERSION=24
 
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM ghcr.io/nick8green/node:${NODE_VERSION} AS builder
 
 WORKDIR /app
 
 COPY . .
-RUN npm install && npm run build
+
+RUN yarn install && \
+    yarn workspace app build && \
+    yarn --frozen-lockfile --production
 
 FROM node:${NODE_VERSION}-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/.next .next
-COPY --from=builder /app/public public
-COPY --from=builder /app/package.json .
+COPY --from=builder /app/apps/app/.next .next
+COPY --from=builder /app/apps/app/public public
+COPY --from=builder /app/apps/app/package.json .
+COPY --from=builder /app/node_modules node_modules
 
-RUN npm install --omit=dev
+RUN addgroup --system app && adduser --system --ingroup app app
+USER app
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node_modules/.bin/next", "start"]
