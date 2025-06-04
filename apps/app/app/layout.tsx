@@ -21,6 +21,9 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <html lang={lang}>
+      <head>
+        <link rel='stylesheet' href='/styles/theme.css' />
+      </head>
       <body className={`${darkMode ? 'dark' : 'light'}-theme ${brand}-theme`}>
         <WebVitals />
         <ConfigProvider>

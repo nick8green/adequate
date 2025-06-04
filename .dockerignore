@@ -1,3 +1,5 @@
+./**/coverage
+./**/dist
 ./**/node_modules
 ./**/.DS_Store
 ./**/.next
@@ -8,4 +10,4 @@
 ./**/*.spec.*
 ./**/*.test.*
 
-apps/app/dev
+development

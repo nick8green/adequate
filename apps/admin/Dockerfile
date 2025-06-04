@@ -12,7 +12,7 @@ RUN yarn install && \
 
 FROM node:${NODE_VERSION}-alpine
 
-ARG VERSION=dev
+ARG VERSION=development
 
 ENV VERSION=${VERSION}
 ENV NODE_ENV=production
