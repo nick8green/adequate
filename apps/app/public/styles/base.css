@@ -1,15 +1,16 @@
-:root {
-  --primary-color: #000;
-  --bg-color: #fff;
-  --text-color: #111;
-}
-
 /* Styling */
 
 html {
-  background: var(--bg-color);
-  color: var(--text-color);
-  font-family:
-    'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
-    'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  background: var(--colour-primary-background) red;
+  color: var(--colour-primary-text) blue;
+  font-family: var(
+    --font,
+    'Lucida Sans',
+    'Lucida Sans Regular',
+    'Lucida Grande',
+    'Lucida Sans Unicode',
+    Geneva,
+    Verdana,
+    sans-serif
+  );
 }

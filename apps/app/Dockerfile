@@ -12,6 +12,11 @@ RUN yarn install && \
 
 FROM node:${NODE_VERSION}-alpine
 
+ARG VERSION=development
+
+ENV VERSION=${VERSION}
+ENV NODE_ENV=production
+
 WORKDIR /app
 
 COPY --from=builder /app/apps/app/.next .next
