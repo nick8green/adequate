@@ -22,5 +22,14 @@
       "@shared/*": ["./packages/shared/src/*"],
       "@service/*": ["./apps/service/src/*"]
     }
-  }
+  },
+  "exclude": [
+    "./**/dist",
+    "./**/node_modules",
+    "./**/*.cjs",
+    "./**/*.spec.ts",
+    "./**/*.spec.tsx",
+    "./**/*.test.ts",
+    "./**/*.test.tsx"
+  ]
 }

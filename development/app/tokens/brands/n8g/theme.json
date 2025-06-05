@@ -1,0 +1,10 @@
+{
+  "brand": {
+    "color": {
+      "primary": { "value": "#0070f3" }
+    },
+    "font": {
+      "body": { "value": "'Inter', sans-serif" }
+    }
+  }
+}
