@@ -12,13 +12,7 @@
 //       parserOptions: {
 //         sourceType: 'module',
 //         ecmaVersion: 'latest',
-//         project: './tsconfig.base.json',
 //       },
-//     },
-//     rules: {
-//       // Shared rules
-//       'no-console': 'warn',
-//       'react/react-in-jsx-scope': 'off',
 //     },
 //     ignores: [
 //       '**/node_modules/**',
@@ -33,27 +27,45 @@
 // ];
 
 module.exports = {
-  root: true,
-  parser: '@typescript-eslint/parser',
+  env: {
+    browser: true,
+    node: true,
+  },
   extends: [
+    'eslint:recommended',
     'next',
     'next/core-web-vitals',
     'plugin:import/recommended',
-    'plugin:playwright/recommended',
+    'plugin:jest/recommended',
     'plugin:prettier/recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
+  overrides: [
+    {
+      files: ['tools/scripts/**/*.ts'],
+      parserOptions: {
+        project: ['tools/scripts/tsconfig.eslint.json'],
+      },
+    },
+    {
+      files: ['**/*.spec.ts'],
+      plugins: ['playwright'],
+      extends: ['plugin:playwright/recommended'],
+    },
+  ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
   },
-  plugins: ['simple-import-sort'],
+  plugins: ['jest', 'simple-import-sort'],
+  root: true,
   rules: {
     'no-console': 'warn',
     'simple-import-sort/exports': 'error',
     'simple-import-sort/imports': 'error',
-  },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
-  env: {
-    browser: true,
-    node: true,
+
+    'react/react-in-jsx-scope': 'off',
+
+    '@next/next/no-html-link-for-pages': 'off',
   },
 };

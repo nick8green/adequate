@@ -1,6 +1,7 @@
 {
   "name": "performance",
   "version": "0.0.0",
+  "private": true,
   "dependencies": {
     "artillery": "^2.0.23",
     "artillery-plugin-publish-metrics": "^2.28.0"

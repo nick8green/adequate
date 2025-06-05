@@ -7,7 +7,6 @@
     "build": "echo \"building app\" && next build",
     "start": "next start",
     "lint": "next lint",
-    "predev": "rm -rf .next",
-    "generate-css": "ts-node -r tsconfig-paths/register -P tsconfig.cli.json src/scripts/themes/generate-css.cli.ts"
+    "predev": "rm -rf .next"
   }
 }

@@ -1,6 +1,7 @@
 {
   "name": "admin",
   "version": "0.0.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "echo \"building admin\" && next build",

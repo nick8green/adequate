@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { FC } from 'react';
 
-export default () => {
+export const NotFound: FC = () => {
   return (
     <div>
       <h2>Not Found</h2>
@@ -9,3 +10,5 @@ export default () => {
     </div>
   );
 };
+
+export default NotFound;

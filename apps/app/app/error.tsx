@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { FC, useEffect } from 'react';
 
 type ErrorProps = {
   error: Error & { digest?: string };
@@ -14,7 +14,7 @@ type ErrorProps = {
 // It is also used to catch errors in the app router.
 // It is used to catch errors in the app router.
 
-export default ({ error, reset }: ErrorProps) => {
+export const Error: FC<ErrorProps> = ({ error, reset }) => {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error); // eslint-disable-line no-console
@@ -34,3 +34,5 @@ export default ({ error, reset }: ErrorProps) => {
     </div>
   );
 };
+
+export default Error;
