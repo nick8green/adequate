@@ -1,0 +1,8 @@
+{
+  "colour": {
+    "dark": {
+      "background": { "value": "#000000", "type": "color" },
+      "text": { "value": "#ffffff", "type": "color" }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "colour": {
+    "dark": {
+      "primary": { "value": "#0051b3", "type": "color" },
+      "background": { "value": "#121212", "type": "color" }
+    }
+  }
+}

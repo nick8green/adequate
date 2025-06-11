@@ -18585,7 +18585,7 @@ strong-log-transformer@2.1.0, strong-log-transformer@^2.1.0:
     minimist "^1.2.0"
     through "^2.3.4"
 
-style-dictionary@5.0.0:
+style-dictionary@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/style-dictionary/-/style-dictionary-5.0.0.tgz#6b5f577b01cb0472cfdcee64e711f3bd5e389267"
   integrity sha512-ORuqKamQe4nL2B9ASmmz5LxKBDuiqHvP8jj4lQ+5kE1XJyagJVvgSz5VpTAG3dRheqlqN5++vtVmK1S6ZZyy/A==

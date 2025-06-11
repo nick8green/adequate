@@ -1,0 +1,13 @@
+{
+  "name": "designs",
+  "version": "1.0.0",
+  "dependencies": {
+    "style-dictionary": "^5.0.0"
+  },
+  "scripts": {
+    "build": "style-dictionary build --config config.js",
+    "clean": "rm -rf build",
+    "prebuild": "yarn clean"
+  },
+  "type": "module"
+}

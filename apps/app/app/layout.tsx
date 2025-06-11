@@ -1,6 +1,7 @@
 'use client';
-import '@nick8green/components/dist/index.css';
+import '../public/styles/variables.css';
 import '../public/styles/base.css';
+import '@nick8green/components/dist/index.css';
 
 import WebVitals from '@app/components/webVitals';
 import { ConfigContext, ConfigProvider, SiteConfig } from '@app/context/config';

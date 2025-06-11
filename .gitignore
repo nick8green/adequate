@@ -9,3 +9,5 @@
 **/tsconfig.tsbuildinfo
 .env.local
 .eslintcache
+tools/designs/build
+tools/designs/examples
