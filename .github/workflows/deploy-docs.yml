@@ -1,4 +1,4 @@
-name: Deploy Docusaurus to GitHub Pages
+name: Deploy docs
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
       - release # or 'release' or any other branch you want to trigger the deployment from
       - docs
   workflow_dispatch:
+
+env:
+  NODE_ENVIRONMENT: prooduction
 
 jobs:
   deploy:
@@ -22,11 +25,7 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com/
-          scope: "@nick8green"
-      # - name: 🧱 setup workspace
-      #   uses: nick8green/workflows/actions/node/setup@main
-      #   with:
-      #     token: ${{ secrets.GH_PACKAGES_TOKEN }}
+          scope: '@nick8green'
 
       - name: Authenticate with GitHub Package Registry
         run: |

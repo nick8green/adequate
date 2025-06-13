@@ -1,5 +1,6 @@
 import path from 'path';
 import StyleDictionary from 'style-dictionary';
+
 import { scopedCssVariables } from './formatters/scopes.js';
 
 StyleDictionary.registerFormat({
@@ -29,7 +30,7 @@ console.log(
   `Source files:\n${source.map((file, i) => `    ${i + 1}: ${path.resolve(file)}`).join('\n')}`,
 );
 
-export default {
+const config = {
   source,
   platforms: {
     css: {
@@ -87,3 +88,5 @@ export default {
 //     });
 //   }
 // };
+
+export default config;

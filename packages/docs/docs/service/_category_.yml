@@ -1,0 +1,6 @@
+collapsible: false
+label: Service
+position: 2
+link:
+  type: 'doc'
+  id: 'service/index'

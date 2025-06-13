@@ -1,6 +1,6 @@
 {
   "navigation": {
-      "background": { "value": "{colour.background}", "type": "color" },
-      "text": { "value": "{colour.text}", "type": "color" }
+    "background": { "value": "{colour.background}", "type": "color" },
+    "text": { "value": "{colour.text}", "type": "color" }
   }
 }
