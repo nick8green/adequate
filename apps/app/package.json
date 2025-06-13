@@ -1,0 +1,12 @@
+{
+  "name": "app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "echo \"building app\" && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "predev": "rm -rf .next"
+  }
+}

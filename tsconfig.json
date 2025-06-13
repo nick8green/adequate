@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+
+    "baseUrl": ".",
+    "paths": {
+      "@admin/*": ["./apps/admin/src/*"],
+      "@app/*": ["./apps/app/src/*"],
+      "@docs/*": ["./packages/docs/src/*"],
+      "@shared/*": ["./packages/shared/src/*"],
+      "@service/*": ["./apps/service/src/*"]
+    }
+  },
+  "exclude": [
+    "./**/dist",
+    "./**/node_modules",
+    "./**/*.cjs",
+    "./**/*.spec.ts",
+    "./**/*.spec.tsx",
+    "./**/*.test.ts",
+    "./**/*.test.tsx"
+  ]
+}

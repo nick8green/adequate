@@ -1,0 +1,13 @@
+**/coverage/
+**/dist
+**/node_modules/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
+**/.next/
+**/tsconfig.tsbuildinfo
+.env.local
+.eslintcache
+tools/designs/build
+tools/designs/examples

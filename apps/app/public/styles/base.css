@@ -1,0 +1,16 @@
+/* Styling */
+
+html {
+  background: var(--colour-primary-background) red;
+  color: var(--colour-primary-text) blue;
+  font-family: var(
+    --font,
+    'Lucida Sans',
+    'Lucida Sans Regular',
+    'Lucida Grande',
+    'Lucida Sans Unicode',
+    Geneva,
+    Verdana,
+    sans-serif
+  );
+}

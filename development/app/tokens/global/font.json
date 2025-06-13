@@ -1,0 +1,8 @@
+{
+  "font": {
+    "body": {
+      "value": "system-ui",
+      "type": "fontFamily"
+    }
+  }
+}

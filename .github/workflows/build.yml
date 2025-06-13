@@ -1,0 +1,119 @@
+name: build & push docker images
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'build mode: all or changed'
+        required: false
+        default: 'changed'
+        type: choice
+        options:
+          - changed
+          - all
+
+jobs:
+  # checks:
+  #   uses: ./.github/workflows/checks.yml
+  #   secrets:
+  #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  configure:
+    name: generate docker build matrix
+    # needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      node-version: ${{ steps.node.outputs.version }}
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: generate matrix
+        id: set-matrix
+        run: |
+          mode="${{ github.event.inputs.mode || 'changed' }}"
+          ref="${{ github.ref }}"
+          branch="${ref##*/}"
+          echo "Mode: $mode"
+          echo "Branch: $branch"
+
+          if [ "$mode" = "all" ]; then
+            apps=$(find apps -mindepth 1 -maxdepth 1 -type d | xargs -n1 basename)
+          else
+            before="${{ github.event.before }}"
+            sha="${{ github.sha }}"
+
+            if git cat-file -e "$before^{commit}" 2>/dev/null; then
+              base_commit="$before"
+            else
+              base_commit=$(git rev-parse HEAD~1)
+            fi
+
+            changed_files=$(git diff --name-only "$base_commit" "$sha")
+            apps=$(echo "$changed_files" | grep '^apps/' | cut -d/ -f2 | sort -u | uniq)
+          fi
+
+          valid_apps=()
+          for app in $apps; do
+            pkg_json="apps/$app/package.json"
+            if [ -f "apps/$app/Dockerfile" ] && [ -f "$pkg_json" ]; then
+              if [ "$branch" = "release" ]; then
+                version=$(jq -r .version "$pkg_json")
+              else
+                version="$branch"
+              fi
+              # Sanitize version (for Docker tag compatibility)
+              version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
+              valid_apps+=("{\"app\": \"$app\", \"version\": \"$version\"}")
+            fi
+          done
+
+          if [ ${#valid_apps[@]} -eq 0 ]; then
+            matrix_json="{\"include\": []}"
+          else
+            matrix_json="{\"include\": [$(IFS=,; echo "${valid_apps[*]}")]}"
+          fi
+
+          echo "Generated matrix: $matrix_json"
+          echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
+
+      - name: get node version
+        id: node
+        shell: bash
+        run: |
+          if [ -f ".nvmrc" ]; then
+            NODE_VERSION=$(cat .nvmrc | sed -E 's/^v?//g;t')
+          else
+            NODE_VERSION="24.0.1"
+          fi
+          echo "version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: build & push ${{ matrix.app }}
+    needs:
+      - configure
+    if: needs.configure.outputs.matrix != '{"include":[]}'
+    strategy:
+      matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
+    uses: nick8green/workflows/.github/workflows/docker-build.yml@main
+    with:
+      args: |
+        NODE_VERSION=${{ needs.configure.outputs.node-version }}
+        VERSION=${{ matrix.version }}
+      context: .
+      file: apps/${{ matrix.app }}/Dockerfile
+      reference: ${{ github.repository }}/${{ matrix.app }}
+      registry: ghcr.io
+      tag: ${{ matrix.version }}
+      timeout: 30
+      user: nick8green
+    secrets:
+      password: ${{ secrets.GHCR_PAT }}
+      snyk: ${{ secrets.SNYK_TOKEN }}
