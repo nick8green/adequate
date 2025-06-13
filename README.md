@@ -1,1 +1,3 @@
 # Adequate
+
+## Docs

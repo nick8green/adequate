@@ -1,0 +1,21 @@
+name: build checks for application
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  # run unit tests
+  test:
+    name: 🧪 unit tests
+    uses: nick8green/workflows/.github/workflows/node-unit-test.yml@main
+
+  # build package
+  build:
+    name: 🏗️ build package
+    uses: nick8green/workflows/.github/workflows/node-build.yml@main
+
+  # lint code
+  linting:
+    name: ✏️ lint code
+    uses: nick8green/workflows/.github/workflows/node-inspect.yml@main

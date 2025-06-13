@@ -1,0 +1,26 @@
+:root {
+  --colour-background: #123456;
+  --colour-text: #000000;
+  --colour-primary: #1e90ff;
+  --colour-base-black: #000000;
+  --colour-base-white: #ffffff;
+  --font-body: system-ui;
+  --navigation-background: #123456;
+  --navigation-text: #000000;
+}
+
+[data-theme="dark"] {
+  --colour-background: #121212;
+  --colour-text: #ffffff;
+  --colour-primary: #0051b3;
+}
+
+[data-theme="light"] {
+  --colour-background: #ffffff;
+  --colour-text: #000000;
+}
+
+[data-brand="hoylandinsurance"] {
+  --colour-primary: #0070f3;
+  --font-body: 'Inter', sans-serif;
+}
