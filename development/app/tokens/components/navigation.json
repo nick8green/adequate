@@ -1,8 +1,6 @@
 {
   "navigation": {
-    "primary": {
-      "background": { "value": "{colour.background.primary}" },
-      "text": { "value": "{colour.text}" }
-    }
+      "background": { "value": "{colour.background}", "type": "color" },
+      "text": { "value": "{colour.text}", "type": "color" }
   }
 }

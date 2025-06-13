@@ -1,4 +1,11 @@
 import path from 'path';
+import StyleDictionary from 'style-dictionary';
+import { scopedCssVariables } from './formatters/scopes.js';
+
+StyleDictionary.registerFormat({
+  name: 'custom/css/scoped',
+  format: scopedCssVariables,
+});
 
 const input = process.env.TOKENS_DIR ?? path.join(process.cwd(), 'tokens');
 console.log(`Input path for tokens: ${input}`);
@@ -10,12 +17,12 @@ console.log(`Output path for CSS variables: ${buildPath}`);
 const source = [
   path.join(input, 'global/**/*.json'), // lowest priority
   path.join(input, 'components/**/*.json'),
-  path.join(input, 'themes', '*.json'), // light.json, dark.json
+  path.join(input, 'themes/*.json'), // light.json, dark.json
 ];
 
-if (process.env.THEME) {
-  source.push(path.join(input, 'themes', process.env.THEME, '**/*.json'));
-  console.log(`Using theme: ${process.env.THEME}`);
+if (process.env.BRAND) {
+  source.push(path.join(input, 'themes', process.env.BRAND, '**/*.json'));
+  console.log(`Using theme: ${process.env.BRAND}`);
 }
 
 console.log(
@@ -29,9 +36,19 @@ export default {
       transformGroup: 'css',
       buildPath,
       files: [
+        // {
+        //   destination: 'debug.css',
+        //   format: 'css/variables',
+        //   options: {
+        //     showFileHeader: true,
+        //   },
+        // },
         {
           destination: 'variables.css',
-          format: 'css/variables',
+          format: 'custom/css/scoped',
+          options: {
+            showFileHeader: true,
+          },
         },
       ],
     },

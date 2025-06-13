@@ -5,7 +5,7 @@
     "style-dictionary": "^5.0.0"
   },
   "scripts": {
-    "build": "style-dictionary build --config config.js",
+    "build": "style-dictionary build --config src/config.js",
     "clean": "rm -rf build",
     "prebuild": "yarn clean"
   },

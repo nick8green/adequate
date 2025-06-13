@@ -1,6 +1,6 @@
 {
   "font": {
-    "base": {
+    "body": {
       "value": "system-ui",
       "type": "fontFamily"
     }

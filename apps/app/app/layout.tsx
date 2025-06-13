@@ -16,7 +16,7 @@ import { type FC, type PropsWithChildren, useContext } from 'react';
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   const brand = 'n8g';
-  const darkMode = true; // This can be replaced with a state or context value to toggle dark mode
+  const theme = ''; // This can be set dynamically based on user preference or system settings
   const { lang, navigation, owner, title }: SiteConfig =
     useContext(ConfigContext);
 
@@ -25,7 +25,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
       <head>
         <link rel='stylesheet' href='/styles/theme.css' />
       </head>
-      <body className={`${darkMode ? 'dark' : 'light'}-theme ${brand}-theme`}>
+      <body data-theme={theme} data-brand={brand}>
         <WebVitals />
         <ConfigProvider>
           <Header title={title}>
