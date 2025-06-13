@@ -102,7 +102,7 @@ jobs:
         VERSION=${{ matrix.version }}
       context: .
       file: apps/${{ matrix.app }}/Dockerfile
-      reference: ${{ github.repository_owner }}/${{ matrix.app }}
+      reference: ${{ github.repository }}/${{ matrix.app }}
       registry: ghcr.io
       tag: ${{ matrix.version }}
       timeout: 30
