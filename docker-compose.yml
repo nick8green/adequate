@@ -82,6 +82,23 @@ services:
     ports:
       - '9091:9091'
 
+  docs:
+    command: yarn workspace docs start --host 0.0.0.0 --no-open --poll 2000
+    container_name: adequate-docs
+    environment:
+      LOCAL_DEV: true
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: node:${NODE_VERSION:-24}
+    ports:
+      - '3030:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
 networks:
   admin:
     name: adequate-admin

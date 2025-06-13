@@ -16,8 +16,15 @@ on:
           - all
 
 jobs:
+  # checks:
+  #   uses: ./.github/workflows/checks.yml
+  #   secrets:
+  #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
   configure:
     name: generate docker build matrix
+    # needs: checks
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -109,3 +116,4 @@ jobs:
       user: nick8green
     secrets:
       password: ${{ secrets.GHCR_PAT }}
+      snyk: ${{ secrets.SNYK_TOKEN }}

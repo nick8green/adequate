@@ -1,26 +1,31 @@
-import type * as Preset from '@docusaurus/preset-classic';
-import type {Config} from '@docusaurus/types';
 import {themes as prismThemes} from 'prism-react-renderer';
+import type {Config} from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
   title: 'Adequate',
-  tagline: 'Fits the bill',
+  tagline: 'It does a job!',
   favicon: 'img/favicon.ico',
+
+  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
+  future: {
+    v4: true, // Improve compatibility with the upcoming Docusaurus v4
+  },
 
   // Set the production url of your site here
   url: 'https://nick8green.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/adequate',
+  baseUrl: process.env.LOCAL_DEV ? '/' : '/adequate/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'nick8green', // Usually your GitHub org/user name.
   projectName: 'adequate', // Usually your repo name.
-  deploymentBranch: 'main', // The branch that GitHub pages uses to deploy your site.
-  trailingSlash: false, // Set to true if you want to add a trailing slash to all URLs.
+  deploymentBranch: 'release', // The branch that GitHub pages will deploy from.
+  trailingSlash: false, // Set to true if you want to add a trailing slash to all URLs
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
