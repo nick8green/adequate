@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - release # or 'release' or any other branch you want to trigger the deployment from
-      - docs
+    paths:
+      - 'packages/docs/**'
   workflow_dispatch:
 
 env:
