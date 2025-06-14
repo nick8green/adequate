@@ -1,0 +1,6 @@
+collapsible: false
+label: Quality
+position: 4
+link:
+  type: 'doc'
+  id: 'quality/index'

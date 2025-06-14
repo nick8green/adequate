@@ -1,0 +1,6 @@
+collapsible: false
+label: Admin
+position: 3
+link:
+  type: 'doc'
+  id: 'admin/index'

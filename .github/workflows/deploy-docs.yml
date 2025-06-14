@@ -1,13 +1,22 @@
-name: Deploy Docusaurus to GitHub Pages
+name: Deploy docs
 
 on:
   push:
     branches:
-      - main # or 'release' or any other branch you want to trigger the deployment from
+      - release # or 'release' or any other branch you want to trigger the deployment from
+    paths:
+      - 'packages/docs/**'
   workflow_dispatch:
+
+env:
+  NODE_ENVIRONMENT: prooduction
 
 jobs:
   deploy:
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,22 +24,29 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          registry-url: https://npm.pkg.github.com/
+          scope: '@nick8green'
+
+      - name: Authenticate with GitHub Package Registry
+        run: |
+          echo "@nick8green:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" >> ~/.npmrc
+        env:
+          NPM_CONFIG_USERCONFIG: ${{ github.workspace }}/.npmrc
 
       - name: Install dependencies
-        run: |
-          cd packages/docs
-          npm install
+        run: yarn install
+        env:
+          NPM_CONFIG_USERCONFIG: ${{ github.workspace }}/.npmrc
 
       - name: Build Docusaurus
-        run: |
-          cd packages/docs
-          npm run build
+        run: yarn workspace docs build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/docs/build
 
       - name: Deploy to GitHub Pages
-        run: |
-          cd packages/docs
-          npx docusaurus deploy
-        env:
-          GIT_USER: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/deploy-pages@v4

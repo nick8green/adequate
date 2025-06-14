@@ -1,8 +1,8 @@
 {
   "colour": {
     "background": {
-        "value": "#123456",
-        "type": "color"
+      "value": "#123456",
+      "type": "color"
     },
     "text": { "value": "{colour.base.black}", "type": "color" },
     "primary": { "value": "#1e90ff", "type": "color" },
