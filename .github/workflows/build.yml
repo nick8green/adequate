@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - main
+    paths:
+      - 'apps/**'
   workflow_dispatch:
     inputs:
       mode:
@@ -16,11 +18,11 @@ on:
           - all
 
 jobs:
-  # checks:
-  #   uses: ./.github/workflows/checks.yml
-  #   secrets:
-  #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  checks:
+    uses: ./.github/workflows/checks.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   configure:
     name: generate docker build matrix

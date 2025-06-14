@@ -2,6 +2,11 @@ name: build checks for application
 
 on:
   workflow_call:
+    inputs:
+      scan:
+        description: 'Run security scan'
+        default: true
+        type: boolean
     secrets:
       SNYK_TOKEN:
         required: true
@@ -10,6 +15,11 @@ on:
         required: true
         description: 'GitHub token for actions that require authentication'
   workflow_dispatch:
+    inputs:
+      scan:
+        description: 'Run security scan'
+        default: true
+        type: boolean
 
 jobs:
   # run unit tests
@@ -17,37 +27,42 @@ jobs:
     name: 🧪 unit tests
     uses: nick8green/workflows/.github/workflows/node-unit-test.yml@main
     secrets:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-  # build package
-  build:
-    name: 🏗️ build package
-    uses: nick8green/workflows/.github/workflows/node-build.yml@main
-    secrets:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GH_PACKAGES_TOKEN }}
 
   # lint code
   linting:
     name: ✏️ lint code
     uses: nick8green/workflows/.github/workflows/node-inspect.yml@main
     secrets:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GH_PACKAGES_TOKEN }}
 
   security:
-    name: 🔐 security checks
     runs-on: ubuntu-latest
+    if: ${{ inputs.scan == true }}
+    name: 🔍 check image for vulnerabilities
     steps:
-      - uses: actions/checkout@master
+      - name: 🛎️ checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        continue-on-error: true # To make sure that SARIF upload gets called
+      - name: 🔒 Check if SNYK_TOKEN is set
+        if: ${{ env.SNYK_TOKEN != '' }}
+        run: echo "SNYK_TOKEN is available"
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.snyk }}
+
+      - name: 🕵 Run Snyk to check Docker image for vulnerabilities
+        if: ${{ env.SNYK_TOKEN != '' }}
+        # continue-on-error: true
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.snyk }}
         with:
           args: --sarif-file-output=snyk.sarif
 
-      - name: Upload result to GitHub Code Scanning
+      - name: 💾 Upload result to GitHub Code Scanning
+        if: ${{ env.SNYK_TOKEN != '' }}
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
