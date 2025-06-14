@@ -1,25 +1,10 @@
-yangshun:
-  name: Yangshun Tay
-  title: Ex-Meta Staff Engineer, Co-founder GreatFrontEnd
-  url: https://linkedin.com/in/yangshun
-  image_url: https://github.com/yangshun.png
+nickgreen:
+  name: Nick Green
+  title: Former Principal Engineer in Test at Flutter, Creator of Adequate
+  url: https://linkedin.com/in/nick8green
+  image_url: https://media.licdn.com/dms/image/v2/C4D03AQH_Li5Krktt0Q/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1621460651331?e=1755129600&v=beta&t=gO5EuaJSzSMnDURlFL5XyOk8Ut_cc7S48ybcf1pu3mE
   page: true
   socials:
-    x: yangshunz
-    linkedin: yangshun
-    github: yangshun
-    newsletter: https://www.greatfrontend.com
-
-slorber:
-  name: Sébastien Lorber
-  title: Docusaurus maintainer
-  url: https://sebastienlorber.com
-  image_url: https://github.com/slorber.png
-  page:
-    # customize the url of the author page at /blog/authors/<permalink>
-    permalink: '/all-sebastien-lorber-articles'
-  socials:
-    x: sebastienlorber
-    linkedin: sebastienlorber
-    github: slorber
-    newsletter: https://thisweekinreact.com
+    x: nickgreeniho
+    linkedin: nick8green
+    github: nick8green

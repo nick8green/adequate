@@ -1,8 +1,6 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+import type {Config} from '@docusaurus/types';
+import {themes as prismThemes} from 'prism-react-renderer';
 
 const config: Config = {
   title: 'Adequate',
@@ -15,10 +13,10 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://nick8green.github.io',
+  url: process.env.NODE_ENV !== 'production' ? 'http://localhost:3030' : 'https://nick8green.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: process.env.LOCAL_DEV ? '/' : '/adequate/',
+  baseUrl: process.env.NODE_ENV !== 'production' ? '/' : '/adequate/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -38,16 +36,24 @@ const config: Config = {
     locales: ['en'],
   },
 
+  plugins: [
+    // Docs from `apps/app`
+    // [
+    //   '@docusaurus/plugin-content-docs',
+    //   {
+    //     id: 'app-docs',
+    //     path: '../../apps/app/docs',
+    //     routeBasePath: 'docs/app', // Appears under /app
+    //   },
+    // ],
+  ],
+
   presets: [
     [
       'classic',
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         blog: {
           showReadingTime: true,
@@ -55,10 +61,6 @@ const config: Config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -75,21 +77,24 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'My Site',
-      logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
-      },
+      title: 'Adequate by Nick8Green',
+      // logo: {
+      //   alt: 'My Site Logo',
+      //   src: 'img/logo.svg',
+      // },
       items: [
         {
+          type: 'docsVersionDropdown',
+        },
+        {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'sidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Docs',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/nick8green/adequate',
           label: 'GitHub',
           position: 'right',
         },
@@ -99,11 +104,23 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Quick Links',
           items: [
             {
-              label: 'Tutorial',
-              to: '/docs/intro',
+              label: 'Blog',
+              to: '/blog',
+            },
+            {
+              label: 'Adequate App',
+              to: '/docs/app',
+            },
+            {
+              label: 'Adequate Service',
+              to: '/docs/service',
+            },
+            {
+              label: 'Adequate Admin',
+              to: '/docs/admin',
             },
           ],
         },
@@ -111,34 +128,46 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'x',
+              href: "https://x.com/nicogreeniho",
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              label: 'linkedin',
+              href: "https://www.linkedin.com/in/nick8green/",
             },
             {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
+              label: 'github',
+              href: "https://github.com/nick8green/",
             },
+            // {
+            //   label: 'Stack Overflow',
+            //   href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+            // },
+            // {
+            //   label: 'Discord',
+            //   href: 'https://discordapp.com/invite/docusaurus',
+            // },
           ],
         },
         {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
+              label: 'GitHub',
+              href: 'https://github.com/nick8green/adequate',
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              label: 'Feature Request',
+              to: 'https://github.com/nick8green/adequate/issues/new?template=feature_request.yml',
+            },
+            {
+              label: 'Report an Issue',
+              to: 'https://github.com/nick8green/adequate/issues/new?template=bug_report.yml',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Adequate by Nick8Green. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

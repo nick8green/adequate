@@ -22,9 +22,6 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <html lang={lang}>
-      <head>
-        <link rel='stylesheet' href='/styles/theme.css' />
-      </head>
       <body data-theme={theme} data-brand={brand}>
         <WebVitals />
         <ConfigProvider>

@@ -9,6 +9,7 @@
   "scripts": {
     "build": "lerna run build",
     "check": "prettier --check .",
+    "checks": "yarn format && yarn lint:fix; yarn test --passWithNoTests",
     "format": "prettier --write .",
     "lint": "eslint . --cache --cache-location .eslintcache --ext .ts,.tsx,.js,.jsx apps packages",
     "lint:check": "yarn lint --max-warnings 0",

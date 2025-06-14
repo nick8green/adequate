@@ -1,0 +1,6 @@
+collapsible: false
+label: App
+position: 2
+link:
+  type: 'doc'
+  id: 'app/index'

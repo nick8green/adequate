@@ -116,4 +116,4 @@ jobs:
       user: nick8green
     secrets:
       password: ${{ secrets.GHCR_PAT }}
-      snyk: ${{ secrets.SNYK_TOKEN }}
+      # snyk: ${{ secrets.SNYK_TOKEN }}
