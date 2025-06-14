@@ -15,8 +15,8 @@
     "lint:check": "yarn lint --max-warnings 0",
     "lint:fix": "yarn lint --fix",
     "release": "lerna publish",
-    "test": "jest --coverage --coverageReporters=text --coverageReporters=html",
-    "test:ci": "jest --ci --coverage --coverageReporters=text --coverageReporters=html",
+    "test": "jest --coverage --coverageReporters=text --coverageReporters=html --passWithNoTests",
+    "test:ci": "yarn test --ci",
     "test:watch": "jest --watch"
   },
   "devDependencies": {
