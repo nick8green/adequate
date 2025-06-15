@@ -16,7 +16,7 @@ on:
         type: boolean
     secrets:
       SNYK_TOKEN:
-        required: true
+        required: false
         description: 'Snyk API token for security checks'
       GH_TOKEN:
         required: true
