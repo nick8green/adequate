@@ -119,3 +119,4 @@ jobs:
     secrets:
       password: ${{ secrets.GHCR_PAT }}
       # snyk: ${{ secrets.SNYK_TOKEN }}
+      docker: ${{ secrets.DOCKER_PAT }}
