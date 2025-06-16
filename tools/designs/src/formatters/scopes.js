@@ -9,6 +9,7 @@ export const scopedCssVariables = (config) => {
     throw new Error('Formatter received undefined dictionary');
   }
 
+  /* eslint-disable no-console */
   console.log(
     '=================================================================',
   );
@@ -19,11 +20,15 @@ export const scopedCssVariables = (config) => {
   console.log(
     '=================================================================',
   );
+  /* eslint-enable no-console */
 
   allTokens.forEach((prop) => {
+    /* eslint-disable no-console */
     console.log(
       `Processing token: ${prop.name} (${prop.value}) from ${prop.filePath}`,
     );
+    /* eslint-enable no-console */
+
     const { filePath, value, name } = prop;
     const cssVar = `  --${name.replace('-light', '')}: ${value};`;
 
