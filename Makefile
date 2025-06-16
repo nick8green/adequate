@@ -2,6 +2,10 @@ build-app:
 	@echo "Building the application..."
 	docker build -t app:testing -f apps/app/Dockerfile --build-arg NODE_VERSION=`cat .nvmrc` .
 
+build-app-and-serve: build-app
+	@echo "Serving the application..."
+	docker run -it --rm -v `pwd`/development/app/tokens:/tokens -p 3000:3000 --name app app:testing sh
+
 dev-config:
 	@echo "Setting up development environment..."
 	@echo "NODE_VERSION=$(cat .nvmrc)" > .env.local

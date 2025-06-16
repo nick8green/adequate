@@ -23,6 +23,7 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
       # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   configure:
     name: generate docker build matrix
@@ -100,6 +101,7 @@ jobs:
   build:
     name: build & push ${{ matrix.app }}
     needs:
+      - checks
       - configure
     if: needs.configure.outputs.matrix != '{"include":[]}'
     strategy:

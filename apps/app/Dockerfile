@@ -1,12 +1,13 @@
 ARG NODE_VERSION=24
 
-FROM ghcr.io/nick8green/node:${NODE_VERSION} AS app-builder
+FROM ghcr.io/nick8green/node:${NODE_VERSION} AS builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN yarn install && \
+RUN yarn config set network-timeout 600000 && \
+    yarn install --frozen-lockfile && \
     yarn workspace app build && \
     yarn --frozen-lockfile --production
 
@@ -15,6 +16,7 @@ FROM ghcr.io/nick8green/node:${NODE_VERSION} AS token-builder
 WORKDIR /app
 
 COPY . .
+COPY --from=builder /app/node_modules /app/node_modules
 
 RUN yarn workspace docs install --frozen-lockfile --production
 
@@ -35,12 +37,11 @@ WORKDIR /app
 ENV TOKENS_DIR=/tokens
 ENV STYLES_DIR=/app/public/styles
 
-COPY --from=app-builder /app/apps/app/.next .next
-COPY --from=app-builder /app/apps/app/public public
-COPY --from=app-builder /app/node_modules node_modules
+COPY --from=builder /app/apps/app/.next .next
+COPY --from=builder /app/apps/app/public public
+COPY --from=builder /app/node_modules node_modules
 
-COPY --from=token-builder /app/tools/designs/src /designs
-COPY --from=token-builder /app/node_modules /designs/node_modules
+COPY --from=builder /app/tools/designs/src /app/designs
 
 COPY apps/app/docker-entrypoint.sh /
 
