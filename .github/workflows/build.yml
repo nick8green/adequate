@@ -21,7 +21,7 @@ jobs:
   checks:
     uses: ./.github/workflows/checks.yml
     secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
       # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   configure:

@@ -25,6 +25,7 @@ module.exports = defineConfig([
     './**/.next/*',
     'eslint.config.cjs',
     './**/jest.config.cjs',
+    './**/coverage/**',
   ]),
   {
     languageOptions: {
