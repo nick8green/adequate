@@ -4,7 +4,7 @@ build-app:
 
 build-app-and-serve: build-app
 	@echo "Serving the application..."
-	docker run -it --rm -v `pwd`/development/app/tokens:/tokens -p 3000:3000 --name app app:testing sh
+	docker run -it --rm -v `pwd`/development/app/tokens:/tokens -p 3000:3000 --name app app:testing
 
 dev-config:
 	@echo "Setting up development environment..."
