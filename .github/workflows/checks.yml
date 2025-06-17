@@ -16,17 +16,28 @@ on:
         type: boolean
     secrets:
       SNYK_TOKEN:
-        required: true
+        required: false
         description: 'Snyk API token for security checks'
       GH_TOKEN:
         required: true
         description: 'GitHub token for actions that require authentication'
+      SONAR_TOKEN:
+        required: false
+        description: 'SonarQube token for code quality checks'
   workflow_dispatch:
     inputs:
       scan:
         description: 'Run security scan'
         default: true
         type: boolean
+  pull_request:
+    paths:
+      - '!apps/**'
+      - '.github/workflows/checks.yml'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   # run unit tests
@@ -57,7 +68,7 @@ jobs:
         if: ${{ env.SNYK_TOKEN != '' }}
         run: echo "SNYK_TOKEN is available"
         env:
-          SNYK_TOKEN: ${{ secrets.snyk }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: 🕵 Run Snyk to check Docker image for vulnerabilities
         if: ${{ env.SNYK_TOKEN != '' }}
@@ -73,3 +84,22 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
+
+  sonarqube:
+    name: ⌨️ SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔒 Check if SONAR_TOKEN is set
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: echo "SNYK_TOKEN is available"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

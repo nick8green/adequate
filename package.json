@@ -11,7 +11,7 @@
     "check": "prettier --check .",
     "checks": "yarn format && yarn lint:fix; yarn test --passWithNoTests",
     "format": "prettier --write .",
-    "lint": "eslint . --cache --cache-location .eslintcache --ext .ts,.tsx,.js,.jsx apps packages",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --no-cache",
     "lint:check": "yarn lint --max-warnings 0",
     "lint:fix": "yarn lint --fix",
     "release": "lerna publish",
@@ -20,6 +20,10 @@
     "test:watch": "jest --watch"
   },
   "devDependencies": {
+    "@eslint/compat": "1.3.0",
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "9.29.0",
+    "@next/eslint-plugin-next": "15.3.3",
     "@testing-library/jest-dom": "6.6.3",
     "@types/jest": "30.0.0",
     "@types/react": "19.1.8",
@@ -35,12 +39,14 @@
     "eslint-plugin-prettier": "5.4.1",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-simple-import-sort": "12.1.1",
+    "globals": "16.2.0",
     "jest": "30.0.0",
     "jest-environment-jsdom": "30.0.0",
     "lerna": "8.2.2",
     "prettier": "3.5.3",
     "ts-jest": "29.4.0",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.34.0"
   },
   "dependencies": {
     "@nick8green/components": "1.0.0",
@@ -53,5 +59,9 @@
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
-  "type": "module"
+  "type": "module",
+  "resolutions": {
+    "brace-expansion": "^1.1.12",
+    "webpack-dev-server": "^5.2.1"
+  }
 }

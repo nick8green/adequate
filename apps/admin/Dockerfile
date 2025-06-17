@@ -24,7 +24,10 @@ COPY --from=builder /app/apps/app/public public
 COPY --from=builder /app/apps/app/package.json .
 COPY --from=builder /app/node_modules node_modules
 
-RUN addgroup --system app && adduser --system --ingroup app app
+RUN addgroup --system app && \
+    adduser --disabled-password --gecos '' --system --ingroup app app && \
+    rm -rf /tmp/* /var/cache/apk/*
+
 USER app
 
 EXPOSE 3000

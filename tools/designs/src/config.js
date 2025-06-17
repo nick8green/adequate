@@ -9,11 +9,11 @@ StyleDictionary.registerFormat({
 });
 
 const input = process.env.TOKENS_DIR ?? path.join(process.cwd(), 'tokens');
-console.log(`Input path for tokens: ${input}`);
+console.log(`Input path for tokens: ${input}`); // eslint-disable-line no-console
 const buildPath = path.resolve(
   process.env.STYLES_DIR ?? path.join(process.cwd(), 'build'),
 );
-console.log(`Output path for CSS variables: ${buildPath}`);
+console.log(`Output path for CSS variables: ${buildPath}`); // eslint-disable-line no-console
 
 const source = [
   path.join(input, 'global/**/*.json'), // lowest priority
@@ -23,12 +23,14 @@ const source = [
 
 if (process.env.BRAND) {
   source.push(path.join(input, 'themes', process.env.BRAND, '**/*.json'));
-  console.log(`Using theme: ${process.env.BRAND}`);
+  console.log(`Using theme: ${process.env.BRAND}`); // eslint-disable-line no-console
 }
 
+/* eslint-disable no-console */
 console.log(
   `Source files:\n${source.map((file, i) => `    ${i + 1}: ${path.resolve(file)}`).join('\n')}`,
 );
+/* eslint-enable no-console */
 
 const config = {
   source,
