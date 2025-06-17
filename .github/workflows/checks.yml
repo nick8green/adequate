@@ -39,6 +39,10 @@ on:
       - synchronize
       - reopened
 
+concurrency:
+  group: adequate-checks
+  cancel-in-progress: true
+
 jobs:
   # run unit tests
   test:
