@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'apps/**'
+      - .github/workflows/build.yml
   workflow_dispatch:
     inputs:
       mode:
@@ -17,9 +18,14 @@ on:
           - changed
           - all
 
+concurrency:
+  group: adequate-docker-builds
+  cancel-in-progress: true
+
 jobs:
   checks:
     uses: ./.github/workflows/checks.yml
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     secrets:
       GH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
       # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

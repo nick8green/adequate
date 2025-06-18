@@ -22,11 +22,6 @@ RUN yarn workspace docs install --frozen-lockfile --production
 
 FROM node:${NODE_VERSION}-alpine
 
-LABEL org.opencontainers.image.authors="Nick Green <nick@nick8green.co.uk>"
-LABEL org.opencontainers.image.description="Adequate App is a web application that provides a user interface for the adequate web system."
-LABEL org.opencontainers.image.source=https://github.com/nick8green/adequate/apps/app
-LABEL org.opencontainers.image.title="Adequate App"
-
 ARG VERSION=development
 
 ENV VERSION=${VERSION}

@@ -3,9 +3,17 @@ on:
   schedule:
     - cron: '0 3 * * 0'
   workflow_dispatch:
-  push:
-    branches:
-      - update-dockerfiles
+    inputs:
+      storage-days:
+        default: '30'
+        description: 'Number of days to keep images'
+        required: false
+        type: string
+      successful-workflows:
+        default: '10'
+        description: 'Number of successful workflow runs to keep'
+        required: false
+        type: string
 
 jobs:
   images:
@@ -14,6 +22,8 @@ jobs:
       contents: read
       packages: write
     uses: nick8green/workflows/.github/workflows/docker-cleanup.yml@main
+    with:
+      days: ${{ inputs.storage-days || '30' }}
     secrets:
       token: ${{ secrets.GHCR_PAT }}
 
@@ -23,5 +33,7 @@ jobs:
       contents: read
       actions: write
     uses: nick8green/workflows/.github/workflows/workflow-cleanup.yml@main
+    with:
+      keep-successful: ${{ inputs.successful-workflows || '10' }}
     secrets:
       token: ${{ secrets.GH_WF_PAT }}
