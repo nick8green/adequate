@@ -1,6 +1,6 @@
 'use client';
-import '../public/styles/variables.css';
-import '../public/styles/base.css';
+import '../../public/styles/variables.css';
+import '../../public/styles/base.css';
 import '@nick8green/components/dist/index.css';
 
 import WebVitals from '@app/components/webVitals';

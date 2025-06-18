@@ -1,0 +1,25 @@
+name: create final PR to main
+on:
+  push:
+    branches:
+      - 'release*'
+
+jobs:
+  create-pr:
+    name: 📨 Create PR to main
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR
+        uses: devops-infra/action-pull-request@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          label: automatic
+          source_branch: release
+          target_branch: main
+          title: Latest Release
+          body: '**Automated pull request**'
+          draft: false
+          get_diff: true

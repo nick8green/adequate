@@ -23,17 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
-    uses: ./.github/workflows/checks.yml
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    secrets:
-      GH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
-      # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   configure:
     name: generate docker build matrix
-    # needs: checks
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -107,7 +98,6 @@ jobs:
   build:
     name: build & push ${{ matrix.app }}
     needs:
-      - checks
       - configure
     if: needs.configure.outputs.matrix != '{"include":[]}'
     strategy:
