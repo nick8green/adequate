@@ -13,7 +13,6 @@
 .env*
 .github
 .nvmrc
-./**/Dockerfile
 Makefile
 docker*
 eslint*

@@ -6,12 +6,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install --frozen-lockfile --production && \
+RUN yarn install --frozen-lockfile --ignore-scripts --production && \
     yarn workspace app build
 
-FROM ghcr.io/nick8green/node:${NODE_VERSION} AS token-builder
-
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-alpine AS production
 
 ARG VERSION=development
 

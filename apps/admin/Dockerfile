@@ -6,10 +6,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install --frozen-lockfile --production && \
+RUN yarn install --frozen-lockfile --ignore-scripts --production && \
     yarn workspace admin build
 
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-alpine AS production
 
 ARG VERSION=development
 
@@ -20,7 +20,6 @@ WORKDIR /app
 
 COPY --from=builder /app/apps/admin/.next .next
 COPY --from=builder /app/apps/admin/public public
-COPY --from=builder /app/apps/admin/package.json .
 COPY --from=builder /app/node_modules node_modules
 
 RUN addgroup --system app && \

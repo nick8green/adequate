@@ -8,17 +8,17 @@ let rateLimit:
   | ReturnType<typeof getStaticRateLimiter>
   | null = null;
 
-export const getLimiter = (requests: number = 100, seconds: number = 600) => {
+export const getLimiter = () => {
+  const r = parseInt(process.env.REQUEST_LIMIT ?? '100');
+  const t = parseInt(process.env.REQUEST_LIMIT_TIMEFRAME ?? '600');
   if (
     !rateLimit &&
     process.env.REDIS_REST_URL &&
     process.env.REDIS_REST_TOKEN
   ) {
-    rateLimit = getDistrubutedRateLimiter(requests, seconds);
+    rateLimit = getDistrubutedRateLimiter(r, t);
   }
-  if (!rateLimit) {
-    rateLimit = getStaticRateLimiter(requests, seconds);
-  }
+  rateLimit ??= getStaticRateLimiter(r, t);
   return rateLimit;
 };
 
