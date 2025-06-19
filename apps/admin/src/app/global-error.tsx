@@ -14,7 +14,7 @@ type GlobalErrorProps = {
 // It is also used to catch errors in the app router.
 // It is used to catch errors in the app router.
 
-export const GlobalError: FC = ({ error, reset }: GlobalErrorProps) => {
+export const GlobalError: FC<GlobalErrorProps> = ({ error, reset }) => {
   console.error('Global error caught:', error); // eslint-disable-line no-console
   return (
     <html>

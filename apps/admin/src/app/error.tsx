@@ -14,7 +14,7 @@ type ErrorProps = {
 // It is also used to catch errors in the app router.
 // It is used to catch errors in the app router.
 
-export const Error: FC = ({ error, reset }: ErrorProps) => {
+export const Error: FC<ErrorProps> = ({ error, reset }) => {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error); // eslint-disable-line no-console

@@ -76,7 +76,7 @@ jobs:
       network: ${{ secrets.DOCKER_NETWORK }}
       user: ${{ secrets.DEPLOY_USER }}
       token: ${{ secrets.DEPLOY_KEY }}
-  
+
   create-pr:
     name: 📨 create pr to main
     needs:

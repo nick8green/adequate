@@ -1,3 +1,8 @@
+build-admin:
+	@echo "Building the application..."
+	docker rmi admin:testing || true
+	docker build -t admin:testing -f apps/admin/Dockerfile --build-arg NODE_VERSION=`cat .nvmrc` --debug .
+
 build-app:
 	@echo "Building the application..."
 	docker rmi app:testing || true

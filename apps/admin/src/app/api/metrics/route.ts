@@ -1,14 +1,10 @@
-// import { NextResponse as Response } from 'next/server';
-// import client from '@app/utilities/prometheus';
+import { NextResponse as Response } from 'next/server';
 
-// // Export a middleware function to expose a /metrics endpoint
-// export const GET = async (): Promise<Response> => {
-//   return new Response(await client.metrics(), {
-//     headers: {
-//       'Cache-Control': 'no-store',
-//       'Content-Type': client.contentType,
-//     },
-//   });
-// };
+// Export a middleware function to expose a /metrics endpoint
+export const GET = async (): Promise<Response> => {
+  return new Response(
+    'metrics endpoint is not available in this environment yet.',
+  );
+};
 
-// export const revalidate = 0;
+export const revalidate = 0;

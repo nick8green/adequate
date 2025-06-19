@@ -15,7 +15,7 @@ type Switch = {
   value: string;
 };
 
-export const handler = async (): Promise<Response> => {
+const handler = async (): Promise<Response> => {
   let code = 200;
   const switches: Switch[] = [];
 
@@ -56,7 +56,7 @@ export const handler = async (): Promise<Response> => {
 
 export const GET = handler;
 
-export const checkBackend = async (): Promise<Adapter> => {
+const checkBackend = async (): Promise<Adapter> => {
   if (!process.env.BACKEND_URL) {
     return {
       description: 'no system specified',
@@ -85,13 +85,13 @@ export const checkBackend = async (): Promise<Adapter> => {
   return { status, description, name };
 };
 
-export const getAdapters = async (): Promise<Adapters> => {
+const getAdapters = async (): Promise<Adapters> => {
   return {
     backend: await checkBackend(),
   };
 };
 
-export const getSerivceStatus = async (
+const getSerivceStatus = async (
   adapters: Adapters,
 ): Promise<[ServiceStatus, string]> => {
   let status: ServiceStatus = 'UP';
@@ -127,7 +127,7 @@ export const getSerivceStatus = async (
   ];
 };
 
-export const getSwitches = async (): Promise<Switch[]> => {
+const getSwitches = async (): Promise<Switch[]> => {
   const switches: Switch[] = [];
   const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
@@ -142,7 +142,7 @@ export const getSwitches = async (): Promise<Switch[]> => {
   return switches;
 };
 
-export const getUptime = (): [string, string, number] => {
+const getUptime = (): [string, string, number] => {
   const now = new Date();
   const uptime = process.uptime();
   const start = new Date(now.getTime() - uptime * 1000);
