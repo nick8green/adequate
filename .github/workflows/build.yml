@@ -4,8 +4,8 @@ on:
   push:
     branches-ignore:
       - main
+      - release
     paths:
-      - 'apps/**'
       - .github/workflows/build.yml
   workflow_dispatch:
     inputs:
@@ -17,6 +17,15 @@ on:
         options:
           - changed
           - all
+  pull_request:
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - '.github/workflows/checks.yml'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 concurrency:
   group: adequate-docker-builds

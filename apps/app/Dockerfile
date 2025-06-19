@@ -6,19 +6,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn config set network-timeout 600000 && \
-    yarn install --frozen-lockfile && \
-    yarn workspace app build && \
-    yarn --frozen-lockfile --production
+RUN yarn install --frozen-lockfile --production && \
+    yarn workspace app build
 
 FROM ghcr.io/nick8green/node:${NODE_VERSION} AS token-builder
-
-WORKDIR /app
-
-COPY . .
-COPY --from=builder /app/node_modules /app/node_modules
-
-RUN yarn workspace docs install --frozen-lockfile --production
 
 FROM node:${NODE_VERSION}-alpine
 

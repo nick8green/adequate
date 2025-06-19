@@ -6,9 +6,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install && \
-    yarn workspace app build && \
-    yarn --frozen-lockfile --production
+RUN yarn install --frozen-lockfile --production && \
+    yarn workspace admin build
 
 FROM node:${NODE_VERSION}-alpine
 
@@ -19,9 +18,9 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /app/apps/app/.next .next
-COPY --from=builder /app/apps/app/public public
-COPY --from=builder /app/apps/app/package.json .
+COPY --from=builder /app/apps/admin/.next .next
+COPY --from=builder /app/apps/admin/public public
+COPY --from=builder /app/apps/admin/package.json .
 COPY --from=builder /app/node_modules node_modules
 
 RUN addgroup --system app && \
