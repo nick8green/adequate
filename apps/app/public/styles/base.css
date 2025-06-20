@@ -1,8 +1,8 @@
 /* Styling */
 
 html {
-  background: var(--colour-primary-background) red;
-  color: var(--colour-primary-text) blue;
+  background: var(--colour-primary-background, red);
+  color: var(--colour-primary-text, blue);
   font-family: var(
     --font,
     'Lucida Sans',

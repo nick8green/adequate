@@ -1,5 +1,3 @@
-import '../../public/global.css';
-
 import type { FC, PropsWithChildren } from 'react';
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
