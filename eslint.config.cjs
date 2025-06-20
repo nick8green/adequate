@@ -29,16 +29,13 @@ module.exports = defineConfig([
   ]),
   {
     languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-
+      globals: Object.fromEntries(
+        Object.entries({
+          ...globals.browser,
+          ...globals.node,
+        }).map(([key, value]) => [key.trim(), value]),
+      ),
       parser: tsParser,
-
-      // parserOptions: {
-      //     project: "./tsconfig.json",
-      // },
     },
 
     extends: fixupConfigRules(

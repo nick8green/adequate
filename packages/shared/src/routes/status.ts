@@ -15,7 +15,7 @@ type Switch = {
   value: string;
 };
 
-export const handler = async (): Promise<Response> => {
+const handler = async (): Promise<Response> => {
   let code = 200;
   const switches: Switch[] = [];
 
@@ -27,7 +27,7 @@ export const handler = async (): Promise<Response> => {
     startTime: new Date().toISOString(),
     switches,
     uptime: 0,
-    version: process.env.VERSION || 'development',
+    version: process.env.VERSION ?? 'development',
   };
 
   try {
@@ -46,15 +46,14 @@ export const handler = async (): Promise<Response> => {
   } catch (e) {
     console.error('error fetching status:', e); // eslint-disable-line no-console
     code = 500;
+    response.status = 'DOWN';
+    response.description = 'thre is an issue with the application';
   }
-
   return new Response(JSON.stringify(response), {
     headers: { 'Content-Type': 'application/json' },
     status: code,
   });
 };
-
-export const GET = handler;
 
 export const checkBackend = async (): Promise<Adapter> => {
   if (!process.env.BACKEND_URL) {
@@ -149,3 +148,5 @@ export const getUptime = (): [string, string, number] => {
 
   return [start.toISOString(), now.toISOString(), uptime];
 };
+
+export default handler;

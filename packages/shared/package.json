@@ -1,5 +1,9 @@
 {
   "name": "shared",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@upstash/ratelimit": "^2.0.5",
+    "@upstash/redis": "^1.35.0"
+  }
 }

@@ -1,4 +1,4 @@
-import '../public/global.css';
+import '../../public/global.css';
 
 import type { FC, PropsWithChildren } from 'react';
 
