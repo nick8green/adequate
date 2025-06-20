@@ -1,3 +1,10 @@
+add-slack-contact-point:
+	@echo "Adding Slack contact point..."
+	curl -X POST http://localhost:8080/api/v1/provisioning/contact-points \
+		-H "Authorization: Bearer $$API_KEY" \
+		-H "Content-Type: application/json" \
+		-d @development/grafana/slack-contacts-point.json
+
 build-admin:
 	@echo "Building the application..."
 	docker rmi admin:testing || true
