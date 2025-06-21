@@ -1,6 +1,12 @@
-const base = require('./jest.config.base.cjs');
+const { displayName } = require('./apps/admin/jest.config.cjs');
 
 module.exports = {
-  ...base,
-  projects: ['<rootDir>/apps/*', '<rootDir>/packages/*', '<rootDir>/tools/*'],
+  displayName: 'adequate',
+  projects: [
+    '<rootDir>/apps/app',
+    '<rootDir>/apps/admin',
+    '<rootDir>/apps/service',
+    '<rootDir>/packages/shared',
+    '<rootDir>/packages/docs',
+  ],
 };
