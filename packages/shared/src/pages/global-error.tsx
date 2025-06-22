@@ -1,5 +1,3 @@
-'use client';
-
 import { FC } from 'react';
 
 type GlobalErrorProps = {
@@ -14,10 +12,10 @@ type GlobalErrorProps = {
 // It is also used to catch errors in the app router.
 // It is used to catch errors in the app router.
 
-export const GlobalError: FC<GlobalErrorProps> = ({ error, reset }) => {
+const GlobalError: FC<GlobalErrorProps> = ({ error, reset }) => {
   console.error('Global error caught:', error); // eslint-disable-line no-console
   return (
-    <html>
+    <html lang='en'>
       <body>
         <h2>Something went wrong!</h2>
         <button onClick={() => reset()}>Try again</button>

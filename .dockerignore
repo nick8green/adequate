@@ -9,5 +9,16 @@
 ./**/playwright
 ./**/*.spec.*
 ./**/*.test.*
-
+.prettier*
+.env*
+.github
+.nvmrc
+Makefile
+docker*
+eslint*
+jest*
+lerna.json
+sonar-project.properties
 development
+./**/jest*
+packages/docs/.docusaurus
