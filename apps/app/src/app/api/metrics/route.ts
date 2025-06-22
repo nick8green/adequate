@@ -40,13 +40,7 @@ export const POST = withMetrics(async (req: Request) => {
     return Response.json({ error: 'no metric found' }, { status: 400 });
   }
 
-  const metric = supportedMetrics[key];
-
-  switch (name) {
-    default:
-      metric.reportToPrometheus(body);
-      break;
-  }
+  supportedMetrics[key].reportToPrometheus(body);
 
   return Response.json({ success: true });
 }, '/metrics');
