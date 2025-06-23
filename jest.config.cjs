@@ -11,6 +11,8 @@ module.exports = {
   ],
   reporters: [
     'default',
+    'summary',
+    ['github-actions', { silent: false }],
     [
       'jest-junit',
       {

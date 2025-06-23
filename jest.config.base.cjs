@@ -8,7 +8,10 @@ const baseConfig = {
     },
   },
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: './tsconfig.jest.json' }],
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      { tsconfig: './tsconfig.jest.json', useESM: true },
+    ],
   },
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
@@ -23,6 +26,7 @@ const baseConfig = {
     '^@service/(.*)$': '<rootDir>/apps/service/src/$1',
   },
   reporters: ['default'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx', '.mts'],
 };
 
 module.exports = baseConfig;

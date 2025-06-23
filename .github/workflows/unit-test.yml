@@ -72,36 +72,49 @@ jobs:
         with:
           path: coverage-artifacts
 
-      - name: merge coverage files
+      - name: list downloaded artifacts (🧾 debug)
         run: |
+          echo "Downloaded coverage artifacts:"
+          find coverage-artifacts -type f -exec ls -lh {} \;
+
+      - name: merge coverage files with lcov-result-merger
+        run: |
+          yarn init -y
+          yarn add --dev lcov-result-merger nyc istanbul-reports
+
           mkdir -p merged-coverage
-          lcovFiles=$(find coverage-artifacts -name 'lcov.info')
-          if [ -z "$lcovFiles" ]; then
-          echo "⚠️ No coverage files found. Skipping merge."
-          exit 0
-          fi
-          cat $lcovFiles > merged-coverage/lcov.info
+
+          echo "Merging LCOV files..."
+          yarn lcov-result-merger "coverage-artifacts/**/lcov.info" > merged-coverage/lcov.info || {
+            echo "❌ Failed to merge coverage"
+            exit 1
+          }
+
+          echo "Merged LCOV file preview:"
+          head -n 20 merged-coverage/lcov.info || true
 
       - name: generate merged html report
         run: |
-          yarn init -y
-          yarn add --dev nyc istanbul-reports lcov-result-merger
-          ls -la node_modules/.bin
-          yarn lcov-result-merger "coverage-artifacts/**/lcov.info" | tee merged-coverage/lcov.info
-          # npx nyc report --reporter=html --reporter=json-summary --report-dir=merged-coverage/html --temp-directory=merged-coverage
+          npx nyc report \
+            --reporter=html \
+            --reporter=json-summary \
+            --report-dir=merged-coverage/html \
+            --temp-directory=merged-coverage
 
-      # - name: upload merged coverage report
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: merged-coverage-report
-      #     path: merged-coverage/html
-
-      - name: upload to codecov
-        uses: codecov/codecov-action@v4
+      - name: upload merged coverage report
+        uses: actions/upload-artifact@v4
         with:
-          files: merged-coverage/lcov.info
-          flags: merged
-          name: merged-report
+          name: merged-coverage-report
+          path: |
+            merged-coverage/html
+            merged-coverage/lcov.info
+
+      # - name: upload to codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     files: merged-coverage/lcov.info
+      #     flags: merged
+      #     name: merged-report
 
   notify:
     needs: test
@@ -128,17 +141,17 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Download merged coverage
+      - name: download merged coverage
         uses: actions/download-artifact@v4
         with:
-          name: merged-coverage
+          name: merged-coverage-report
           path: merged-coverage
 
       - run: |
           echo "Merged coverage report downloaded:"
           ls -la merged-coverage
 
-      - name: Update Coverage Badge
+      - name: update coverage badge
         run: node scripts/update-coverage-badge.js
         env:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}

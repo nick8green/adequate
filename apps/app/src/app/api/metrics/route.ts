@@ -1,13 +1,13 @@
-import * as httpRequestCounter from '@app/utilities/metrics/httpRequestCount';
-import * as cls from '@app/utilities/metrics/webVitals/cumulativeLayoutShift';
-import * as fcp from '@app/utilities/metrics/webVitals/firstContentfulPaint';
-import * as fid from '@app/utilities/metrics/webVitals/firstInputDelay';
-import * as inp from '@app/utilities/metrics/webVitals/interactionToNextPaint';
-import * as lcp from '@app/utilities/metrics/webVitals/largestContentfulPaint';
-import * as ttfb from '@app/utilities/metrics/webVitals/timeToFirstBite';
 import { SupportedMetrics } from '@shared/metrics';
 import collectMetrics from '@shared/metrics/collect';
+import * as httpRequestCounter from '@shared/metrics/httpRequestCount';
 import serveMetrics from '@shared/metrics/serve';
+import * as cls from '@shared/metrics/webVitals/cumulativeLayoutShift';
+import * as fcp from '@shared/metrics/webVitals/firstContentfulPaint';
+import * as fid from '@shared/metrics/webVitals/firstInputDelay';
+import * as inp from '@shared/metrics/webVitals/interactionToNextPaint';
+import * as lcp from '@shared/metrics/webVitals/largestContentfulPaint';
+import * as ttfb from '@shared/metrics/webVitals/timeToFirstBite';
 
 const supportedMetrics: SupportedMetrics = {
   cls,

@@ -1,12 +1,15 @@
 const base = require('../../jest.config.base.cjs');
 const path = require('path');
 
-const directory = path.dirname(__dirname);
+const pkg = path.basename(__dirname);
 
 module.exports = {
   ...base,
-  displayName: `adequate-${directory}`,
+  displayName: `adequate-${pkg}`,
   rootDir: '../../',
-  testMatch: [`<rootDir>/apps/${directory}/**/*.(test|spec).(ts|tsx)`],
-  collectCoverageFrom: [`apps/${directory}/src/**/*.{ts,tsx}`],
+  testMatch: [`<rootDir>/packages/${pkg}/**/*.(test|spec).(ts|tsx)`],
+  collectCoverageFrom: [`packages/${pkg}/src/**/*.{ts,tsx}`],
+  transformIgnorePatterns: [
+    'node_modules/(?!uncrypto|@upstash/redis|@upstash/ratelimit)',
+  ],
 };

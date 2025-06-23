@@ -1,6 +1,6 @@
 # Adequate
 
-![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/NickGreen/0a63a4be359ffe44629be280d9a88353/raw/adequate-coverage-summary.json)
+![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nick8green/0a63a4be359ffe44629be280d9a88353/raw/adequate-coverage-summary.json)
 
 ## Docs
 

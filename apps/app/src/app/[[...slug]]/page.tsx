@@ -1,5 +1,5 @@
 import Page from '@app/components/Page';
-import { reportToPrometheus as httpRequestCount } from '@app/utilities/metrics/httpRequestCount';
+import { reportToPrometheus as httpRequestCount } from '@shared/metrics/httpRequestCount';
 import { Metadata /*, ResolvingMetadata*/ } from 'next';
 
 type Props = {

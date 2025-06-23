@@ -17,11 +17,11 @@
     "lint:check": "yarn lint --max-warnings 0",
     "lint:fix": "yarn lint --fix",
     "release": "lerna publish",
-    "test": "jest --coverage",
+    "test": "jest --coverage --silent",
     "test:watch": "jest --watch",
     "test:app": "yarn test --selectProjects=adequate-app",
     "test:admin": "yarn test --selectProjects=adequate-admin",
-    "test:shared": "yarn test --selectProjects=shared",
+    "test:shared": "yarn test --selectProjects=adequate-shared",
     "test:ci": "yarn test --runInBand --passWithNoTests",
     "typecheck": "tsc --noEmit"
   },
