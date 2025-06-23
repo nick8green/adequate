@@ -21,8 +21,11 @@ build-app-and-serve: build-app
 
 dev-config:
 	@echo "Setting up development environment..."
+	@rm .env.local || true
 	@echo "NODE_VERSION=$(cat .nvmrc)" > .env.local
 	@cat .env.development >> .env.local
+	@echo "Local config:"
+	@cat .env.local
 
 logs:
 	@echo "Displaying logs..."

@@ -1,4 +1,4 @@
-import { collectDefaultMetrics, Registry } from 'prom-client';
+import { register } from '@shared/metrics';
 
 export { reportToPrometheus as httpRequestCount } from '@app/utilities/metrics/httpRequestCount';
 export { reportToPrometheus as responseTime } from '@app/utilities/metrics/responseTime';
@@ -13,12 +13,6 @@ import { inp } from '@app/utilities/metrics/webVitals/interactionToNextPaint';
 import { lcp } from '@app/utilities/metrics/webVitals/largestContentfulPaint';
 import { ttfb } from '@app/utilities/metrics/webVitals/timeToFirstBite';
 
-export const register = new Registry();
-
-collectDefaultMetrics({
-  register,
-});
-
 register.registerMetric(containerStartTime);
 register.registerMetric(httpRequestCounter);
 register.registerMetric(responseTime);
@@ -31,6 +25,4 @@ register.registerMetric(inp);
 register.registerMetric(lcp);
 register.registerMetric(ttfb);
 
-export default register;
-
-export { withMetrics } from '@app/utilities/metrics/withMetrics';
+export { withMetrics } from '@shared/metrics/withMetrics';

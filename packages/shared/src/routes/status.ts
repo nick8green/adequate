@@ -1,3 +1,4 @@
+import { withMetrics } from '@shared/metrics/withMetrics';
 import { cookies } from 'next/headers';
 import { NextResponse as Response } from 'next/server';
 
@@ -15,45 +16,46 @@ type Switch = {
   value: string;
 };
 
-const handler = async (): Promise<Response> => {
-  let code = 200;
-  const switches: Switch[] = [];
+const handler = (path: string = '/status') =>
+  withMetrics(async (): Promise<Response> => {
+    let code = 200;
+    const switches: Switch[] = [];
 
-  const response = {
-    adapters: {},
-    currentTime: new Date().toISOString(),
-    description: 'application is up and running',
-    status: 'UP' as ServiceStatus,
-    startTime: new Date().toISOString(),
-    switches,
-    uptime: 0,
-    version: process.env.VERSION ?? 'development',
-  };
+    const response = {
+      adapters: {},
+      currentTime: new Date().toISOString(),
+      description: 'application is up and running',
+      status: 'UP' as ServiceStatus,
+      startTime: new Date().toISOString(),
+      switches,
+      uptime: 0,
+      version: process.env.VERSION ?? 'development',
+    };
 
-  try {
-    response.adapters = await getAdapters();
+    try {
+      response.adapters = await getAdapters();
 
-    const [status, description] = await getSerivceStatus(response.adapters);
-    response.status = status;
-    response.description = description;
+      const [status, description] = await getSerivceStatus(response.adapters);
+      response.status = status;
+      response.description = description;
 
-    const [startTime, currentTime, uptime] = getUptime();
-    response.startTime = startTime;
-    response.currentTime = currentTime;
-    response.uptime = uptime;
+      const [startTime, currentTime, uptime] = getUptime();
+      response.startTime = startTime;
+      response.currentTime = currentTime;
+      response.uptime = uptime;
 
-    response.switches = await getSwitches();
-  } catch (e) {
-    console.error('error fetching status:', e); // eslint-disable-line no-console
-    code = 500;
-    response.status = 'DOWN';
-    response.description = 'thre is an issue with the application';
-  }
-  return new Response(JSON.stringify(response), {
-    headers: { 'Content-Type': 'application/json' },
-    status: code,
-  });
-};
+      response.switches = await getSwitches();
+    } catch (e) {
+      console.error('error fetching status:', e); // eslint-disable-line no-console
+      code = 500;
+      response.status = 'DOWN';
+      response.description = 'thre is an issue with the application';
+    }
+    return new Response(JSON.stringify(response), {
+      headers: { 'Content-Type': 'application/json' },
+      status: code,
+    });
+  }, path);
 
 export const checkBackend = async (): Promise<Adapter> => {
   if (!process.env.BACKEND_URL) {
