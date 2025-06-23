@@ -14,7 +14,7 @@ export const fid = new Gauge({
 
 export const reportToPrometheus = (logDetails: FirstInputDelayDetails) => {
   try {
-    const { navigationType, rating, value } = logDetails || {};
+    const { navigationType, rating, value } = logDetails;
     fid.labels(navigationType, rating).set(value);
   } catch (error) {
     console.error('Prometheus response time event error', error); // eslint-disable-line no-console

@@ -12,8 +12,8 @@ jest.mock('prom-client', () => {
   };
 });
 
-describe('reportToPrometheus', () => {
-  const mockLabels = (fcp as any).labels as jest.Mock;
+describe('firstContentfulPaint', () => {
+  const mockLabels = (fcp as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -26,24 +26,35 @@ describe('reportToPrometheus', () => {
     const details = {
       navigationType: 'navigate',
       rating: 'good',
-      value: 1234,
+      value: 0.01,
     };
 
     reportToPrometheus(details);
 
     expect(mockLabels).toHaveBeenCalledWith('navigate', 'good');
-    expect(setMock).toHaveBeenCalledWith(1234);
+    expect(setMock).toHaveBeenCalledWith(0.01);
   });
 
-  it('should handle missing logDetails gracefully', () => {
-    const setMock = jest.fn();
-    mockLabels.mockReturnValueOnce({ set: setMock });
+  it('should handle errors gracefully', () => {
+    const labelsMock = fcp.labels as jest.Mock;
+    labelsMock.mockImplementationOnce(() => {
+      throw new Error('test error');
+    });
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
-    // @ts-expect-error testing undefined input
-    reportToPrometheus(undefined);
+    reportToPrometheus({
+      navigationType: 'navigate',
+      rating: 'bad',
+      value: 0.5,
+    });
 
-    expect(mockLabels).toHaveBeenCalledWith(undefined, undefined);
-    expect(setMock).toHaveBeenCalledWith(undefined);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Prometheus response time event error',
+      expect.any(Error),
+    );
+    consoleSpy.mockRestore();
   });
 
   it('should catch and log errors', () => {

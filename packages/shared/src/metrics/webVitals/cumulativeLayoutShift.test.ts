@@ -2,12 +2,9 @@ import {
   cls,
   reportToPrometheus,
 } from '@shared/metrics/webVitals/cumulativeLayoutShift';
-import { Gauge } from 'prom-client';
 
 jest.mock('prom-client', () => {
-  const labelsMock = jest.fn().mockReturnValue({
-    set: jest.fn(),
-  });
+  const labelsMock = jest.fn().mockReturnValue({ set: jest.fn() });
   return {
     Gauge: jest.fn().mockImplementation(() => ({
       labels: labelsMock,
@@ -16,34 +13,29 @@ jest.mock('prom-client', () => {
 });
 
 describe('cumulativeLayoutShift', () => {
+  const mockLabels = (cls as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // it('should create a Gauge with correct parameters', () => {
-  //     expect(Gauge).toHaveBeenCalledWith({
-  //         name: 'web_vitals_cls',
-  //         help: 'cumulative layout shift',
-  //         labelNames: ['navigationType', 'rating'],
-  //     });
-  // });
+  it('should call cls.labels with correct arguments and set value', () => {
+    const setMock = jest.fn();
+    mockLabels.mockReturnValueOnce({ set: setMock });
 
-  it('should call cls.labels().set() with correct arguments', () => {
     const details = {
       navigationType: 'navigate',
       rating: 'good',
       value: 0.01,
     };
+
     reportToPrometheus(details);
 
-    // @ts-ignore
-    const labelsMock = cls.labels as jest.Mock;
-    expect(labelsMock).toHaveBeenCalledWith('navigate', 'good');
-    expect(labelsMock().set).toHaveBeenCalledWith(0.01);
+    expect(mockLabels).toHaveBeenCalledWith('navigate', 'good');
+    expect(setMock).toHaveBeenCalledWith(0.01);
   });
 
   it('should handle errors gracefully', () => {
-    // @ts-ignore
     const labelsMock = cls.labels as jest.Mock;
     labelsMock.mockImplementationOnce(() => {
       throw new Error('test error');
@@ -63,5 +55,26 @@ describe('cumulativeLayoutShift', () => {
       expect.any(Error),
     );
     consoleSpy.mockRestore();
+  });
+
+  it('should catch and log errors', () => {
+    const error = new Error('test error');
+    mockLabels.mockImplementationOnce(() => {
+      throw error;
+    });
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    reportToPrometheus({
+      navigationType: 'reload',
+      rating: 'poor',
+      value: 1000,
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Prometheus response time event error',
+      error,
+    );
+
+    consoleErrorSpy.mockRestore();
   });
 });

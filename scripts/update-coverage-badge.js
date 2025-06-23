@@ -1,46 +1,67 @@
-import fs from 'fs';
+import lcovParse from 'lcov-parse';
 import path from 'path';
 import process from 'process';
 
-const gistId = '0a63a4be359ffe44629be280d9a88353'; // Replace with your real Gist ID
-const filename = 'adequate-coverage-summary.json';
-const token = process.env.GIST_TOKEN;
-
 const summaryPath = path.resolve('merged-coverage/lcov.info');
-const lcov = fs.readFileSync(summaryPath, 'utf8');
 
-const lineData = lcov.match(/^DA:\d+,\d+/gm) || [];
-const total = lineData.length;
-const covered = lineData.filter((line) => line.endsWith(',1')).length;
-const pct = total === 0 ? 0 : Math.round((covered / total) * 100);
+lcovParse(summaryPath, async (err, data) => {
+  if (err) throw err;
 
-const badgeData = {
-  schemaVersion: 1,
-  label: 'coverage',
-  message: `${pct}%`,
-  color: pct >= 90 ? 'brightgreen' : pct >= 80 ? 'yellow' : 'red',
-};
+  let totalLines = 0;
+  let coveredLines = 0;
 
-const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-  method: 'PATCH',
-  headers: {
-    Authorization: `Bearer ${token}`,
-    'User-Agent': 'coverage-badge-updater',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    files: {
-      [filename]: {
-        content: JSON.stringify(badgeData, null, 2),
-      },
+  for (const file of data) {
+    for (const line of file.lines.details) {
+      totalLines++;
+      if (line.hit > 0) coveredLines++;
+    }
+  }
+
+  const pct =
+    totalLines === 0 ? 0 : Math.round((coveredLines / totalLines) * 100);
+
+  const filename = 'adequate-coverage-summary.json';
+  const gistId = '0a63a4be359ffe44629be280d9a88353'; // Replace with your real Gist ID
+  const token = process.env.GIST_TOKEN;
+
+  let color;
+
+  if (pct >= 90) {
+    color = 'brightgreen';
+  } else if (pct >= 80) {
+    color = 'yellow';
+  } else {
+    color = 'red';
+  }
+
+  const badgeData = {
+    color,
+    label: 'coverage',
+    message: `${pct}%`,
+    schemaVersion: 1,
+  };
+
+  const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'coverage-badge-updater',
     },
-  }),
+    body: JSON.stringify({
+      files: {
+        [filename]: {
+          content: JSON.stringify(badgeData, null, 2),
+        },
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('Failed to update Gist:', error); // eslint-disable-line no-console
+    process.exit(1);
+  }
+
+  console.log(`✅ Coverage badge updated: ${pct}%`); // eslint-disable-line no-console
 });
-
-if (!response.ok) {
-  const error = await response.text();
-  console.error('Failed to update Gist:', error); // eslint-disable-line no-console
-  process.exit(1);
-}
-
-console.log(`✅ Coverage badge updated: ${pct}%`); // eslint-disable-line no-console

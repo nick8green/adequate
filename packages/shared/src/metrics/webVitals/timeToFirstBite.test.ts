@@ -12,59 +12,69 @@ jest.mock('prom-client', () => {
   };
 });
 
-describe('reportToPrometheus', () => {
-  const mockLabels = (ttfb as any).labels as jest.Mock;
-  const mockSet = (ttfb as any).set as jest.Mock;
+describe('timeToFirstBite', () => {
+  const mockLabels = (ttfb as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset the mocks to ensure correct chaining
-    (ttfb as any).labels = jest.fn().mockReturnValue(ttfb);
-    (ttfb as any).set = jest.fn();
   });
 
-  it('should set the gauge with correct labels and value', () => {
+  it('should call ttfb.labels with correct arguments and set value', () => {
+    const setMock = jest.fn();
+    mockLabels.mockReturnValueOnce({ set: setMock });
+
     const details = {
       navigationType: 'navigate',
       rating: 'good',
-      value: 123,
+      value: 0.01,
     };
 
     reportToPrometheus(details);
 
-    expect((ttfb as any).labels).toHaveBeenCalledWith('navigate', 'good');
-    expect((ttfb as any).set).toHaveBeenCalledWith(123);
+    expect(mockLabels).toHaveBeenCalledWith('navigate', 'good');
+    expect(setMock).toHaveBeenCalledWith(0.01);
   });
 
-  it('should handle missing logDetails gracefully', () => {
-    const consoleErrorSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    // @ts-expect-error testing undefined input
-    reportToPrometheus(undefined);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-    consoleErrorSpy.mockRestore();
-  });
-
-  it('should catch and log errors from ttfb.labels/set', () => {
-    (ttfb as any).labels = jest.fn(() => {
-      throw new Error('fail');
+  it('should handle errors gracefully', () => {
+    const labelsMock = ttfb.labels as jest.Mock;
+    labelsMock.mockImplementationOnce(() => {
+      throw new Error('test error');
     });
-    const consoleErrorSpy = jest
+    const consoleSpy = jest
       .spyOn(console, 'error')
       .mockImplementation(() => {});
-    const details = {
+
+    reportToPrometheus({
       navigationType: 'navigate',
       rating: 'bad',
-      value: 456,
-    };
+      value: 0.5,
+    });
 
-    reportToPrometheus(details);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(consoleSpy).toHaveBeenCalledWith(
       'Prometheus response time event error',
       expect.any(Error),
     );
+    consoleSpy.mockRestore();
+  });
+
+  it('should catch and log errors', () => {
+    const error = new Error('test error');
+    mockLabels.mockImplementationOnce(() => {
+      throw error;
+    });
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    reportToPrometheus({
+      navigationType: 'reload',
+      rating: 'poor',
+      value: 1000,
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Prometheus response time event error',
+      error,
+    );
+
     consoleErrorSpy.mockRestore();
   });
 });

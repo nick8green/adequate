@@ -1,4 +1,4 @@
 'use client';
-import ErrorPage from '@shared/pages/error';
+import ErrorPage from '@app/app/error';
 
 export default ErrorPage;

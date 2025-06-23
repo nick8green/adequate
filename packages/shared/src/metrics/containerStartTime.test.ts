@@ -1,3 +1,5 @@
+import { Gauge } from 'prom-client';
+
 jest.mock('prom-client', () => {
   const labelsMock = jest.fn().mockReturnValue({ set: jest.fn() });
   return {
@@ -9,13 +11,14 @@ jest.mock('prom-client', () => {
 });
 
 describe('containerStartTime', () => {
-  let containerStartTime: any;
+  let containerStartTime: Gauge;
   let GaugeMock: jest.Mock;
 
   beforeEach(() => {
     jest.resetModules();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     GaugeMock = require('prom-client').Gauge as jest.Mock;
-    // Re-import to get a fresh instance
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     ({ containerStartTime } = require('./containerStartTime'));
   });
 

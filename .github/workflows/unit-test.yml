@@ -53,7 +53,7 @@ jobs:
         run: |
           name=$(basename ${{ matrix.path }})
           echo "name=$name" >> $GITHUB_OUTPUT
-          yarn jest --selectProjects=adequate-$name --coverage --coverageDirectory=coverage/$name --passWithNoTests
+          yarn test:ci --selectProjects=adequate-$name --coverageDirectory=coverage/$name
         continue-on-error: false
 
       - name: upload coverage

@@ -16,7 +16,7 @@ type Switch = {
   value: string;
 };
 
-const handler = (path: string = '/status') =>
+export const endpoint = (path: string = '/status') =>
   withMetrics(async (): Promise<Response> => {
     let code = 200;
     const switches: Switch[] = [];
@@ -151,4 +151,4 @@ export const getUptime = (): [string, string, number] => {
   return [start.toISOString(), now.toISOString(), uptime];
 };
 
-export default handler;
+export default endpoint;

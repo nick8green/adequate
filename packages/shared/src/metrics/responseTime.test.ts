@@ -1,5 +1,4 @@
 import { reportToPrometheus, responseTime } from '@shared/metrics/responseTime';
-import { Histogram } from 'prom-client';
 
 jest.mock('prom-client', () => {
   const observeMock = jest.fn();
@@ -12,45 +11,61 @@ jest.mock('prom-client', () => {
   };
 });
 
-describe('responseTime Histogram', () => {
-  // it('should be an instance of Histogram', () => {
-  //     expect(responseTime).toBeInstanceOf(Histogram);
-  // });
-});
-
-describe('reportToPrometheus', () => {
-  let labelsSpy: jest.SpyInstance;
-  let observeSpy: jest.SpyInstance;
+describe('responseTime', () => {
+  const mockLabels = (responseTime as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   beforeEach(() => {
-    labelsSpy = jest.spyOn(responseTime, 'labels');
-    observeSpy = jest.fn();
-    labelsSpy.mockReturnValue({ observe: observeSpy } as any);
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should call responseTime.labels and observe with correct arguments', () => {
+  it('should call responseTime.labels with correct arguments and set value', () => {
+    const observeMock = jest.fn();
+    mockLabels.mockReturnValueOnce({ observe: observeMock });
+
     const details = { route: '/test', statusCode: '200', responseTime: 123 };
+
     reportToPrometheus(details);
-    expect(labelsSpy).toHaveBeenCalledWith('/test', '200');
-    expect(observeSpy).toHaveBeenCalledWith(123);
+
+    expect(mockLabels).toHaveBeenCalledWith('/test', '200');
+    expect(observeMock).toHaveBeenCalledWith(123);
   });
 
   it('should handle errors gracefully', () => {
-    labelsSpy.mockImplementation(() => {
-      throw new Error('fail');
+    const labelsMock = responseTime.labels as jest.Mock;
+    labelsMock.mockImplementationOnce(() => {
+      throw new Error('test error');
     });
-    const consoleErrorSpy = jest
+    const consoleSpy = jest
       .spyOn(console, 'error')
       .mockImplementation(() => {});
-    reportToPrometheus({ route: '/fail', statusCode: '500', responseTime: 1 });
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+
+    reportToPrometheus({ route: '/bad', statusCode: '500', responseTime: 321 });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
       'Prometheus response time event error',
       expect.any(Error),
     );
+    consoleSpy.mockRestore();
+  });
+
+  it('should catch and log errors', () => {
+    const error = new Error('test error');
+    mockLabels.mockImplementationOnce(() => {
+      throw error;
+    });
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    reportToPrometheus({
+      route: '/log',
+      statusCode: '401',
+      responseTime: 1000,
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Prometheus response time event error',
+      error,
+    );
+
     consoleErrorSpy.mockRestore();
   });
 });

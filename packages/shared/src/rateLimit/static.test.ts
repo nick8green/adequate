@@ -1,4 +1,4 @@
-import getRateLimiter from '@shared/rateLimit/static';
+import { getRateLimiter } from '@shared/rateLimit/static';
 
 describe('getRateLimiter', () => {
   const ip = '127.0.0.1';

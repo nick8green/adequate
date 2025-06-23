@@ -1,4 +1,4 @@
-let promClient: any;
+let promClient: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 let reportToPrometheus: typeof import('@shared/metrics/httpRequestCount').reportToPrometheus;
 
 describe('reportToPrometheus', () => {
@@ -17,18 +17,18 @@ describe('reportToPrometheus', () => {
       };
     });
 
-    promClient = require('prom-client');
+    promClient = require('prom-client'); // eslint-disable-line @typescript-eslint/no-require-imports
     reportToPrometheus =
-      require('@shared/metrics/httpRequestCount').reportToPrometheus;
+      require('@shared/metrics/httpRequestCount').reportToPrometheus; // eslint-disable-line @typescript-eslint/no-require-imports
 
     labelsMock = promClient.Counter.mock.results[0].value.labels;
     incMock = labelsMock().inc;
-    originalConsoleError = console.error;
-    console.error = jest.fn();
+    originalConsoleError = console.error; // eslint-disable-line no-console
+    console.error = jest.fn(); // eslint-disable-line no-console
   });
 
   afterEach(() => {
-    console.error = originalConsoleError;
+    console.error = originalConsoleError; // eslint-disable-line no-console
     jest.clearAllMocks();
   });
 
@@ -45,7 +45,7 @@ describe('reportToPrometheus', () => {
   });
 
   it('should handle missing logDetails gracefully', () => {
-    reportToPrometheus(undefined as any);
+    reportToPrometheus(undefined as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     expect(labelsMock).toHaveBeenCalledWith(undefined, undefined, undefined);
     expect(incMock).toHaveBeenCalled();
@@ -64,6 +64,7 @@ describe('reportToPrometheus', () => {
 
     reportToPrometheus(logDetails);
 
+    // eslint-disable-next-line no-console
     expect(console.error).toHaveBeenCalledWith(
       'Prometheus event counter event error',
       expect.any(Error),
