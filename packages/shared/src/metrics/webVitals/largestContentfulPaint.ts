@@ -1,23 +1,23 @@
 import { Gauge } from 'prom-client';
 
-type InteractionToNextPaintDetails = {
+type LargestContentfulPaintDetails = {
   navigationType: string;
   rating: string;
   value: number;
 };
 
-export const inp = new Gauge({
-  name: 'web_vitals_inp',
-  help: 'interaction to next paint',
+export const lcp = new Gauge({
+  name: 'web_vitals_lcp',
+  help: 'largest contentful paint',
   labelNames: ['navigationType', 'rating'],
 });
 
 export const reportToPrometheus = (
-  logDetails: InteractionToNextPaintDetails,
+  logDetails: LargestContentfulPaintDetails,
 ) => {
   try {
-    const { navigationType, rating, value } = logDetails || {};
-    inp.labels(navigationType, rating).set(value);
+    const { navigationType, rating, value } = logDetails;
+    lcp.labels(navigationType, rating).set(value);
   } catch (error) {
     console.error('Prometheus response time event error', error); // eslint-disable-line no-console
   }

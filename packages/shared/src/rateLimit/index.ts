@@ -22,4 +22,8 @@ export const getLimiter = () => {
   return rateLimit;
 };
 
+export const resetRateLimit = () => {
+  rateLimit = null;
+};
+
 export default getLimiter;

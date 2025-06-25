@@ -1,5 +1,5 @@
-import { reportToPrometheus as reportRequestCount } from '@app/utilities/metrics/httpRequestCount';
-import { reportToPrometheus as reportResponseTime } from '@app/utilities/metrics/responseTime';
+import { reportToPrometheus as reportRequestCount } from '@shared/metrics/httpRequestCount';
+import { reportToPrometheus as reportResponseTime } from '@shared/metrics/responseTime';
 import { NextRequest } from 'next/server';
 
 export const withMetrics = (

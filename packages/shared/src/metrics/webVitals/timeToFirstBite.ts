@@ -14,7 +14,7 @@ export const ttfb = new Gauge({
 
 export const reportToPrometheus = (logDetails: TimeToFirstBiteDetails) => {
   try {
-    const { navigationType, rating, value } = logDetails || {};
+    const { navigationType, rating, value } = logDetails;
     ttfb.labels(navigationType, rating).set(value);
   } catch (error) {
     console.error('Prometheus response time event error', error); // eslint-disable-line no-console

@@ -1,0 +1,157 @@
+name: test matrix
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+        description: 'Slack webhook URL for notifications'
+      GH_TOKEN:
+        required: true
+        description: 'GitHub token for actions that require authentication'
+      GIST_TOKEN:
+        required: true
+        description: 'GitHub token for updating the coverage badge'
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🧱 setup workspace
+        uses: nick8green/workflows/actions/node/setup@main
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: generate dynamic matrix
+        run: |
+          yarn generate:test-matrix
+
+      - id: set-matrix
+        run: echo "matrix=$(cat jest-matrix.json)" >> $GITHUB_OUTPUT
+
+  test:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.generate-matrix.outputs.matrix)}}
+    name: test ${{ matrix.path }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🧱 setup workspace
+        uses: nick8green/workflows/actions/node/setup@main
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: run tests
+        id: test
+        run: |
+          name=$(basename ${{ matrix.path }})
+          echo "name=$name" >> $GITHUB_OUTPUT
+          yarn test:ci --selectProjects=adequate-$name --coverageDirectory=coverage/$name
+        continue-on-error: false
+
+      - name: upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ steps.test.outputs.name }}
+          path: coverage/${{ steps.test.outputs.name }}/lcov.info
+
+  merge-coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage-artifacts
+
+      - name: list downloaded artifacts (🧾 debug)
+        run: |
+          echo "Downloaded coverage artifacts:"
+          find coverage-artifacts -type f -exec ls -lh {} \;
+
+      - name: merge coverage files with lcov-result-merger
+        run: |
+          yarn init -y
+          yarn add --dev lcov-result-merger nyc istanbul-reports
+
+          mkdir -p merged-coverage
+
+          echo "Merging LCOV files..."
+          yarn lcov-result-merger "coverage-artifacts/**/lcov.info" > merged-coverage/lcov.info || {
+            echo "❌ Failed to merge coverage"
+            exit 1
+          }
+
+          echo "Merged LCOV file preview:"
+          head -n 20 merged-coverage/lcov.info || true
+
+      - name: generate merged html report
+        run: |
+          npx nyc report \
+            --reporter=html \
+            --reporter=json-summary \
+            --report-dir=merged-coverage/html \
+            --temp-directory=merged-coverage
+
+      - name: upload merged coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-coverage-report
+          path: |
+            merged-coverage/html
+            merged-coverage/lcov.info
+
+      # - name: upload to codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     files: merged-coverage/lcov.info
+      #     flags: merged
+      #     name: merged-report
+
+  notify:
+    needs: test
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: post to slack
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "text": "🚨 Test failed in `${{ github.workflow }}` on branch `${{ github.ref_name }}`. Please investigate: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }' $SLACK_WEBHOOK_URL
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  update-badge:
+    needs: merge-coverage
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🧱 setup workspace
+        uses: nick8green/workflows/actions/node/setup@main
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: download merged coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-coverage-report
+          path: merged-coverage
+
+      - run: |
+          echo "Merged coverage report downloaded:"
+          ls -la merged-coverage
+
+      - name: update coverage badge
+        run: node scripts/update-coverage-badge.js
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}

@@ -11,3 +11,4 @@
 .eslintcache
 tools/designs/build
 tools/designs/examples
+jest-matrix.json

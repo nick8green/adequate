@@ -1,12 +1,6 @@
 name: build checks for application
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - release
-    paths:
-      - '.github/workflows/checks.yml'
   workflow_call:
     inputs:
       scan:
@@ -47,9 +41,11 @@ jobs:
   # run unit tests
   test:
     name: 🧪 unit tests
-    uses: nick8green/workflows/.github/workflows/node-unit-test.yml@main
+    uses: ./.github/workflows/unit-test.yml
     secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GH_PACKAGES_TOKEN }}
+      GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
 
   # lint code
   linting:

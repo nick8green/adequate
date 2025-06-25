@@ -1,4 +1,4 @@
-name: create final pr to main
+name: deploy applications
 on:
   push:
     branches:
@@ -59,29 +59,29 @@ jobs:
           echo "Generated matrix: $matrix_json"
           echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
 
-  deploy:
-    name: 🚀 deploy ${{ matrix.app }} updates
-    needs:
-      - configure
-    if: needs.configure.outputs.matrix != '{"include":[]}'
-    strategy:
-      matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
-    uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
-    with:
-      image: ghcr.io/nick8green/adequate/${{ matrix.app }}
-      name: adequate-${{ matrix.app }}
-      version: ${{ matrix.version }}
-    secrets:
-      host: ${{ secrets.DEPLOY_HOST }}
-      network: ${{ secrets.DOCKER_NETWORK }}
-      user: ${{ secrets.DEPLOY_USER }}
-      token: ${{ secrets.DEPLOY_KEY }}
-      options: -v ${{ secrets.PORT }}:3000
+  # deploy:
+  #   name: 🚀 deploy ${{ matrix.app }} updates
+  #   needs:
+  #     - configure
+  #   if: needs.configure.outputs.matrix != '{"include":[]}'
+  #   strategy:
+  #     matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
+  #   uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
+  #   with:
+  #     image: ghcr.io/nick8green/adequate/${{ matrix.app }}
+  #     name: adequate-${{ matrix.app }}
+  #     version: ${{ matrix.version }}
+  #   secrets:
+  #     host: ${{ secrets.DEPLOY_HOST }}
+  #     network: ${{ secrets.DOCKER_NETWORK }}
+  #     user: ${{ secrets.DEPLOY_USER }}
+  #     token: ${{ secrets.DEPLOY_KEY }}
+  #     options: -v ${{ secrets.PORT }}:3000
 
   create-pr:
     name: 📨 create pr to main
-    needs:
-      - deploy
+    # needs:
+    #   - deploy
     permissions:
       contents: write
       pull-requests: write

@@ -18,7 +18,7 @@ export const responseTime = new Histogram({
 
 export const reportToPrometheus = (logDetails: ResponseTimeDetails) => {
   try {
-    const { route, statusCode, responseTime: time } = logDetails || {};
+    const { route, statusCode, responseTime: time } = logDetails;
     responseTime.labels(route, statusCode).observe(time);
   } catch (error) {
     console.error('Prometheus response time event error', error); // eslint-disable-line no-console
