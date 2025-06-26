@@ -3,6 +3,22 @@ on:
   push:
     branches:
       - release
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'App to deploy'
+        required: true
+        default: ''
+        options:
+          - 'admin'
+          - 'app'
+          - 'service'
+        type: choice
+      version:
+        description: 'Branch to deploy'
+        required: false
+        default: 'main'
+        type: string
 
 jobs:
   configure:
@@ -19,69 +35,76 @@ jobs:
       - name: generate matrix
         id: set-matrix
         run: |
+          manual_app="${{ inputs.app }}"
+          manual_version="${{ inputs.version }}"
           ref="${{ github.ref }}"
           branch="${ref##*/}"
-          echo "Branch: $branch"
 
-          before="${{ github.event.before }}"
-          sha="${{ github.sha }}"
-
-          if git cat-file -e "$before^{commit}" 2>/dev/null; then
-            base_commit="$before"
+          if [ -n "$manual_app" ]; then
+            version="$manual_version"
+            [ -z "$version" ] && version="$branch"
+            version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
+            matrix_json="{\"include\": [{\"app\": \"$manual_app\", \"version\": \"$version\"}]}"
           else
-            base_commit=$(git rev-parse HEAD~1)
-          fi
+            before="${{ github.event.before }}"
+            sha="${{ github.sha }}"
 
-          changed_files=$(git diff --name-only "$base_commit" "$sha")
-          apps=$(echo "$changed_files" | grep '^apps/' | cut -d/ -f2 | sort -u | uniq)
-
-          valid_apps=()
-          for app in $apps; do
-            pkg_json="apps/$app/package.json"
-            if [ -f "apps/$app/Dockerfile" ] && [ -f "$pkg_json" ]; then
-              if [ "$branch" = "release" ]; then
-                version=$(jq -r .version "$pkg_json")
-              else
-                version="$branch"
-              fi
-              # Sanitize version (for Docker tag compatibility)
-              version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
-              valid_apps+=("{\"app\": \"$app\", \"version\": \"$version\"}")
+            if git cat-file -e "$before^{commit}" 2>/dev/null; then
+              base_commit="$before"
+            else
+              base_commit=$(git rev-parse HEAD~1)
             fi
-          done
 
-          if [ ${#valid_apps[@]} -eq 0 ]; then
-            matrix_json="{\"include\": []}"
-          else
-            matrix_json="{\"include\": [$(IFS=,; echo "${valid_apps[*]}")]}"
+            changed_files=$(git diff --name-only "$base_commit" "$sha")
+            apps=$(echo "$changed_files" | grep '^apps/' | cut -d/ -f2 | sort -u)
+
+            valid_apps=()
+            for app in $apps; do
+              pkg_json="apps/$app/package.json"
+              if [ -f "apps/$app/Dockerfile" ] && [ -f "$pkg_json" ]; then
+                if [ "$branch" = "release" ]; then
+                  version=$(jq -r .version "$pkg_json")
+                else
+                  version="$branch"
+                fi
+                version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
+                app_upper=$(echo "$app" | tr '[:lower:]' '[:upper:]')
+                valid_apps+=("{\"app\": \"$app\", \"ref\":\"$app_upper\", \"version\": \"$version\"}")
+              fi
+            done
+
+            if [ ${#valid_apps[@]} -eq 0 ]; then
+              matrix_json="{\"include\": [{\"app\": \"none\", \"version\": \"none\"}]}"
+            else
+              matrix_json="{\"include\": [$(IFS=,; echo "${valid_apps[*]}")]}"
+            fi
           fi
 
           echo "Generated matrix: $matrix_json"
           echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
 
-  # deploy:
-  #   name: 🚀 deploy ${{ matrix.app }} updates
-  #   needs:
-  #     - configure
-  #   if: needs.configure.outputs.matrix != '{"include":[]}'
-  #   strategy:
-  #     matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
-  #   uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
-  #   with:
-  #     image: ghcr.io/nick8green/adequate/${{ matrix.app }}
-  #     name: adequate-${{ matrix.app }}
-  #     version: ${{ matrix.version }}
-  #   secrets:
-  #     host: ${{ secrets.DEPLOY_HOST }}
-  #     network: ${{ secrets.DOCKER_NETWORK }}
-  #     user: ${{ secrets.DEPLOY_USER }}
-  #     token: ${{ secrets.DEPLOY_KEY }}
-  #     options: -v ${{ secrets.PORT }}:3000
+  deploy:
+    name: 🚀 deploy ${{ matrix.app }}
+    needs: configure
+    strategy:
+      matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
+    uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
+    with:
+      image: ghcr.io/nick8green/adequate/${{ matrix.app }}
+      name: adequate-${{ matrix.app }}
+      version: ${{ matrix.version }}
+    secrets:
+      host: ${{ secrets.DEPLOY_HOST }}
+      network: ${{ secrets.DOCKER_NETWORK }}
+      user: ${{ secrets.DEPLOY_USER }}
+      key: ${{ secrets.DEPLOY_KEY }}
+      token: ${{ secrets.DEPLOY_IMAGE_TOKEN }}
+      options: -v ${{ secrets[format('APP_PORT_%s', matrix.ref)] || 0 }}:3000
 
   create-pr:
     name: 📨 create pr to main
-    # needs:
-    #   - deploy
+    needs: deploy
+    if: endsWith(github.ref, 'refs/heads/release')
     permissions:
       contents: write
       pull-requests: write
