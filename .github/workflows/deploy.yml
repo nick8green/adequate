@@ -87,14 +87,19 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: create pr
         uses: devops-infra/action-pull-request@v0.6.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_PR_TOKEN }}
           label: automatic
           source_branch: release
           target_branch: main
           title: Latest Release
-          body: '**Automated pull request**'
+          body: "**Automated Pull Request**"
           draft: false
           get_diff: true
