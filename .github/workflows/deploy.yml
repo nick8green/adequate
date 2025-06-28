@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - release
+      - deployment
   workflow_dispatch:
     inputs:
       app:
@@ -35,16 +36,24 @@ jobs:
       - name: generate matrix
         id: set-matrix
         run: |
-          manual_app="${{ inputs.app }}"
-          manual_version="${{ inputs.version }}"
+          manual_app="${{ github.event.inputs.app }}"
+          manual_version="${{ github.event.inputs.version }}"
           ref="${{ github.ref }}"
           branch="${ref##*/}"
+
+          sanitize_version() {
+            echo "$1" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//'
+          }
+          generate_reference() {
+            echo "$1" | tr '[:lower:]' '[:upper:]'
+          }
 
           if [ -n "$manual_app" ]; then
             version="$manual_version"
             [ -z "$version" ] && version="$branch"
-            version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
-            matrix_json="{\"include\": [{\"app\": \"$manual_app\", \"version\": \"$version\"}]}"
+            version=$(sanitize_version "$version")
+            reference=$(generate_reference "$app")
+            matrix_json="{\"include\": [{\"app\": \"$manual_app\", \"ref\":\"$reference\", \"version\": \"$version\"}]}"
           else
             before="${{ github.event.before }}"
             sha="${{ github.sha }}"
@@ -67,14 +76,14 @@ jobs:
                 else
                   version="$branch"
                 fi
-                version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
-                app_upper=$(echo "$app" | tr '[:lower:]' '[:upper:]')
-                valid_apps+=("{\"app\": \"$app\", \"ref\":\"$app_upper\", \"version\": \"$version\"}")
+                version=$(sanitize_version "$version")
+                reference=$(generate_reference "$app")
+                valid_apps+=("{\"app\": \"$app\", \"ref\":\"$reference\", \"version\": \"$version\"}")
               fi
             done
 
             if [ ${#valid_apps[@]} -eq 0 ]; then
-              matrix_json="{\"include\": [{\"app\": \"none\", \"version\": \"none\"}]}"
+              matrix_json=""
             else
               matrix_json="{\"include\": [$(IFS=,; echo "${valid_apps[*]}")]}"
             fi
@@ -86,6 +95,7 @@ jobs:
   deploy:
     name: 🚀 deploy ${{ matrix.app }}
     needs: configure
+    if: ${{ needs.configure.outputs.matrix != '' }}
     strategy:
       matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
     uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
@@ -99,7 +109,12 @@ jobs:
       user: ${{ secrets.DEPLOY_USER }}
       key: ${{ secrets.DEPLOY_KEY }}
       token: ${{ secrets.DEPLOY_IMAGE_TOKEN }}
-      options: -v ${{ secrets[format('APP_PORT_%s', matrix.ref)] || 0 }}:3000
+      options: |
+        -p ${{ secrets[format('APP_PORT_%s', matrix.ref)] || 0 }}:3000
+        --log-driver=json-file \
+        --log-opt max-size=10m \
+        --log-opt max-file=3 \
+        ${{ secrets[format('APP_OPTIONS_%s', matrix.ref)] || '' }}
 
   create-pr:
     name: 📨 create pr to main
