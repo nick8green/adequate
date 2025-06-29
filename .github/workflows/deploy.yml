@@ -16,9 +16,9 @@ on:
           - 'service'
         type: choice
       version:
-        description: 'Branch to deploy'
+        description: 'Version to deploy'
         required: false
-        default: 'main'
+        default: 'latest'
         type: string
 
 jobs:
@@ -100,7 +100,7 @@ jobs:
       matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
     uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
     with:
-      image: ghcr.io/nick8green/adequate/${{ matrix.app }}
+      image: ghcr.io/nick8green/adequate-${{ matrix.app }}
       name: adequate-${{ matrix.app }}
       version: ${{ matrix.version }}
     secrets:
