@@ -27,4 +27,4 @@ port="${!port_var:-0}"
 options="${!options_var:-}"
 
 # Output matrix entry JSON
-echo "{\"app\": \"$app\", \"ref\": \"$ref\", \"options\": \"$options\", \"port\": \"$port\", \"version\": \"$version\"}"
+echo "{\"app\": \"$app\", \"options\": \"$options\", \"port\": \"$port\", \"version\": \"$version\"}"
