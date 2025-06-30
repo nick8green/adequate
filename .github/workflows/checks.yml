@@ -87,6 +87,7 @@ jobs:
 
   sonarqube:
     name: ⌨️ SonarQube
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +96,15 @@ jobs:
 
       - name: 🔒 Check if SONAR_TOKEN is set
         if: ${{ env.SONAR_TOKEN != '' }}
-        run: echo "SNYK_TOKEN is available"
+        run: echo "SONAR_TOKEN is available"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: download all coverage artifacts
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          path: merged-coverage-report
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
