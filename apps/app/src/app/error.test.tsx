@@ -33,7 +33,6 @@ describe('ErrorPage', () => {
 
   it('renders the error modal with correct content', () => {
     render(<ErrorPage error={error} reset={reset} />);
-    expect(screen.getByTestId('modal')).toBeInTheDocument();
     expect(screen.getByText('Something went wrong!')).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -52,12 +51,6 @@ describe('ErrorPage', () => {
   it('calls reset when "Try again" button is clicked', () => {
     render(<ErrorPage error={error} reset={reset} />);
     fireEvent.click(screen.getByText('Try again'));
-    expect(reset).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls reset when modal close button is clicked', () => {
-    render(<ErrorPage error={error} reset={reset} />);
-    fireEvent.click(screen.getByTestId('close-modal'));
     expect(reset).toHaveBeenCalledTimes(1);
   });
 

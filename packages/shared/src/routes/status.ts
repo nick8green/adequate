@@ -16,7 +16,7 @@ type Switch = {
   value: string;
 };
 
-export const endpoint = (path: string = '/status') =>
+export const endpoint = (path: string) =>
   withMetrics(async (): Promise<Response> => {
     let code = 200;
     const switches: Switch[] = [];
@@ -35,7 +35,7 @@ export const endpoint = (path: string = '/status') =>
     try {
       response.adapters = await getAdapters();
 
-      const [status, description] = await getSerivceStatus(response.adapters);
+      const [status, description] = await getServiceStatus(response.adapters);
       response.status = status;
       response.description = description;
 
@@ -49,7 +49,7 @@ export const endpoint = (path: string = '/status') =>
       console.error('error fetching status:', e); // eslint-disable-line no-console
       code = 500;
       response.status = 'DOWN';
-      response.description = 'thre is an issue with the application';
+      response.description = 'there is an issue with the application';
     }
     return new Response(JSON.stringify(response), {
       headers: { 'Content-Type': 'application/json' },
@@ -87,12 +87,12 @@ export const checkBackend = async (): Promise<Adapter> => {
 };
 
 export const getAdapters = async (): Promise<Adapters> => {
-  return {
-    backend: await checkBackend(),
-  };
+  const { checkBackend } = await import('./status');
+  const backend = await checkBackend();
+  return { backend };
 };
 
-export const getSerivceStatus = async (
+export const getServiceStatus = async (
   adapters: Adapters,
 ): Promise<[ServiceStatus, string]> => {
   let status: ServiceStatus = 'UP';

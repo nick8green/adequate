@@ -21,6 +21,8 @@ services:
     container_name: adequate-app
     environment:
       - APP_NAME=adequate-dev
+    env_file:
+      - .env.local
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
       interval: 30s
@@ -34,6 +36,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app
+      - ./development/app/images:/app/apps/app/public/assets/images
 
   grafana:
     container_name: adequate-grafana

@@ -1,17 +1,6 @@
-import * as containerStartTimeModule from '@shared/metrics/containerStartTime';
-import * as httpRequestCountModule from '@shared/metrics/httpRequestCount';
-import * as responseTimeModule from '@shared/metrics/responseTime';
-import * as cumulativeLayoutShiftModule from '@shared/metrics/webVitals/cumulativeLayoutShift';
-import * as firstContentfulPaintModule from '@shared/metrics/webVitals/firstContentfulPaint';
-import * as firstInputDelayModule from '@shared/metrics/webVitals/firstInputDelay';
-import * as interactionToNextPaintModule from '@shared/metrics/webVitals/interactionToNextPaint';
-import * as largestContentfulPaintModule from '@shared/metrics/webVitals/largestContentfulPaint';
-import * as timeToFirstBiteModule from '@shared/metrics/webVitals/timeToFirstBite';
-import * as promClient from 'prom-client';
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 jest.mock('prom-client');
-jest.mock('@shared/metrics/httpRequestCount');
-jest.mock('@shared/metrics/responseTime');
 jest.mock('@shared/metrics/containerStartTime');
 jest.mock('@shared/metrics/webVitals/cumulativeLayoutShift');
 jest.mock('@shared/metrics/webVitals/firstContentfulPaint');
@@ -19,7 +8,24 @@ jest.mock('@shared/metrics/webVitals/firstInputDelay');
 jest.mock('@shared/metrics/webVitals/interactionToNextPaint');
 jest.mock('@shared/metrics/webVitals/largestContentfulPaint');
 jest.mock('@shared/metrics/webVitals/timeToFirstBite');
-jest.mock('@shared/metrics/withMetrics');
+
+const reportHttpRequestCount = jest.fn();
+const reportResponseTime = jest.fn();
+const withMetricsMock = jest.fn();
+
+jest.mock('@shared/metrics/httpRequestCount', () => ({
+  reportToPrometheus: reportHttpRequestCount,
+  httpRequestCounter: {},
+}));
+
+jest.mock('@shared/metrics/responseTime', () => ({
+  reportToPrometheus: reportResponseTime,
+  responseTime: {},
+}));
+
+jest.mock('@shared/metrics/withMetrics', () => ({
+  withMetrics: withMetricsMock,
+}));
 
 describe('metrics/index', () => {
   let registerMetricMock: jest.Mock;
@@ -27,29 +33,29 @@ describe('metrics/index', () => {
   let collectDefaultMetricsMock: jest.Mock;
 
   beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+
     registerMetricMock = jest.fn();
     RegistryMock = jest.fn().mockImplementation(() => ({
       registerMetric: registerMetricMock,
     }));
     collectDefaultMetricsMock = jest.fn();
 
-    (promClient.Registry as unknown as jest.Mock).mockImplementation(
-      RegistryMock,
+    const promClient = require('prom-client');
+    promClient.Registry.mockImplementation(RegistryMock);
+    promClient.collectDefaultMetrics.mockImplementation(
+      collectDefaultMetricsMock,
     );
-    (
-      promClient.collectDefaultMetrics as unknown as jest.Mock
-    ).mockImplementation(collectDefaultMetricsMock);
 
-    // Provide dummy metric objects for imports
-    (containerStartTimeModule as any).containerStartTime = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (httpRequestCountModule as any).httpRequestCounter = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (responseTimeModule as any).responseTime = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (cumulativeLayoutShiftModule as any).cls = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (firstContentfulPaintModule as any).fcp = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (firstInputDelayModule as any).fid = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (interactionToNextPaintModule as any).inp = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (largestContentfulPaintModule as any).lcp = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    (timeToFirstBiteModule as any).ttfb = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
+    // Stub web vitals and base metric modules after mocks
+    require('@shared/metrics/containerStartTime').containerStartTime = {};
+    require('@shared/metrics/webVitals/cumulativeLayoutShift').cls = {};
+    require('@shared/metrics/webVitals/firstContentfulPaint').fcp = {};
+    require('@shared/metrics/webVitals/firstInputDelay').fid = {};
+    require('@shared/metrics/webVitals/interactionToNextPaint').inp = {};
+    require('@shared/metrics/webVitals/largestContentfulPaint').lcp = {};
+    require('@shared/metrics/webVitals/timeToFirstBite').ttfb = {};
   });
 
   afterEach(() => {
@@ -58,46 +64,66 @@ describe('metrics/index', () => {
   });
 
   it('should create a new Registry and collect default metrics', () => {
-    require('./index'); // eslint-disable-line @typescript-eslint/no-require-imports
+    require('./index');
     expect(RegistryMock).toHaveBeenCalledTimes(1);
     expect(collectDefaultMetricsMock).toHaveBeenCalledWith(
       expect.objectContaining({ register: expect.any(Object) }),
     );
   });
 
-  //   it('should register all metrics', () => {
-  //     require('./index');
-  //     // 3 base metrics + 6 web vitals = 9
-  //     expect(registerMetricMock).toHaveBeenCalledTimes(9);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((containerStartTimeModule as any).containerStartTime);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((httpRequestCountModule as any).httpRequestCounter);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((responseTimeModule as any).responseTime);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((cumulativeLayoutShiftModule as any).cls);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((firstContentfulPaintModule as any).fcp);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((firstInputDelayModule as any).fid);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((interactionToNextPaintModule as any).inp);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((largestContentfulPaintModule as any).lcp);
-  //     expect(registerMetricMock).toHaveBeenCalledWith((timeToFirstBiteModule as any).ttfb);
-  //   });
+  it('should register all metrics', () => {
+    require('./index');
+    expect(registerMetricMock).toHaveBeenCalledTimes(9);
 
-  //   it('should export httpRequestCount and responseTime reportToPrometheus', async () => {
-  //     (httpRequestCountModule as any).reportToPrometheus = jest.fn();
-  //     (responseTimeModule as any).reportToPrometheus = jest.fn();
-  //     const index = await import('./index');
-  //     expect(index.httpRequestCount).toBe((httpRequestCountModule as any).reportToPrometheus);
-  //     expect(index.responseTime).toBe((responseTimeModule as any).reportToPrometheus);
-  //   });
+    const containerStartTimeModule = require('@shared/metrics/containerStartTime');
+    const httpRequestCountModule = require('@shared/metrics/httpRequestCount');
+    const responseTimeModule = require('@shared/metrics/responseTime');
+    const cumulativeLayoutShiftModule = require('@shared/metrics/webVitals/cumulativeLayoutShift');
+    const firstContentfulPaintModule = require('@shared/metrics/webVitals/firstContentfulPaint');
+    const firstInputDelayModule = require('@shared/metrics/webVitals/firstInputDelay');
+    const interactionToNextPaintModule = require('@shared/metrics/webVitals/interactionToNextPaint');
+    const largestContentfulPaintModule = require('@shared/metrics/webVitals/largestContentfulPaint');
+    const timeToFirstBiteModule = require('@shared/metrics/webVitals/timeToFirstBite');
 
-  it('should export withMetrics', async () => {
-    const withMetrics = jest.fn();
-    jest.doMock('@shared/metrics/withMetrics', () => ({ withMetrics }));
-    const index = await import('./index');
-    expect(index.withMetrics).toBe(withMetrics);
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      containerStartTimeModule.containerStartTime,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      httpRequestCountModule.httpRequestCounter,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      responseTimeModule.responseTime,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      cumulativeLayoutShiftModule.cls,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      firstContentfulPaintModule.fcp,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(firstInputDelayModule.fid);
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      interactionToNextPaintModule.inp,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(
+      largestContentfulPaintModule.lcp,
+    );
+    expect(registerMetricMock).toHaveBeenCalledWith(timeToFirstBiteModule.ttfb);
   });
 
-  it('should export register as Registry instance', async () => {
-    const index = await import('./index');
-    expect(index.register).toBeDefined();
-    expect(typeof index.register.registerMetric).toBe('function');
+  it('should export httpRequestCount and responseTime reportToPrometheus', () => {
+    const { httpRequestCount, responseTime } = require('./index');
+    expect(httpRequestCount).toBe(reportHttpRequestCount);
+    expect(responseTime).toBe(reportResponseTime);
+  });
+
+  it('should export withMetrics', () => {
+    const { withMetrics } = require('./index');
+    expect(withMetrics).toBe(withMetricsMock);
+  });
+
+  it('should export register as Registry instance', () => {
+    const { register } = require('./index');
+    expect(register).toBeDefined();
+    expect(typeof register.registerMetric).toBe('function');
   });
 });

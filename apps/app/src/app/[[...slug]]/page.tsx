@@ -26,7 +26,7 @@ const PageRoute = async ({ params, searchParams }: Readonly<Props>) => {
 
   httpRequestCount({
     method: 'GET',
-    route: `/${slug?.join('/') ?? ''}`,
+    route: `/${slug?.join('/')}`,
     statusCode: '200',
   });
 
