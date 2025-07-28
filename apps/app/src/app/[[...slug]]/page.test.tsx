@@ -1,6 +1,7 @@
 import Page from '@app/components/Page';
 import { reportToPrometheus as httpRequestCount } from '@shared/metrics/httpRequestCount';
 import { render } from '@testing-library/react';
+import React from 'react';
 
 import PageRoute, { generateMetadata } from './page';
 
@@ -57,14 +58,27 @@ describe('PageRoute', () => {
   });
 
   it('handles empty slug gracefully', async () => {
-    const emptySlugParams = Promise.resolve({ slug: ['foo', 'bar'] });
+    const emptySlugParams = Promise.resolve({ slug: [] });
     await PageRoute({
       params: emptySlugParams,
       searchParams: mockSearchParams,
     });
     expect(httpRequestCount).toHaveBeenCalledWith({
       method: 'GET',
-      route: '/foo/bar',
+      route: '/',
+      statusCode: '200',
+    });
+  });
+
+  it('handles undefined slug gracefully', async () => {
+    const undefinedSlugParams = Promise.resolve({ slug: undefined as any }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    await PageRoute({
+      params: undefinedSlugParams,
+      searchParams: mockSearchParams,
+    });
+    expect(httpRequestCount).toHaveBeenCalledWith({
+      method: 'GET',
+      route: '/undefined',
       statusCode: '200',
     });
   });

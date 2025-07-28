@@ -2,7 +2,7 @@ import lcovParse from 'lcov-parse';
 import path from 'path';
 import process from 'process';
 
-const summaryPath = path.resolve('merged-coverage/lcov.info');
+const summaryPath = path.resolve('coverage/lcov.info');
 
 lcovParse(summaryPath, async (err, data) => {
   if (err) throw err;
@@ -21,7 +21,7 @@ lcovParse(summaryPath, async (err, data) => {
     totalLines === 0 ? 0 : Math.round((coveredLines / totalLines) * 100);
 
   const filename = 'adequate-coverage-summary.json';
-  const gistId = '0a63a4be359ffe44629be280d9a88353'; // Replace with your real Gist ID
+  const gistId = '0a63a4be359ffe44629be280d9a88353';
   const token = process.env.GIST_TOKEN;
 
   let color;
