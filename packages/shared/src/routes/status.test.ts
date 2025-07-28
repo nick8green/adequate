@@ -251,15 +251,15 @@ describe('status module', () => {
   });
 
   describe('endpoint', () => {
-    let origionalFetch: typeof global.fetch;
+    let originalFetch: typeof global.fetch;
 
     beforeEach(() => {
-      origionalFetch = global.fetch;
+      originalFetch = global.fetch;
     });
 
     afterEach(() => {
       jest.clearAllMocks();
-      global.fetch = origionalFetch;
+      global.fetch = originalFetch;
     });
 
     it('returns 200 and correct response on success', async () => {

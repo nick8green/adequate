@@ -68,7 +68,7 @@ describe('withMetrics', () => {
 
     expect(reportResponseTime).toHaveBeenCalledWith({
       route,
-      statusCode: '200',
+      statusCode: mockResponse.status.toString(),
       responseTime: 100,
     });
   });

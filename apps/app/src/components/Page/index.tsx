@@ -1,14 +1,16 @@
 import Renderer, { PageElement } from '@shared/components/renderer';
 import { getPage } from '@shared/data';
 import { notFound } from 'next/navigation';
-import { FC } from 'react';
 
 type PageProps = {
   params: { [key: string]: string | string[] | undefined };
   slug: string[];
 };
 
-const Page: FC<Readonly<PageProps>> = async ({ params = {}, slug = [] }) => {
+const Page = async ({
+  params = {},
+  slug = [],
+}: Readonly<PageProps>): Promise<React.ReactElement | null> => {
   let structure: PageElement[] = [];
   try {
     structure = await getPage(slug, params);
