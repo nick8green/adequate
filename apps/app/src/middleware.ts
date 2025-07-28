@@ -1,1 +1,1 @@
-export { config, middleware } from '@shared/middleware';
+export { config, middleware } from '@shared/middleware/nextjs';
