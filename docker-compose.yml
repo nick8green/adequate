@@ -2,6 +2,8 @@ services:
   admin:
     command: yarn workspace admin dev
     container_name: adequate-admin
+    environment:
+      APP_NAME: adequate-admin
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
       interval: 30s
@@ -20,7 +22,7 @@ services:
     command: yarn workspace app dev
     container_name: adequate-app
     environment:
-      - APP_NAME=adequate-dev
+      APP_NAME: adequate-app
     env_file:
       - .env.local
     healthcheck:
@@ -37,6 +39,60 @@ services:
     volumes:
       - .:/app
       - ./development/app/images:/app/apps/app/public/assets/images
+
+  content:
+    command: yarn workspace content dev
+    container_name: adequate-content
+    environment:
+      APP_NAME: adequate-content
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/graphql']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: node:${NODE_VERSION:-24}
+    networks:
+      - service
+    ports:
+      - '3002:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
+  docs:
+    command: yarn workspace docs start --host 0.0.0.0 --no-open --poll 2000
+    container_name: adequate-docs
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: node:${NODE_VERSION:-24}
+    ports:
+      - '3030:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
+  gateway:
+    # command: yarn workspace gateway dev
+    container_name: adequate-gateway
+    environment:
+      APP_NAME: adequate-gateway
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/graphql']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: node:${NODE_VERSION:-24}
+    networks:
+      - app
+      - service
+    ports:
+      - '4000:4000'
+    working_dir: /app
+    volumes:
+      - .:/app
 
   grafana:
     container_name: adequate-grafana
@@ -77,21 +133,6 @@ services:
     ports:
       - '9091:9091'
 
-  docs:
-    command: yarn workspace docs start --host 0.0.0.0 --no-open --poll 2000
-    container_name: adequate-docs
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    image: node:${NODE_VERSION:-24}
-    ports:
-      - '3030:3000'
-    working_dir: /app
-    volumes:
-      - .:/app
-
 networks:
   admin:
     name: adequate-admin
@@ -99,6 +140,8 @@ networks:
     name: adequate-dev
   monitoring:
     name: adequate-monitoring
+  service:
+    name: adequate-federation
 
 volumes:
   grafana-storage:
