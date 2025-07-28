@@ -84,4 +84,63 @@ describe('rateLimit/limit', () => {
     expect(getDistrubutedRateLimiter).toHaveBeenCalledTimes(2);
     expect(limiter1).not.toBe(limiter2);
   });
+
+  it('returns a disabled limiter if REQUEST_LIMIT is 0', () => {
+    process.env.REQUEST_LIMIT = '0';
+    process.env.REQUEST_LIMIT_TIMEFRAME = '600';
+
+    const limiter = getLimiter();
+
+    expect(limiter.limit('127.0.0.1')).toEqual({ success: true });
+    expect(getDistrubutedRateLimiter).not.toHaveBeenCalled();
+    expect(getStaticRateLimiter).not.toHaveBeenCalled();
+  });
+
+  it('returns a disabled limiter if REQUEST_LIMIT_TIMEFRAME is 0', () => {
+    process.env.REQUEST_LIMIT = '100';
+    process.env.REQUEST_LIMIT_TIMEFRAME = '0';
+
+    const limiter = getLimiter();
+
+    expect(limiter.limit('127.0.0.1')).toEqual({ success: true });
+    expect(getDistrubutedRateLimiter).not.toHaveBeenCalled();
+    expect(getStaticRateLimiter).not.toHaveBeenCalled();
+  });
+
+  it('logs initialization info when limiter is created', () => {
+    process.env.REQUEST_LIMIT = '5';
+    process.env.REQUEST_LIMIT_TIMEFRAME = '10';
+    delete process.env.REDIS_REST_URL;
+    delete process.env.REDIS_REST_TOKEN;
+
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    getLimiter();
+
+    expect(logSpy).toHaveBeenCalledWith(
+      '============================================================',
+    );
+    expect(logSpy).toHaveBeenCalledWith('Request limit:', '5');
+    expect(logSpy).toHaveBeenCalledWith('Request timeframe:', '10');
+    expect(logSpy).toHaveBeenCalledWith(
+      'Rate limiter initialized: 5 requests per 10 seconds',
+    );
+    expect(logSpy).toHaveBeenCalledWith(
+      '============================================================',
+    );
+    logSpy.mockRestore();
+  });
+
+  it('logs debug message when rate limiting is disabled', () => {
+    process.env.REQUEST_LIMIT = '0';
+    process.env.REQUEST_LIMIT_TIMEFRAME = '0';
+
+    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+    const limiter = getLimiter();
+    limiter.limit('127.0.0.1');
+
+    expect(debugSpy).toHaveBeenCalledWith(
+      'Rate limiting is disabled. REQUEST_LIMIT and REQUEST_LIMIT_TIMEFRAME should be set.',
+    );
+    debugSpy.mockRestore();
+  });
 });

@@ -1,0 +1,29 @@
+.banner {
+  background-color: var(--secondary-colour, transparent);
+  display: flex;
+  flex-flow: row nowrap;
+  min-height: 10em;
+  width: 100%;
+}
+
+.banner .banner-content {
+  flex: 2;
+  order: 2;
+  padding: 1em;
+}
+.banner .banner-image {
+  flex: 1;
+  overflow: hidden;
+}
+.banner .banner-image.left {
+  order: 1;
+}
+.banner .banner-image.right {
+  order: 3;
+}
+
+.banner .banner-image img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}

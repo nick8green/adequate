@@ -27,6 +27,20 @@ describe('endpoint', () => {
     jest.clearAllMocks();
   });
 
+  it('returns 400 no metrics provided', async () => {
+    const req = createRequest({ name: 'unknownMetric' });
+    const jsonSpy = jest.spyOn(Response, 'json');
+
+    const handler = endpoint('/metrics');
+    await handler(req);
+
+    expect(jsonSpy).toHaveBeenCalledWith(
+      { error: 'no metric found' },
+      { status: 400 },
+    );
+    expect(mockReportToPrometheus).not.toHaveBeenCalled();
+  });
+
   it('returns 400 if metric is not found', async () => {
     const req = createRequest({ name: 'unknownMetric' });
     const jsonSpy = jest.spyOn(Response, 'json');

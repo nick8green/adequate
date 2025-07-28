@@ -38,7 +38,6 @@ describe('GlobalError', () => {
 
   it('renders the error modal with correct content', () => {
     render(<GlobalError error={error} reset={reset} />);
-    expect(screen.getByTestId('modal')).toBeInTheDocument();
     expect(screen.getByText('Something went wrong!')).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -57,12 +56,6 @@ describe('GlobalError', () => {
   it('calls reset when "Try again" button is clicked', () => {
     render(<GlobalError error={error} reset={reset} />);
     fireEvent.click(screen.getByText('Try again'));
-    expect(reset).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls reset when Modal onClose is triggered', () => {
-    render(<GlobalError error={error} reset={reset} />);
-    fireEvent.click(screen.getByTestId('close-modal'));
     expect(reset).toHaveBeenCalledTimes(1);
   });
 

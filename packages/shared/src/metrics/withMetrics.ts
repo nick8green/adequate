@@ -19,7 +19,7 @@ export const withMetrics = (
     const duration = Date.now() - start;
     reportResponseTime({
       route,
-      statusCode: '200',
+      statusCode: res.status.toString(),
       responseTime: duration,
     });
     return res;

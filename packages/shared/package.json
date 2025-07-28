@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@upstash/ratelimit": "^2.0.5",
+    "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.0",
     "prom-client": "15.1.3"
   }
