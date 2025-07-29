@@ -1,0 +1,30 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.0"
+    import: ["@key", "@shareable"]
+  )
+
+type Query {
+  pages(filter: PageFilter): [Page!]!
+}
+
+type Element {
+  name: String!
+}
+
+type Page @key(fields: "id") {
+  id: ID!
+  slug: String!
+  structure: [Element]!
+  tags: [String!]
+  title: String!
+}
+
+type Property {
+  key: String!
+  value: String!
+}
+
+input PageFilter {
+  id: [ID!]
+}
