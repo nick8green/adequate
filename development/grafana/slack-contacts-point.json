@@ -1,0 +1,12 @@
+{
+  "name": "Slack Alerts",
+  "type": "slack",
+  "uid": "slack-alerts",
+  "settings": {
+    "token": "overrideme",
+    "recipient": "#alerting-dev"
+  },
+  "secureSettings": {
+    "url": "https://hooks.slack.com/services/xxx/yyy/zzz"
+  }
+}
