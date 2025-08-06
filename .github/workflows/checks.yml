@@ -38,6 +38,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  debugging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if GH_TOKEN is set
+        if: ${{ env.GH_TOKEN != '' }}
+        run: echo "GH_TOKEN is available"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Check if GH_PACKAGES_TOKEN is set
+        if: ${{ env.GH_PACKAGES_TOKEN != '' }}
+        run: echo "GH_PACKAGES_TOKEN is available"
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+
   # run unit tests
   test:
     name: 🧪 unit tests
