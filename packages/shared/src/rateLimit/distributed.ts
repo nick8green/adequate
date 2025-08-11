@@ -9,17 +9,20 @@ export const getRateLimiter = (requests: number, seconds: number) => {
 
   let suffix = 's';
   let timeScale = seconds;
+  let minutes, hours;
   if (seconds >= 60) {
     suffix = 'm';
-    timeScale = seconds / 60;
+    minutes = seconds / 60;
+    timeScale = minutes;
   }
-  if (timeScale >= 60) {
+  if (minutes && minutes >= 60) {
     suffix = 'h';
-    timeScale = timeScale / 60;
+    hours = minutes / 60;
+    timeScale = hours;
   }
-  if (seconds >= 24) {
+  if (hours && hours >= 24) {
     suffix = 'd';
-    timeScale = seconds / 24;
+    timeScale = hours / 24;
   }
 
   return new Ratelimit({

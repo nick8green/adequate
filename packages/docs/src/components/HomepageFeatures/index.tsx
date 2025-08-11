@@ -2,7 +2,7 @@ import docusaurusMountain from '@site/static/img/undraw_docusaurus_mountain.svg'
 import docusaurusReact from '@site/static/img/undraw_docusaurus_react.svg';
 import docusaurusTree from '@site/static/img/undraw_docusaurus_tree.svg';
 import Heading from '@theme/Heading';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type {ReactNode} from 'react';
 
 import styles from './styles.module.css';
