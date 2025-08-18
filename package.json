@@ -32,12 +32,12 @@
     "@eslint/js": "9.33.0",
     "@next/eslint-plugin-next": "15.4.6",
     "@testing-library/dom": "10.4.1",
-    "@testing-library/jest-dom": "6.6.4",
+    "@testing-library/jest-dom": "6.7.0",
     "@types/jest": "30.0.0",
-    "@types/react": "19.1.9",
+    "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
-    "@typescript-eslint/eslint-plugin": "8.39.0",
-    "@typescript-eslint/parser": "8.39.0",
+    "@typescript-eslint/eslint-plugin": "8.39.1",
+    "@typescript-eslint/parser": "8.39.1",
     "eslint": "9.33.0",
     "eslint-config-next": "15.4.6",
     "eslint-config-prettier": "10.1.8",
@@ -58,7 +58,7 @@
     "prettier": "3.6.2",
     "ts-jest": "29.4.1",
     "typescript": "5.9.2",
-    "typescript-eslint": "8.39.0"
+    "typescript-eslint": "8.39.1"
   },
   "dependencies": {
     "@nick8green/components": "1.0.0",
