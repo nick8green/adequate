@@ -1,4 +1,8 @@
 export const getRateLimiter = (requests: number, seconds: number) => {
+  // eslint-disable-next-line no-console
+  console.log(
+    `Rate limiter initialized: ${requests} requests per ${seconds} seconds`,
+  );
   const ipCache = new Map<string, { count: number; expires: number }>();
 
   return {
@@ -7,6 +11,8 @@ export const getRateLimiter = (requests: number, seconds: number) => {
       const windowMs = seconds * 1000;
 
       let entry = ipCache.get(ip);
+
+      console.debug(`Checking rate limit for IP: ${ip}, current entry:`, entry); // eslint-disable-line no-console
 
       if (!entry || now > entry.expires) {
         entry = { count: 1, expires: now + windowMs };

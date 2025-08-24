@@ -85,4 +85,13 @@ module.exports = defineConfig([
 
     extends: compat.extends('plugin:playwright/recommended'),
   },
+  {
+    settings: {
+      'import/resolver': {
+        typescript: {
+          project: './tsconfig.jest.json',
+        },
+      },
+    },
+  },
 ]);

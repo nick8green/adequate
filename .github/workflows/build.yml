@@ -40,7 +40,7 @@ jobs:
       node-version: ${{ steps.node.outputs.version }}
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
@@ -118,7 +118,7 @@ jobs:
         VERSION=${{ matrix.version }}
       context: .
       file: apps/${{ matrix.app }}/Dockerfile
-      reference: ${{ github.repository }}/${{ matrix.app }}
+      reference: ${{ github.repository }}-${{ matrix.app }}
       registry: ghcr.io
       tag: ${{ matrix.version }}
       timeout: 30
