@@ -1,100 +1,126 @@
-name: create final pr to main
+name: deploy applications
+
 on:
   push:
-    branches:
-      - release
+    branches: [release]
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'App to deploy'
+        required: true
+        type: choice
+        default: ''
+        options: [admin, app, service]
+      version:
+        description: 'Version to deploy'
+        required: true
+        type: string
+        default: 'latest'
 
 jobs:
   configure:
     name: ⏳ initialize workflow
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-    runs-on: ubuntu-latest
     steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+      - name: checkout
+        uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
-      - name: generate matrix
+      - name: generate deployment matrix
         id: set-matrix
         run: |
           ref="${{ github.ref }}"
           branch="${ref##*/}"
-          echo "Branch: $branch"
+          manual_app="${{ github.event.inputs.app }}"
+          manual_version="${{ github.event.inputs.version }}"
+          mkdir -p tmp_matrix
+          > tmp_matrix/entries.json
 
-          before="${{ github.event.before }}"
-          sha="${{ github.sha }}"
+          build_entry() {
+            local app=$1
+            local version=$2
+            ./.github/scripts/resolve-matrix-entry.sh "$app" "$version" "$branch" >> tmp_matrix/entries.json
+          }
 
-          if git cat-file -e "$before^{commit}" 2>/dev/null; then
-            base_commit="$before"
+          if [ -n "$manual_app" ]; then
+            build_entry "$manual_app" "$manual_version"
           else
-            base_commit=$(git rev-parse HEAD~1)
-          fi
+            before="${{ github.event.before }}"
+            sha="${{ github.sha }}"
+            base_commit=$(git cat-file -e "$before^{commit}" 2>/dev/null && echo "$before" || git rev-parse HEAD~1)
+            changed_apps=$(git diff --name-only "$base_commit" "$sha" | grep '^apps/' | cut -d/ -f2 | sort -u)
 
-          changed_files=$(git diff --name-only "$base_commit" "$sha")
-          apps=$(echo "$changed_files" | grep '^apps/' | cut -d/ -f2 | sort -u | uniq)
-
-          valid_apps=()
-          for app in $apps; do
-            pkg_json="apps/$app/package.json"
-            if [ -f "apps/$app/Dockerfile" ] && [ -f "$pkg_json" ]; then
-              if [ "$branch" = "release" ]; then
-                version=$(jq -r .version "$pkg_json")
-              else
-                version="$branch"
+            for app in $changed_apps; do
+              if [[ -f "apps/$app/Dockerfile" && -f "apps/$app/package.json" ]]; then
+                version=$(jq -r .version "apps/$app/package.json")
+                build_entry "$app" "$version"
               fi
-              # Sanitize version (for Docker tag compatibility)
-              version=$(echo "$version" | tr '/' '-' | tr -c 'a-zA-Z0-9_.-' '-' | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
-              valid_apps+=("{\"app\": \"$app\", \"version\": \"$version\"}")
-            fi
-          done
-
-          if [ ${#valid_apps[@]} -eq 0 ]; then
-            matrix_json="{\"include\": []}"
-          else
-            matrix_json="{\"include\": [$(IFS=,; echo "${valid_apps[*]}")]}"
+            done
           fi
 
-          echo "Generated matrix: $matrix_json"
-          echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
+          entries=$(paste -sd, tmp_matrix/entries.json)
+          if [[ -z "$entries" ]]; then
+            echo "matrix=" >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix={\"include\": [${entries}]}" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          APP_PORT_ADMIN: ${{ vars.APP_PORT_ADMIN }}
+          APP_PORT_APP: ${{ vars.APP_PORT_APP }}
+          APP_PORT_SERVICE: ${{ vars.APP_PORT_SERVICE }}
+          APP_OPTIONS_ADMIN: ${{ vars.APP_OPTIONS_ADMIN }}
+          APP_OPTIONS_APP: ${{ vars.APP_OPTIONS_APP }}
+          APP_OPTIONS_SERVICE: ${{ vars.APP_OPTIONS_SERVICE }}
 
   deploy:
-    name: 🚀 deploy ${{ matrix.app }} updates
-    needs:
-      - configure
-    if: needs.configure.outputs.matrix != '{"include":[]}'
+    name: 🚀 deploy ${{ matrix.app }}
+    needs: configure
+    if: ${{ needs.configure.outputs.matrix != '' }}
     strategy:
       matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
     uses: nick8green/workflows/.github/workflows/docker-deploy.yml@main
     with:
-      image: ghcr.io/nick8green/adequate/${{ matrix.app }}
+      image: ghcr.io/nick8green/adequate-${{ matrix.app }}
       name: adequate-${{ matrix.app }}
+      options: >-
+        -p ${{ matrix.port }}:3000
+        --log-driver=json-file
+        --log-opt max-size=10m
+        --log-opt max-file=3
+        ${{ matrix.options }}
       version: ${{ matrix.version }}
     secrets:
       host: ${{ secrets.DEPLOY_HOST }}
       network: ${{ secrets.DOCKER_NETWORK }}
       user: ${{ secrets.DEPLOY_USER }}
-      token: ${{ secrets.DEPLOY_KEY }}
-      options: -v ${{ secrets.PORT }}:3000
+      key: ${{ secrets.DEPLOY_KEY }}
+      token: ${{ secrets.DEPLOY_IMAGE_TOKEN }}
 
   create-pr:
     name: 📨 create pr to main
-    needs:
-      - deploy
+    needs: deploy
+    if: endsWith(github.ref, 'refs/heads/release')
     permissions:
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - name: create pr
-        uses: devops-infra/action-pull-request@v0.6.0
+      - name: checkout repository
+        uses: actions/checkout@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: create pr
+        uses: devops-infra/action-pull-request@16a3a68f0b9368227271a4b9f3766c726b50a575
+        with:
+          github_token: ${{ secrets.GH_PR_TOKEN }}
           label: automatic
           source_branch: release
           target_branch: main
           title: Latest Release
-          body: '**Automated pull request**'
+          body: '**Automated Pull Request**'
           draft: false
           get_diff: true

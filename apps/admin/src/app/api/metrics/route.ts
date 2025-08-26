@@ -1,10 +1,10 @@
-import { NextResponse as Response } from 'next/server';
+import { SupportedMetrics } from '@shared/metrics';
+import collectMetrics from '@shared/metrics/collect';
+import serveMetrics from '@shared/metrics/serve';
 
-// Export a middleware function to expose a /metrics endpoint
-export const GET = async (): Promise<Response> => {
-  return new Response(
-    'metrics endpoint is not available in this environment yet.',
-  );
-};
+const supportedMetrics: SupportedMetrics = {};
 
 export const revalidate = 0;
+
+export const GET = serveMetrics('/metrics');
+export const POST = collectMetrics('/metrics', supportedMetrics);

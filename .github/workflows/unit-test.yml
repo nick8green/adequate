@@ -1,0 +1,78 @@
+name: test matrix
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+        description: 'Slack webhook URL for notifications'
+      GH_TOKEN:
+        required: true
+        description: 'GitHub token for actions that require authentication'
+      GIST_TOKEN:
+        required: true
+        description: 'GitHub token for updating the coverage badge'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: test
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 🧱 setup workspace
+        uses: nick8green/workflows/actions/node/setup@f20240f2265c8e777e01982c8cd31b057b8c1155
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: run tests
+        id: test
+        run: yarn test:ci
+        continue-on-error: false
+
+      - name: upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+  notify:
+    needs: test
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: post to slack
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "text": "🚨 Test failed in `${{ github.workflow }}` on branch `${{ github.ref_name }}`. Please investigate: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }' $SLACK_WEBHOOK_URL
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  update-badge:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 🧱 setup workspace
+        uses: nick8green/workflows/actions/node/setup@f20240f2265c8e777e01982c8cd31b057b8c1155
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: download merged coverage
+        uses: actions/download-artifact@v5
+        with:
+          name: coverage
+          path: coverage
+
+      - run: |
+          ls -ls coverage
+
+      - name: update coverage badge
+        run: node scripts/update-coverage-badge.js
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}

@@ -1,12 +1,6 @@
 name: build checks for application
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - release
-    paths:
-      - '.github/workflows/checks.yml'
   workflow_call:
     inputs:
       scan:
@@ -47,9 +41,11 @@ jobs:
   # run unit tests
   test:
     name: 🧪 unit tests
-    uses: nick8green/workflows/.github/workflows/node-unit-test.yml@main
+    uses: ./.github/workflows/unit-test.yml
     secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GH_PACKAGES_TOKEN }}
+      GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
 
   # lint code
   linting:
@@ -64,7 +60,7 @@ jobs:
     name: 🔍 check image for vulnerabilities
     steps:
       - name: 🛎️ checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -91,15 +87,32 @@ jobs:
 
   sonarqube:
     name: ⌨️ SonarQube
+    needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: 🔒 Check if SONAR_TOKEN is set
         if: ${{ env.SONAR_TOKEN != '' }}
-        run: echo "SNYK_TOKEN is available"
+        run: echo "SONAR_TOKEN is available"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: download all coverage artifacts
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: actions/download-artifact@v5
+        with:
+          name: coverage
+          path: coverage
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - if: ${{ env.SONAR_TOKEN != '' }}
+        run: |
+          echo "Merged coverage report downloaded:"
+          ls -la coverage
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
