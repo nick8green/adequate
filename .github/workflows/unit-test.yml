@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: 🧱 setup workspace
-        uses: nick8green/workflows/actions/node/setup@main
+        uses: nick8green/workflows/actions/node/setup@f20240f2265c8e777e01982c8cd31b057b8c1155
         with:
           token: ${{ secrets.GH_TOKEN }}
 
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: 🧱 setup workspace
-        uses: nick8green/workflows/actions/node/setup@main
+        uses: nick8green/workflows/actions/node/setup@f20240f2265c8e777e01982c8cd31b057b8c1155
         with:
           token: ${{ secrets.GH_TOKEN }}
 

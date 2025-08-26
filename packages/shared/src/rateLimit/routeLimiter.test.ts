@@ -8,12 +8,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import limiter from './routeLimiter';
 
-jest.mock('next/server', () => ({
-  NextRequest: class {},
-  NextResponse: {
-    json: jest.fn(),
-  },
-}));
 jest.mock('@shared/rateLimit');
 jest.mock('@shared/rateLimit/ip');
 jest.mock('next/server', () => ({
