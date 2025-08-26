@@ -1,0 +1,27 @@
+{
+  "name": "content-service",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "yarn generate && tsup",
+    "dev": "concurrently --kill-others \"yarn dev:schemagen\" \"yarn dev:server\"",
+    "dev:server": "nodemon --watch 'src/**/*' --watch '../../packages/shared/**/*' --exec 'ts-node --project ./tsconfig.json -r tsconfig-paths/register ./src/index.ts' --ext js,json,ts",
+    "dev:schemagen": "nodemon --watch 'src/**/*' --exec \"yarn generate\" --ext graphql",
+    "generate": "graphql-codegen --config codegen.yml && echo \"Types generated...\"",
+    "prebuild": "rm -rf dist",
+    "predev": "rm -rf dist && yarn generate"
+  },
+  "dependencies": {
+    "@apollo/server": "5.0.0",
+    "@apollo/subgraph": "2.11.2",
+    "graphql": "16.11.0",
+    "graphql-tag": "2.12.6",
+    "node-fetch": "3.3.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.7",
+    "@graphql-codegen/typescript": "4.1.6",
+    "@graphql-codegen/typescript-resolvers": "4.5.1",
+    "tsconfig-paths": "4.2.0"
+  }
+}

@@ -1,10 +1,11 @@
 import { register as client } from '@shared/metrics';
 import { withMetrics } from '@shared/metrics/withMetrics';
-import { NextResponse as Response } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
-export const endpoint = (path: string = '/metrics') =>
-  withMetrics(async (): Promise<Response> => {
-    return new Response(await client.metrics(), {
+export const next = (path: string = '/metrics') =>
+  withMetrics(async (): Promise<NextResponse> => {
+    return new NextResponse(await client.metrics(), {
       headers: {
         'Cache-Control': 'no-store',
         'Content-Type': client.contentType,
@@ -12,4 +13,11 @@ export const endpoint = (path: string = '/metrics') =>
     });
   }, path);
 
-export default endpoint;
+  export const express = async (_: ExpressRequest, response: ExpressResponse) => {
+      const metrics = await client.metrics();
+      response.set({
+        'Cache-Control': 'no-store',
+        'Content-Type': client.contentType,
+      });
+      response.send(metrics);
+    };

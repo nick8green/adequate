@@ -17,12 +17,10 @@ export const getPage = async (
     return [
       {
         type: 'Banner',
-        props: {
-          title: 'About Us',
-          description: 'This is the about page.',
-          image: '/assets/images/coding.jpg',
-          side: 'left',
-        },
+        title: 'About Us',
+        description: 'This is the about page.',
+        image: '/assets/images/coding.jpg',
+        side: 'left',
       },
       {
         type: 'Markdown',
@@ -30,12 +28,10 @@ export const getPage = async (
       },
       {
         type: 'Banner',
-        props: {
-          title: 'Contact Us',
-          description: 'This is the contact page.',
-          image: '/assets/images/desk.jpg',
-          side: 'right',
-        },
+        title: 'Contact Us',
+        description: 'This is the contact page.',
+        image: '/assets/images/desk.jpg',
+        side: 'right',
       },
     ];
   }

@@ -14,8 +14,9 @@ type RendererProps = {
 
 export type PageElement = {
   type?: string;
-  props?: object;
   content?: string;
+} & {
+  [key: string]: boolean | number | string;
 };
 
 const Renderer: FC<Readonly<RendererProps>> = ({ structure }) => {
@@ -27,7 +28,8 @@ const Renderer: FC<Readonly<RendererProps>> = ({ structure }) => {
   };
 
   const renderItem = (structure: PageElement, key: string) => {
-    const { type, props, content } = structure;
+    const { type, content } = structure;
+    const props = { ...structure };
     const Component = type ? Components[type] : Markdown;
 
     if (!Component) {

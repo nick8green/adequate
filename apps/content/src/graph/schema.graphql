@@ -1,0 +1,66 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.0"
+    import: ["@key", "@shareable"]
+  )
+
+type Query {
+  pages(filter: PageFilter): [Page!]!
+}
+
+# Service types
+
+"""
+Banner element for the structure
+"""
+type Banner {
+  title: String!
+  description: String
+  image: String!
+  side: String!
+}
+
+"""
+Markdown element for the structure
+"""
+type Markdown {
+  """ The content of the markdown element """
+  content: String!
+}
+
+"""
+Page data
+"""
+type Page @key(fields: "id") {
+  """ The UUID of the page """
+  id: ID!
+  """ The slug identified for the page """
+  slug: String!
+  """ The structure of the page to be rendered """
+  structure: [Element]!
+  """ Any tags that can be used on the page as potential identifiers """
+  tags: [String!]
+  """ The page title """
+  title: String!
+}
+
+# Inputs
+
+"""
+Page filtering options
+This allows filtering by ID, slug, and tags.
+IDs are an array of IDs, slug is a single string, and tags are an array of strings.
+This is useful for querying specific pages based on their identifiers or attributes.
+"""
+input PageFilter {
+  """ Filter by page IDs """
+  id: [ID!]
+  """ Filter by page slug """
+  slug: String
+  """ Filter by page tags """
+  tags: [String!]
+}
+
+# Union types
+
+union Element = Banner | Markdown

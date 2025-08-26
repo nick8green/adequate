@@ -1,7 +1,7 @@
 import { SupportedMetrics } from '@shared/metrics';
 import collectMetrics from '@shared/metrics/collect';
 import * as httpRequestCounter from '@shared/metrics/httpRequestCount';
-import serveMetrics from '@shared/metrics/serve';
+import { next as serveMetrics } from '@shared/metrics/serve';
 import * as cls from '@shared/metrics/webVitals/cumulativeLayoutShift';
 import * as fcp from '@shared/metrics/webVitals/firstContentfulPaint';
 import * as fid from '@shared/metrics/webVitals/firstInputDelay';

@@ -32,7 +32,7 @@ describe('metrics route', () => {
 
   it('should export GET as the result of serveMetrics("/metrics")', () => {
     expect(route.GET).toBe('serveMetricsHandler');
-    expect(serve.default).toHaveBeenCalledWith('/metrics');
+    expect(serve.next).toHaveBeenCalledWith('/metrics');
   });
 
   it('should export POST as the result of collectMetrics("/metrics", supportedMetrics)', () => {
