@@ -24,6 +24,11 @@ lcovParse(summaryPath, async (err, data) => {
   const gistId = '0a63a4be359ffe44629be280d9a88353';
   const token = process.env.GIST_TOKEN;
 
+  if (!token) {
+    console.error('Error: GIST_TOKEN environment variable is not set.'); // eslint-disable-line no-console
+    process.exit(1);
+  }
+
   let color;
 
   if (pct >= 90) {
