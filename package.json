@@ -62,9 +62,9 @@
   },
   "dependencies": {
     "@nick8green/components": "1.0.0",
-    "@opentelemetry/api-logs": "0.203.0",
-    "@opentelemetry/instrumentation": "0.203.0",
-    "@opentelemetry/sdk-logs": "0.203.0",
+    "@opentelemetry/api-logs": "0.204.0",
+    "@opentelemetry/instrumentation": "0.204.0",
+    "@opentelemetry/sdk-logs": "0.204.0",
     "@testing-library/react": "16.3.0",
     "@vercel/otel": "1.13.0",
     "next": "15.5.2",
