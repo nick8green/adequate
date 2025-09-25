@@ -54,7 +54,7 @@ describe('Renderer', () => {
   it('renders Markdown by default if type is missing', () => {
     const structure: PageElement[] = [
       {
-        props: { 'data-md': 'md-prop' },
+        'data-md': 'md-prop',
         content: 'Default Markdown Content',
       },
     ];
@@ -69,7 +69,7 @@ describe('Renderer', () => {
     const structure: PageElement[] = [
       {
         type: 'Banner',
-        props: { 'data-banner': 'banner-prop' },
+        'data-banner': 'banner-prop',
       },
     ];
     render(<Renderer structure={structure} />);

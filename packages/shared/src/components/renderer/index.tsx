@@ -31,6 +31,8 @@ const Renderer: FC<Readonly<RendererProps>> = ({ structure }) => {
   const renderItem = (structure: PageElement, key: string) => {
     const { type, content } = structure;
     const props = { ...structure };
+    delete props.type;
+    delete props.content;
     const Component = type ? Components[type] : Markdown;
 
     if (!Component) {

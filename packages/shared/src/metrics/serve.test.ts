@@ -1,5 +1,5 @@
 import { register as client } from '@shared/metrics';
-import { endpoint } from '@shared/metrics/serve';
+import { next as nextEndpoint } from '@shared/metrics/serve';
 import { withMetrics } from '@shared/metrics/withMetrics';
 
 jest.mock('@shared/metrics/withMetrics');
@@ -24,19 +24,19 @@ describe('endpoint', () => {
   });
 
   it('should call withMetrics with default path', async () => {
-    const result = endpoint();
+    const result = nextEndpoint();
     expect(result.path).toBe('/metrics');
     expect(typeof result.handler).toBe('function');
   });
 
   it('should call withMetrics with custom path', async () => {
-    const result = endpoint('/custom');
+    const result = nextEndpoint('/custom');
     expect(result.path).toBe('/custom');
   });
 
   it('handler should return a Response with metrics and correct headers', async () => {
     mockMetrics.mockResolvedValue('metrics-data');
-    const result = endpoint();
+    const result = nextEndpoint();
     const response = await result.handler();
 
     expect(mockMetrics).toHaveBeenCalled();

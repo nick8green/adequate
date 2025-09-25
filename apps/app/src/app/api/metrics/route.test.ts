@@ -11,7 +11,7 @@ import * as ttfb from '@shared/metrics/webVitals/timeToFirstBite';
 
 jest.mock('@shared/metrics/serve', () => ({
   __esModule: true,
-  default: jest.fn(() => 'serveMetricsHandler'),
+  next: jest.fn(() => 'serveMetricsHandler'),
 }));
 jest.mock('@shared/metrics/collect', () => ({
   __esModule: true,
