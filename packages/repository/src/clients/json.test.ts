@@ -2,18 +2,18 @@ import JsonClient from '@repository/clients/json';
 import fs from 'fs';
 
 const fileDoesntExistTest = async (func: string, ...args: any[]) => {
-  const client = new JsonClient();
+  const client = (await JsonClient.init()) as JsonClient;
   client.directory = '/tmp';
 
   const type = 'nonExistentType';
   jest.spyOn(fs, 'existsSync').mockReturnValue(false);
   await expect((client as any)[func](type, ...(args ?? []))).rejects.toThrow(
-    'data file could not be found!',
+    'data file "/tmp/nonExistentType.json" could not be found!',
   );
 };
 
 const notWellFormedTest = async (func: string, ...args: any[]) => {
-  const client = new JsonClient();
+  const client = (await JsonClient.init()) as JsonClient;
   client.directory = '/tmp';
 
   const type = 'legitFile';
@@ -25,7 +25,7 @@ const notWellFormedTest = async (func: string, ...args: any[]) => {
 };
 
 const dataNotAnArrayTest = async (func: string, ...args: any[]) => {
-  const client = new JsonClient();
+  const client = (await JsonClient.init()) as JsonClient;
   client.directory = '/tmp';
 
   const type = 'legitFile';
@@ -37,7 +37,7 @@ const dataNotAnArrayTest = async (func: string, ...args: any[]) => {
 };
 
 const cannotWriteToFileTest = async (func: string, ...args: any[]) => {
-  const client = new JsonClient();
+  const client = (await JsonClient.init()) as JsonClient;
   client.directory = '/tmp';
 
   const type = 'legitFile';
@@ -72,22 +72,21 @@ describe('json client', () => {
   describe('init', () => {
     it('should throw an error if data directory is missing', async () => {
       delete process.env.DATA_DIRECTORY;
-      const client = new JsonClient();
-      await expect(client.init()).rejects.toThrow('data directory missing!');
+      await expect(JsonClient.init()).rejects.toThrow(
+        'data directory missing!',
+      );
     });
 
     it('should throw an error if data directory does not exist', async () => {
       process.env.DATA_DIRECTORY = '/invalid/path';
-      const client = new JsonClient();
-      await expect(client.init()).rejects.toThrow(
+      await expect(JsonClient.init()).rejects.toThrow(
         'data directory does not exist!',
       );
     });
 
     it('should connect if data directory is valid', async () => {
       process.env.DATA_DIRECTORY = '/tmp';
-      const client = new JsonClient();
-      await client.init();
+      const client = (await JsonClient.init()) as JsonClient;
       expect(client.isConnected()).toBe(true);
     });
   });
@@ -95,8 +94,7 @@ describe('json client', () => {
   describe('close', () => {
     it('should reset the directory on close', async () => {
       process.env.DATA_DIRECTORY = '/tmp';
-      const client = new JsonClient();
-      await client.init();
+      const client = (await JsonClient.init()) as JsonClient;
       expect(client.isConnected()).toBe(true);
       await client.close();
       expect(client.isConnected()).toBe(false);
@@ -104,15 +102,15 @@ describe('json client', () => {
   });
 
   describe('isConnected', () => {
-    it('should return false if not initialized', () => {
-      const client = new JsonClient();
+    it('should return false if not initialized', async () => {
+      const client = (await JsonClient.init()) as JsonClient;
       expect(client.isConnected()).toBe(false);
     });
 
     it('should return true if initialized with a valid directory', async () => {
       process.env.DATA_DIRECTORY = '/tmp';
-      const client = new JsonClient();
-      await client.init();
+      const client = (await JsonClient.init()) as JsonClient;
+      client.directory = '/tmp';
       expect(client.isConnected()).toBe(true);
     });
   });
@@ -134,7 +132,7 @@ describe('json client', () => {
     });
 
     it('builds the correct file path', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -151,7 +149,7 @@ describe('json client', () => {
     });
 
     it('should retrieve the correct information', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -165,7 +163,7 @@ describe('json client', () => {
     });
 
     it('should filter data correctly', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -181,7 +179,7 @@ describe('json client', () => {
     });
 
     it('should filter data correctly for multiple conditions', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -200,7 +198,7 @@ describe('json client', () => {
     });
 
     it('should filter data correctly for multiple conditions that match', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -241,7 +239,7 @@ describe('json client', () => {
     });
 
     it('should add a new item', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       const type = 'data';
@@ -295,7 +293,7 @@ describe('json client', () => {
     });
 
     it('errors if there is no record to update', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -311,7 +309,7 @@ describe('json client', () => {
     });
 
     it('should update an existing item', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -356,7 +354,7 @@ describe('json client', () => {
     });
 
     it('should delete an existing item', async () => {
-      const client = new JsonClient();
+      const client = (await JsonClient.init()) as JsonClient;
       client.directory = '/tmp';
 
       const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -381,17 +379,24 @@ describe('json client', () => {
     });
   });
 
+  describe('migrate', () => {
+    it('should resolve without doing anything', async () => {
+      const client = (await JsonClient.init()) as JsonClient;
+      await expect(client.migrate()).resolves.toBeUndefined();
+    });
+  });
+
   describe('set directory', () => {
-    it('should throw an error if not in testing mode', () => {
-      const client = new JsonClient();
+    it('should throw an error if not in testing mode', async () => {
+      const client = (await JsonClient.init()) as JsonClient;
       delete process.env.TESTING;
       expect(() => {
         client.directory = '/new/directory';
       }).toThrow('setting directory is only allowed in testing mode!');
     });
 
-    it('should throw an error if the directory does not exist', () => {
-      const client = new JsonClient();
+    it('should throw an error if the directory does not exist', async () => {
+      const client = (await JsonClient.init()) as JsonClient;
       jest.spyOn(fs, 'existsSync').mockReturnValue(false);
       expect(() => {
         client.directory = '/non/existent/directory';

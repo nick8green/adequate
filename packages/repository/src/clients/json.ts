@@ -3,8 +3,9 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 export default class JsonClient implements RepositoryClient {
   private _directory?: string;
+  private static instance: JsonClient;
 
-  public async init(): Promise<void> {
+  private constructor() {
     if (!process.env.DATA_DIRECTORY) {
       throw new Error('data directory missing!');
     }
@@ -14,11 +15,19 @@ export default class JsonClient implements RepositoryClient {
     this._directory = process.env.DATA_DIRECTORY;
   }
 
+  public static async init(): Promise<RepositoryClient> {
+    if (!JsonClient.instance) {
+      JsonClient.instance = new JsonClient();
+    }
+    return JsonClient.instance;
+  }
+
   public async close(): Promise<void> {
     delete this._directory;
   }
 
   public isConnected(): boolean {
+    console.log(process.env.DATA_DIRECTORYw, this._directory); // eslint-disable-line no-console
     return !!this._directory;
   }
 
@@ -96,12 +105,17 @@ export default class JsonClient implements RepositoryClient {
     this.writeToFile(this.getFilePath(type), data);
   }
 
+  public async migrate(): Promise<void> {
+    // No migration needed for JSON files
+    return;
+  }
+
   // private methods
 
   private getFilePath(type: string): string {
     const file = `${this._directory}/${type}.json`;
     if (!existsSync(file)) {
-      throw new Error('data file could not be found!');
+      throw new Error(`data file "${file}" could not be found!`);
     }
     return file;
   }

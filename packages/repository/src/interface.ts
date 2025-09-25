@@ -1,5 +1,4 @@
 export default interface RepositoryClient {
-  init(): Promise<void>;
   close(): Promise<void>;
 
   isConnected(): boolean;
@@ -8,6 +7,8 @@ export default interface RepositoryClient {
   add<T>(type: string, value: T): Promise<void>;
   update<T>(type: string, value: T, conditions?: Conditions): Promise<void>;
   delete(type: string, conditions?: Conditions): Promise<void>;
+
+  migrate(): Promise<void>;
 }
 
 export type Conditions = { [key: string]: null | number | string };

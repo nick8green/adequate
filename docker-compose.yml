@@ -46,6 +46,11 @@ services:
     environment:
       APP_NAME: adequate-content
       DOMAIN: http://localhost:3000,http://localhost:3002,https://studio.apollographql.com
+
+      REPOSITORY_DIALECT: json
+
+      DATA_DIRECTORY: /data
+
       DB_HOST: adequate-db
       DB_NAME: content
       DB_USER: content-service-migrate # ONLY FOR DEV
@@ -68,6 +73,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app
+      - ./development/content:/data
 
   db:
     container_name: adequate-db

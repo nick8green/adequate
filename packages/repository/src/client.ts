@@ -5,25 +5,25 @@ import RepositoryClient, { Conditions } from '@repository/interface';
 export class Client implements RepositoryClient {
   private client?: RepositoryClient;
 
-  public async init(): Promise<void> {
+  public async init(): Promise<RepositoryClient> {
     switch (process.env.REPOSITORY_DIALECT) {
       case 'json':
-        this.client = new JsonClient();
+        this.client = await JsonClient.init();
         break;
       case 'mysql':
-        this.client = new MySQLClient();
+        this.client = await MySQLClient.init();
         break;
       default:
         throw new Error('Unsupported repository dialect');
     }
-    await this.client.init();
+    return this.client;
   }
 
   public async close(): Promise<void> {
     if (!this.client) {
       return;
     }
-    return this.client.close();
+    return await this.client.close();
   }
 
   public isConnected(): boolean {
@@ -33,32 +33,43 @@ export class Client implements RepositoryClient {
     return this.client.isConnected();
   }
 
-  get<T>(type: string, conditions?: Conditions): Promise<T> {
+  public async get<T>(type: string, conditions?: Conditions): Promise<T> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
-    return this.client.get<T>(type, conditions);
+    return await this.client.get<T>(type, conditions);
   }
 
-  add<T>(type: string, value: T): Promise<void> {
+  public async add<T>(type: string, value: T): Promise<void> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
-    return this.client.add<T>(type, value);
+    return await this.client.add<T>(type, value);
   }
 
-  update<T>(type: string, value: T, conditions?: Conditions): Promise<void> {
+  public async update<T>(
+    type: string,
+    value: T,
+    conditions?: Conditions,
+  ): Promise<void> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
-    return this.client.update<T>(type, value, conditions);
+    return await this.client.update<T>(type, value, conditions);
   }
 
-  delete(type: string, conditions?: Conditions): Promise<void> {
+  public async delete(type: string, conditions?: Conditions): Promise<void> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
-    return this.client.delete(type, conditions);
+    return await this.client.delete(type, conditions);
+  }
+
+  public async migrate(): Promise<void> {
+    if (!this.client) {
+      throw new Error('Client not initialized');
+    }
+    return await this.client.migrate();
   }
 }
 

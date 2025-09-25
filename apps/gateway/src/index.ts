@@ -31,7 +31,10 @@ interface Context {
   app.use(
     '/graphql',
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req }) => ({
+        origin: req.headers.origin,
+        token: req.headers.token,
+      }),
     }),
   );
 

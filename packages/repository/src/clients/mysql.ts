@@ -1,8 +1,15 @@
 import RepositoryClient, { Conditions } from '@repository/interface';
 
 export default class MySQLClient implements RepositoryClient {
-  public async init(): Promise<void> {
-    throw new Error('Method not implemented.');
+  private static instance: MySQLClient;
+
+  private constructor() {}
+
+  public static async init(): Promise<RepositoryClient> {
+    if (!MySQLClient.instance) {
+      MySQLClient.instance = new MySQLClient();
+    }
+    return MySQLClient.instance;
   }
 
   public async close(): Promise<void> {
@@ -34,6 +41,11 @@ export default class MySQLClient implements RepositoryClient {
 
   public delete(type: string, conditions?: Conditions): Promise<void> {
     console.log('MySQLClient.delete called with', { type, conditions }); // eslint-disable-line no-console
+    throw new Error('Method not implemented.');
+  }
+
+  public async migrate(): Promise<void> {
+    console.log('MySQLClient.migrate called'); // eslint-disable-line no-console
     throw new Error('Method not implemented.');
   }
 }

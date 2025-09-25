@@ -4,6 +4,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { expressMiddleware } from '@as-integrations/express5';
 import resolvers from '@content/resolvers';
+import { client } from '@repository/client';
 import { express as serveMetrics } from '@shared/metrics/serve';
 import { cors } from '@shared/middleware/cors';
 // import { endpoint as statusEndpoint } from '@shared/routes/status';
@@ -13,14 +14,14 @@ import { gql } from 'graphql-tag';
 import helmet from 'helmet';
 import http from 'http';
 import { join } from 'path';
-// import repository from '@nick8green/repository';
 
 interface Context {
   token?: string;
 }
 
 (async () => {
-  // await repository.migrate();
+  await client.init();
+  await client.migrate();
 
   const app = express();
   const httpServer = http.createServer(app);
@@ -80,6 +81,17 @@ interface Context {
     // eslint-disable-next-line no-console
     console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
   });
-})().finally(() => {
-  // repository.disconnect();
-});
+
+  const shutdown = async () => {
+    console.log('Shutting down server...'); // eslint-disable-line no-console
+    httpServer.close(async () => {
+      await client.close();
+      await server.stop();
+      process.exit(0);
+    });
+  };
+
+  // Graceful shutdown
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+})();
