@@ -6,7 +6,7 @@ import { expressMiddleware } from '@as-integrations/express5';
 import resolvers from '@content/resolvers';
 import { express as serveMetrics } from '@shared/metrics/serve';
 import { cors } from '@shared/middleware/cors';
-import { endpoint as statusEndpoint } from '@shared/routes/status';
+// import { endpoint as statusEndpoint } from '@shared/routes/status';
 import express from 'express';
 import { readFileSync } from 'fs';
 import { gql } from 'graphql-tag';
@@ -41,7 +41,7 @@ interface Context {
     ${schema}
   `;
 
-  console.debug('Apollo Server starting...');
+  console.debug('Apollo Server starting...'); // eslint-disable-line no-console
   const server = new ApolloServer<Context>({
     introspection: process.env.NODE_ENV !== 'production',
     plugins,

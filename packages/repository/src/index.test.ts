@@ -101,11 +101,9 @@ describe('Client', () => {
           await (client as any)[name](...args);
 
           const instance = MockClient.mock.results[0].value;
-          if (args.length === 0) {
-            expect(instance[name]).toHaveBeenCalled();
-          } else {
-            expect(instance[name]).toHaveBeenCalledWith(...args);
-          }
+          const func =
+            args.length === 0 ? 'toHaveBeenCalled' : 'toHaveBeenCalledWith';
+          expect(instance[name])[func](...(args ?? []));
         });
 
         if (error) {

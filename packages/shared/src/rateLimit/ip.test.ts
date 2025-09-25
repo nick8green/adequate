@@ -5,7 +5,7 @@ const mockHeaders = (headers: Record<string, string | undefined>) => ({
 });
 
 const mockRequest = (headers: Record<string, string | undefined>) =>
-  ({ headers: mockHeaders(headers) }) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  ({ headers: mockHeaders(headers) }) as any;
 
 describe('getIp', () => {
   it('returns the first IP from x-forwarded-for header', () => {
@@ -29,7 +29,7 @@ describe('getIp', () => {
   });
 
   it('returns 127.0.0.1 if headers are undefined', () => {
-    const req = { headers: { get: () => undefined } } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const req = { headers: { get: () => undefined } } as any;
     expect(getIp(req)).toBe('127.0.0.1');
   });
 });

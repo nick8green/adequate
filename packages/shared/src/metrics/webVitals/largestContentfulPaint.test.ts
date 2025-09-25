@@ -13,7 +13,7 @@ jest.mock('prom-client', () => {
 });
 
 describe('largestContentfulPaint', () => {
-  const mockLabels = (lcp as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const mockLabels = (lcp as any).labels as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

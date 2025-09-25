@@ -24,7 +24,7 @@ describe('withMetrics', () => {
   // Mock NextRequest
   const mockRequest = {
     method: 'GET',
-  } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  } as any;
 
   // Mock Response
   const mockResponse = new MockResponse('ok', { status: 201 });

@@ -14,10 +14,12 @@ export default class MySQLClient implements RepositoryClient {
   }
 
   public get<T>(type: string, conditions?: Conditions): Promise<T> {
+    console.log('MySQLClient.get called with', { type, conditions }); // eslint-disable-line no-console
     throw new Error('Method not implemented.');
   }
 
   public add<T>(type: string, value: T): Promise<void> {
+    console.log('MySQLClient.add called with', { type, value }); // eslint-disable-line no-console
     throw new Error('Method not implemented.');
   }
 
@@ -26,10 +28,12 @@ export default class MySQLClient implements RepositoryClient {
     value: T,
     conditions?: Conditions,
   ): Promise<void> {
+    console.log('MySQLClient.update called with', { type, value, conditions }); // eslint-disable-line no-console
     throw new Error('Method not implemented.');
   }
 
   public delete(type: string, conditions?: Conditions): Promise<void> {
+    console.log('MySQLClient.delete called with', { type, conditions }); // eslint-disable-line no-console
     throw new Error('Method not implemented.');
   }
 }

@@ -11,3 +11,4 @@ export default interface RepositoryClient {
 }
 
 export type Conditions = { [key: string]: null | number | string };
+export type AnyValue = boolean | null | number | string;

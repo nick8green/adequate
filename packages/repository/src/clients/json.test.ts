@@ -118,14 +118,17 @@ describe('json client', () => {
   });
 
   describe('get', () => {
+    // eslint-disable-next-line jest/expect-expect
     it("errors if the file doesn't exist", async () => {
       await fileDoesntExistTest('get');
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not well-formed', async () => {
       await notWellFormedTest('get');
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not an array when conditions are provided', async () => {
       await dataNotAnArrayTest('get', { id: 1 });
     });
@@ -217,18 +220,22 @@ describe('json client', () => {
   });
 
   describe('add', () => {
+    // eslint-disable-next-line jest/expect-expect
     it("errors if the file doesn't exist", async () => {
       await fileDoesntExistTest('add', {});
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not well-formed', async () => {
       await notWellFormedTest('add', {});
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not an array', async () => {
       await dataNotAnArrayTest('add', {});
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if it cannot write to the file', async () => {
       await cannotWriteToFileTest('add', { id: 3, name: 'Test 3' });
     });
@@ -263,18 +270,22 @@ describe('json client', () => {
   });
 
   describe('update', () => {
+    // eslint-disable-next-line jest/expect-expect
     it("errors if the data file doesn't exist", async () => {
       await fileDoesntExistTest('update', {}, { id: 1 });
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not well-formed', async () => {
       await notWellFormedTest('update', {}, { id: 1 });
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not an array', async () => {
       await dataNotAnArrayTest('update', {}, { id: 1 });
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if it cannot write to the file', async () => {
       await cannotWriteToFileTest(
         'update',
@@ -329,14 +340,17 @@ describe('json client', () => {
   });
 
   describe('delete', () => {
+    // eslint-disable-next-line jest/expect-expect
     it("errors if the data file doesn't exist", async () => {
       await fileDoesntExistTest('delete', {});
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if the data is not well-formed', async () => {
       await notWellFormedTest('delete', {});
     });
 
+    // eslint-disable-next-line jest/expect-expect
     it('errors if it cannot write to the file', async () => {
       await cannotWriteToFileTest('delete', { id: 3 });
     });

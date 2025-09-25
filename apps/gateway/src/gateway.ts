@@ -1,5 +1,6 @@
 import {
   ApolloGateway,
+  GraphQLDataSourceProcessOptions,
   IntrospectAndCompose,
   RemoteGraphQLDataSource,
 } from '@apollo/gateway';
@@ -8,14 +9,23 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 class DefaultHeaderAppendage extends RemoteGraphQLDataSource {
-  willSendRequest({ request, context }: any) {
+  willSendRequest({
+    request,
+    context,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }: GraphQLDataSourceProcessOptions<Record<string, any>>) {
+    if (!request.http) {
+      throw new Error('request error!');
+    }
     request.http.headers.set('origin', context.origin);
     request.http.headers.set('x-gateway', 'adequate-gateway');
   }
 }
 
 const defaultConfig = {
-  buildService: ({ name, url }: any) => new DefaultHeaderAppendage({ url }),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  buildService: ({ url }: Record<string, any>) =>
+    new DefaultHeaderAppendage({ url }),
 };
 
 export const getGateway = () =>

@@ -6,6 +6,7 @@ export const cors = (req: Request, res: Response, next: NextFunction) => {
   ) ?? ['http://localhost:3000'];
   const origin: string = req.headers.origin ?? '';
 
+  // eslint-disable-next-line no-console
   console.debug(
     `[${process.env.APP_NAME}] Request received from: ${origin}`,
     req.headers,

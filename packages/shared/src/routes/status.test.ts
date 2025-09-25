@@ -25,7 +25,7 @@ jest.mock('next/server', () => ({
   },
 }));
 jest.mock('@shared/metrics/withMetrics', () => ({
-  withMetrics: (fn: any) => fn, //eslint-disable-line @typescript-eslint/no-explicit-any
+  withMetrics: (fn: any) => fn,
 }));
 
 beforeAll(() => {
@@ -267,7 +267,7 @@ describe('status module', () => {
 
       const { endpoint } = require('./status'); // eslint-disable-line @typescript-eslint/no-require-imports
       const handler = endpoint('/status');
-      const res: any = await handler(); // eslint-disable-line @typescript-eslint/no-explicit-any
+      const res: any = await handler();
 
       expect(res.options.status).toBe(200);
       const body = JSON.parse(res.body);
@@ -288,7 +288,7 @@ describe('status module', () => {
       delete process.env.VERSION;
       const { endpoint } = await import('./status');
       const handler = endpoint('/status');
-      const res: any = await handler(); // eslint-disable-line @typescript-eslint/no-explicit-any
+      const res: any = await handler();
       const body = JSON.parse(res.body);
       expect(body.version).toBe('development');
     });

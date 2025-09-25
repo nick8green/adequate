@@ -52,6 +52,7 @@ export const getPages = async (filter?: PageFilter): Promise<Page[]> => {
 };
 
 const getPageStructure = (id: number): Element[] => {
+  console.log('Getting structure for page', id); // eslint-disable-line no-console
   return [
     {
       title: 'About Us',

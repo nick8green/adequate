@@ -12,7 +12,7 @@ jest.mock('prom-client', () => {
 });
 
 describe('responseTime', () => {
-  const mockLabels = (responseTime as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const mockLabels = (responseTime as any).labels as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

@@ -28,6 +28,7 @@ module.exports = defineConfig([
     './**/coverage/**',
     './**/dist/**',
     './**/generated/**',
+    './**/next-env.d.ts',
   ]),
   {
     languageOptions: {
@@ -76,6 +77,13 @@ module.exports = defineConfig([
       parserOptions: {
         project: ['tools/scripts/tsconfig.eslint.json'],
       },
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {

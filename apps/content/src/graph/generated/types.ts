@@ -49,22 +49,22 @@ export type Element = Banner | Md | Timeline;
 /** Markdown element for the structure */
 export type Md = {
   __typename?: 'MD';
-  /**  The content of the markdown element  */
+  /** The content of the markdown element */
   content: Scalars['Markdown']['output'];
 };
 
 /** Page data */
 export type Page = {
   __typename?: 'Page';
-  /**  The UUID of the page  */
+  /** The UUID of the page */
   id: Scalars['ID']['output'];
-  /**  The slug identified for the page  */
+  /** The slug identified for the page */
   slug: Scalars['String']['output'];
-  /**  The structure of the page to be rendered  */
+  /** The structure of the page to be rendered */
   structure: Array<Maybe<Element>>;
-  /**  Any tags that can be used on the page as potential identifiers  */
+  /** Any tags that can be used on the page as potential identifiers */
   tags?: Maybe<Array<Scalars['String']['output']>>;
-  /**  The page title  */
+  /** The page title */
   title: Scalars['String']['output'];
 };
 
@@ -75,11 +75,11 @@ export type Page = {
  * This is useful for querying specific pages based on their identifiers or attributes.
  */
 export type PageFilter = {
-  /**  Filter by page IDs  */
+  /** Filter by page IDs */
   id?: InputMaybe<Array<Scalars['ID']['input']>>;
-  /**  Filter by page slug  */
+  /** Filter by page slug */
   slug?: InputMaybe<Scalars['String']['input']>;
-  /**  Filter by page tags  */
+  /** Filter by page tags */
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -95,30 +95,30 @@ export type QueryPagesArgs = {
 /** Timeline data */
 export type Timeline = {
   __typename?: 'Timeline';
-  /**  The events within the timeline  */
+  /** The events within the timeline */
   events: Array<TimelineEvent>;
-  /**  The UUID of the timeline  */
+  /** The UUID of the timeline */
   id: Scalars['ID']['output'];
-  /**  The name of the timeline  */
+  /** The name of the timeline */
   name: Scalars['String']['output'];
 };
 
 /** Timeline event data */
 export type TimelineEvent = {
   __typename?: 'TimelineEvent';
-  /**  The information in the event  */
+  /** The information in the event */
   content: Scalars['Markdown']['output'];
-  /**  The date of the event  */
+  /** The date of the event */
   date: Scalars['DateTime']['output'];
-  /**  An optional icon for the event  */
+  /** An optional icon for the event */
   icon?: Maybe<Scalars['String']['output']>;
-  /**  The UUID of the event  */
+  /** The UUID of the event */
   id: Scalars['ID']['output'];
-  /**  An optional link for the event  */
+  /** An optional link for the event */
   link?: Maybe<Scalars['String']['output']>;
-  /**  An optional tag for the event  */
+  /** An optional tag for the event */
   tag?: Maybe<Scalars['String']['output']>;
-  /**  The title of the event  */
+  /** The title of the event */
   title: Scalars['String']['output'];
 };
 

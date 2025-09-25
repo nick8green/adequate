@@ -13,7 +13,7 @@ jest.mock('prom-client', () => {
 });
 
 describe('firstInputDelay', () => {
-  const mockLabels = (fid as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const mockLabels = (fid as any).labels as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

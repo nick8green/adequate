@@ -1,4 +1,4 @@
-import RepositoryClient, { Conditions } from '@repository/interface';
+import RepositoryClient, { AnyValue, Conditions } from '@repository/interface';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 export default class JsonClient implements RepositoryClient {
@@ -67,9 +67,11 @@ export default class JsonClient implements RepositoryClient {
 
     const data: T = ((await this.get<T>(type, conditions)) as T[])[0];
     const index = (initialData as T[]).findIndex((item) => {
-      return Object.entries(conditions).every(([key, value]) => {
-        return (item as any)[key] === value;
-      });
+      return Object.entries(conditions).every(
+        ([key, value]: [string, AnyValue]) => {
+          return (item as any)[key] === value; // eslint-disable-line @typescript-eslint/no-explicit-any
+        },
+      );
     });
 
     if (index === -1) {
@@ -107,8 +109,8 @@ export default class JsonClient implements RepositoryClient {
   private parseData<T>(file: string): T {
     try {
       return JSON.parse(readFileSync(file, 'utf-8'));
-    } catch (e) {
-      console.error(`Error parsing JSON from ${file}:`, e);
+    } catch (error) {
+      console.error(`Error parsing JSON from ${file}:`, error); //eslint-disable-line no-console
       throw new Error('data could not be parsed!');
     }
   }
@@ -117,7 +119,7 @@ export default class JsonClient implements RepositoryClient {
     try {
       writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
     } catch (error) {
-      console.error(`Error writing JSON to ${file}:`, error);
+      console.error(`Error writing JSON to ${file}:`, error); //eslint-disable-line no-console
       throw new Error('data could not be written!');
     }
   }
