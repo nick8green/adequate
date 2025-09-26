@@ -1,7 +1,11 @@
 import { Element, Page } from '@content/graph/generated/types';
 import { client } from '@repository/client';
 
+type PageElements = Element & { pageId: string; priority: number }[];
+
 let pages: Page[] | null = null;
+let structure: PageElements | null = null;
+
 const dataType = 'page';
 
 export const getPages = async (): Promise<Page[]> => {
@@ -51,9 +55,11 @@ export const deletePage = async (id: string): Promise<boolean> => {
 
 export const getContentStructure = async (id: string): Promise<Element[]> => {
   console.log(`Fetching content structure for page ${id} from repository...`); // eslint-disable-line no-console
-  const page = await getPage(id);
-  if (!page) {
-    throw new Error('Page not found');
+  if (!structure) {
+    structure ??= await client.get<PageElements>('content');
+    setTimeout(() => {
+      structure = null;
+    }, 1000);
   }
-  return [];
+  return structure.filter((el) => el.pageId === id).sort((a, b) => a.priority - b.priority) as unknown as Element[];
 };
