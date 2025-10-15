@@ -1,4 +1,5 @@
 import { ApolloServer } from '@apollo/server';
+import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { ApolloServerPluginInlineTraceDisabled } from '@apollo/server/plugin/disabled';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
@@ -10,6 +11,7 @@ import { cors } from '@shared/middleware/cors';
 // import { endpoint as statusEndpoint } from '@shared/routes/status';
 import express from 'express';
 import { readFileSync } from 'fs';
+import type { GraphQLFormattedError } from 'graphql';
 import { gql } from 'graphql-tag';
 import helmet from 'helmet';
 import http from 'http';
@@ -44,6 +46,16 @@ interface Context {
 
   console.debug('Apollo Server starting...'); // eslint-disable-line no-console
   const server = new ApolloServer<Context>({
+    formatError: (formattedError: GraphQLFormattedError) => {
+      // eslint-disable-next-line no-console
+      console.error(
+        `${formattedError.message} [code: ${formattedError.extensions?.code}] [path: ${formattedError.path?.join(' -> ')}] [stack: ${formattedError.extensions?.stacktrace}]`,
+      );
+      return {
+        message: formattedError.message,
+        code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
+      };
+    },
     introspection: process.env.NODE_ENV !== 'production',
     plugins,
     schema: buildSubgraphSchema({ typeDefs, resolvers }),

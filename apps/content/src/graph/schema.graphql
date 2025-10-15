@@ -5,7 +5,7 @@ extend schema
   )
 
 type Query {
-  pages(filter: PageFilter): [Page!]!
+  pages(cursor: ID, filter: PageFilter, limit: Int): PageConnection!
 }
 
 scalar DateTime
@@ -57,6 +57,46 @@ type Page @key(fields: "id") {
   The page title
   """
   title: String!
+}
+
+"""
+Definition of the page list including meta data
+"""
+type PageConnection {
+  """
+  A list of the pages
+  """
+  pages: [Page!]!
+  """
+  The total number of pages
+  """
+  totalCount: Int!
+  """
+  The pagination info for the query
+  """
+  pageInfo: PageInfo
+}
+
+"""
+The pagination information
+"""
+type PageInfo {
+  """
+  The last element in the response list
+  """
+  endCursor: ID!
+  """
+  Indicator for whether there is another page
+  """
+  hasNextPage: Boolean!
+  """
+  Indicator for whether there is a previous page
+  """
+  hasPreviousPage: Boolean!
+  """
+  The first element in the response list
+  """
+  startCursor: ID!
 }
 
 """

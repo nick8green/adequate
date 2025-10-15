@@ -3,12 +3,12 @@ export default interface RepositoryClient {
 
   isConnected(): boolean;
 
-  get<T>(type: string, conditions?: Conditions): Promise<T>;
-  add<T>(type: string, value: T): Promise<void>;
-  update<T>(type: string, value: T, conditions?: Conditions): Promise<void>;
+  get<T>(type: string, conditions?: Conditions): Promise<T[]>;
+  add<T>(type: string, value: T): Promise<T>;
+  update<T>(type: string, value: T, conditions?: Conditions): Promise<T>;
   delete(type: string, conditions?: Conditions): Promise<void>;
 
-  migrate(): Promise<void>;
+  migrate(direction: 'up' | 'down'): Promise<void>;
 }
 
 export type Conditions = { [key: string]: null | number | string };

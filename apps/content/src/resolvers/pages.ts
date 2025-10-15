@@ -6,13 +6,17 @@ import {
   PageFilter,
   Timeline,
 } from '@content/graph/generated/types';
-import { getPages as getPagesData, getContentStructure as getPageStructure } from '@content/repository/pages';
+import {
+  getContentStructure as getPageStructure,
+  getPages as getPagesData,
+} from '@content/repository/pages';
 
-export const getPages = async (filter?: PageFilter): Promise<Page[]> => {
-  const data: Page[] = await getPagesData();
+export const getPages = async (filter?: null | PageFilter): Promise<Page[]> => {
+  const data: (Page & { uuid: string })[] = await getPagesData();
   for (const page of data) {
     const structure = await getPageStructure(page.id);
     page.structure = structure;
+    page.id = page.uuid;
   }
 
   if (!filter) {

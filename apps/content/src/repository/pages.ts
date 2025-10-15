@@ -1,20 +1,21 @@
 import { Element, Page } from '@content/graph/generated/types';
 import { client } from '@repository/client';
 
-type PageElements = Element & { pageId: string; priority: number }[];
+type PageRepository = Page & { uuid: string };
+type PageElement = Element & { page: string; priority: number };
 
-let pages: Page[] | null = null;
-let structure: PageElements | null = null;
+let pages: PageRepository[] | null = null;
+let structure: PageElement[] | null = null;
 
 const dataType = 'page';
 
-export const getPages = async (): Promise<Page[]> => {
+export const getPages = async (): Promise<PageRepository[]> => {
   console.log('Fetching pages from repository...'); // eslint-disable-line no-console
   if (pages) {
     return pages;
   }
   console.log('Cache miss, loading pages from repository...'); // eslint-disable-line no-console
-  pages = await client.get<Page[]>(dataType);
+  pages = await client.get<PageRepository>(dataType);
   setTimeout(() => {
     pages = null;
   }, 1000);
@@ -56,10 +57,12 @@ export const deletePage = async (id: string): Promise<boolean> => {
 export const getContentStructure = async (id: string): Promise<Element[]> => {
   console.log(`Fetching content structure for page ${id} from repository...`); // eslint-disable-line no-console
   if (!structure) {
-    structure ??= await client.get<PageElements>('content');
+    structure ??= await client.get<PageElement>('content');
     setTimeout(() => {
       structure = null;
     }, 1000);
   }
-  return structure.filter((el) => el.pageId === id).sort((a, b) => a.priority - b.priority) as unknown as Element[];
+  return structure
+    .filter((el) => el.page === id)
+    .sort((a, b) => a.priority - b.priority) as unknown as Element[];
 };

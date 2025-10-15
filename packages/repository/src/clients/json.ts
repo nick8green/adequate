@@ -1,5 +1,12 @@
 import RepositoryClient, { AnyValue, Conditions } from '@repository/interface';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import * as Env from '@repository/utils/environment';
+import {
+  copyFileSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'fs';
 
 export default class JsonClient implements RepositoryClient {
   private _directory?: string;
@@ -31,7 +38,7 @@ export default class JsonClient implements RepositoryClient {
     return !!this._directory;
   }
 
-  public async get<T>(type: string, conditions?: Conditions): Promise<T> {
+  public async get<T>(type: string, conditions?: Conditions): Promise<T[]> {
     const file = this.getFilePath(type);
     const data: T = this.parseData(file);
 
@@ -44,13 +51,13 @@ export default class JsonClient implements RepositoryClient {
         return Object.entries(conditions).every(([key, value]) => {
           return item[key] === value;
         });
-      }) as T;
+      }) as T[];
     }
 
-    return data;
+    return data as unknown as T[];
   }
 
-  public async add<T>(type: string, value: T): Promise<void> {
+  public async add<T>(type: string, value: T): Promise<T> {
     const file = this.getFilePath(type);
     const data: T = this.parseData(file);
 
@@ -61,13 +68,15 @@ export default class JsonClient implements RepositoryClient {
     (data as unknown as T[]).push(value);
 
     this.writeToFile(file, data);
+
+    return value;
   }
 
   public async update<T>(
     type: string,
     value: T,
     conditions: Conditions,
-  ): Promise<void> {
+  ): Promise<T> {
     const initialData = await this.get(type);
 
     if (!Array.isArray(initialData)) {
@@ -90,6 +99,7 @@ export default class JsonClient implements RepositoryClient {
     (initialData as T[])[index] = { ...data, ...value };
 
     this.writeToFile(this.getFilePath(type), initialData);
+    return ((await this.get<T>(type, conditions)) as T[])[0];
   }
 
   public async delete(
@@ -105,9 +115,28 @@ export default class JsonClient implements RepositoryClient {
     this.writeToFile(this.getFilePath(type), data);
   }
 
-  public async migrate(): Promise<void> {
-    // No migration needed for JSON files
-    return;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async migrate(direction: 'up' | 'down'): Promise<void> {
+    if (!Env.exists('DATA_MIGRATIONS')) {
+      return;
+    }
+    if (!this._directory) {
+      throw new Error('data directory is not set!');
+    }
+    if (!existsSync(Env.mustBeString('DATA_MIGRATIONS'))) {
+      throw new Error('migrations directory does not exist!');
+    }
+
+    readdirSync(Env.mustBeString('DATA_MIGRATIONS'))
+      .filter((f) => {
+        return f.endsWith('.json');
+      })
+      .forEach((file) => {
+        console.log(`Applying migration: ${file}`); // eslint-disable-line no-console
+        const source = `${Env.mustBeString('DATA_MIGRATIONS')}/${file}`;
+        const destination = `${this._directory}/${file}`;
+        copyFileSync(source, destination);
+      });
   }
 
   // private methods

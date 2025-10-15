@@ -47,9 +47,10 @@ services:
       APP_NAME: adequate-content
       DOMAIN: http://localhost:3000,http://localhost:3002,https://studio.apollographql.com
 
-      REPOSITORY_DIALECT: json
+      REPOSITORY_DIALECT: mysql # json | mysql
 
-      DATA_DIRECTORY: /data
+      DATA_DIRECTORY: /data/json # ONLY FOR JSON
+      DATA_MIGRATIONS: /data/mysql
 
       DB_HOST: adequate-db
       DB_NAME: content
@@ -59,7 +60,6 @@ services:
       DB_READER_PASSWORD: reader
       DB_WRITER_USER: content-service-write
       DB_WRITER_PASSWORD: writer
-      DB_MIGRATIONS: /app/migrations
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
       interval: 15s
@@ -73,7 +73,8 @@ services:
     working_dir: /app
     volumes:
       - .:/app
-      - ./development/content:/data
+      - ./development/content:/data/json
+      - ./apps/content/migrations:/data/mysql
 
   db:
     container_name: adequate-db

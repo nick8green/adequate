@@ -1,6 +1,7 @@
 import type {
   Element,
   Page,
+  PageConnection,
   QueryPagesArgs,
   Resolvers,
 } from '@content/graph/generated/types';
@@ -10,14 +11,28 @@ import {
   isMarkdown,
   isTimeline,
 } from '@content/resolvers/pages';
+import { CursorType, paginate } from '@content/resolvers/pagination';
 
 // Resolver functions
 // async (parent, args, contextValue, info) => { ... }
 
 const resolvers: Resolvers = {
   Query: {
-    pages: async (_, args: QueryPagesArgs) =>
-      await getPages(args?.filter ?? undefined),
+    pages: async (_, args: QueryPagesArgs): Promise<PageConnection> => {
+      const { cursor, filter, limit } = args;
+      const rawData = await getPages(filter);
+      const [pageInfo, pages] = paginate<Page>(
+        rawData,
+        CursorType.id,
+        cursor,
+        limit,
+      );
+      return {
+        pages,
+        pageInfo,
+        totalCount: rawData.length,
+      };
+    },
   },
   Page: {
     __resolveReference: async (page: Page) => {

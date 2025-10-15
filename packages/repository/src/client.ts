@@ -33,14 +33,14 @@ export class Client implements RepositoryClient {
     return this.client.isConnected();
   }
 
-  public async get<T>(type: string, conditions?: Conditions): Promise<T> {
+  public async get<T>(type: string, conditions?: Conditions): Promise<T[]> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
     return await this.client.get<T>(type, conditions);
   }
 
-  public async add<T>(type: string, value: T): Promise<void> {
+  public async add<T>(type: string, value: T): Promise<T> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
@@ -51,7 +51,7 @@ export class Client implements RepositoryClient {
     type: string,
     value: T,
     conditions?: Conditions,
-  ): Promise<void> {
+  ): Promise<T> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
@@ -65,11 +65,11 @@ export class Client implements RepositoryClient {
     return await this.client.delete(type, conditions);
   }
 
-  public async migrate(): Promise<void> {
+  public async migrate(direction: 'up' | 'down' = 'up'): Promise<void> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
-    return await this.client.migrate();
+    return await this.client.migrate(direction);
   }
 }
 
