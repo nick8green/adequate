@@ -127,3 +127,29 @@ jobs:
       password: ${{ secrets.GHCR_PAT }}
       # snyk: ${{ secrets.SNYK_TOKEN }}
       docker: ${{ secrets.DOCKER_PAT }}
+
+  create-pr:
+    name: 📨 create pr to main
+    needs: build
+    if: endsWith(github.ref, 'refs/heads/release')
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: create pr
+        uses: devops-infra/action-pull-request@16a3a68f0b9368227271a4b9f3766c726b50a575
+        with:
+          github_token: ${{ secrets.GH_PR_TOKEN }}
+          label: automatic
+          source_branch: release
+          target_branch: main
+          title: Latest Release
+          body: '**Automated Pull Request**'
+          draft: false
+          get_diff: true

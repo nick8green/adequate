@@ -1,6 +1,6 @@
 import { collectDefaultMetrics, Registry } from 'prom-client';
 
-console.log("METRICS: Initializing metrics...");
+console.log('METRICS: Initializing metrics...');
 
 export const register = new Registry();
 

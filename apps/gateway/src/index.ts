@@ -2,10 +2,10 @@ import { ApolloServer } from '@apollo/server';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { expressMiddleware } from '@as-integrations/express5';
 import { getGateway } from '@gateway/gateway';
+import { express as serveMetrics } from '@shared/metrics/serve';
 import { cors } from '@shared/middleware/cors';
 import express from 'express';
 import http from 'http';
-import { express as serveMetrics } from '@shared/metrics/serve';
 
 interface Context {
   token?: string;

@@ -4,23 +4,23 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { expressMiddleware } from '@as-integrations/express5';
 import resolvers from '@content/resolvers';
+import { express as serveMetrics } from '@shared/metrics/serve';
 import { cors } from '@shared/middleware/cors';
+import { endpoint as statusEndpoint } from '@shared/routes/status';
 import express from 'express';
 import { readFileSync } from 'fs';
 import { gql } from 'graphql-tag';
 import helmet from 'helmet';
 import http from 'http';
 import { join } from 'path';
-import { endpoint as statusEndpoint } from '@shared/routes/status';
-import { express as serveMetrics } from '@shared/metrics/serve';
-import repository from '@repository/index';
+// import repository from '@nick8green/repository';
 
 interface Context {
   token?: string;
 }
 
 (async () => {
-  await repository.migrate();
+  // await repository.migrate();
 
   const app = express();
   const httpServer = http.createServer(app);
@@ -53,7 +53,7 @@ interface Context {
   app.use(
     '/graphql',
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req: { headers } }) => ({ token: headers.token }),
     }),
   );
 
@@ -81,5 +81,5 @@ interface Context {
     console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
   });
 })().finally(() => {
-  repository.disconnect();
+  // repository.disconnect();
 });

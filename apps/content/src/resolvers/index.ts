@@ -4,7 +4,12 @@ import type {
   QueryPagesArgs,
   Resolvers,
 } from '@content/graph/generated/types';
-import { getPages, isBanner, isMarkdown } from '@content/resolvers/pages';
+import {
+  getPages,
+  isBanner,
+  isMarkdown,
+  isTimeline,
+} from '@content/resolvers/pages';
 
 // Resolver functions
 // async (parent, args, contextValue, info) => { ... }
@@ -26,7 +31,8 @@ const resolvers: Resolvers = {
   Element: {
     __resolveType: (obj: Element) => {
       if (isBanner(obj)) return 'Banner';
-      if (isMarkdown(obj)) return 'Markdown';
+      if (isMarkdown(obj)) return 'MD';
+      if (isTimeline(obj)) return 'Timeline';
       throw new Error(`Unknown element type: ${JSON.stringify(obj)}`);
     },
   },

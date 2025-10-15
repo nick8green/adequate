@@ -1,4 +1,11 @@
-import { Banner, Element, Markdown, Page, PageFilter } from '@content/graph/generated/types';
+import {
+  Banner,
+  Element,
+  Md,
+  Page,
+  PageFilter,
+  Timeline,
+} from '@content/graph/generated/types';
 
 export const getPages = async (filter?: PageFilter): Promise<Page[]> => {
   // eslint-disable-next-line no-console
@@ -34,7 +41,11 @@ export const getPages = async (filter?: PageFilter): Promise<Page[]> => {
     }
     if (filter?.tags) {
       const tags = Array.isArray(filter.tags) ? filter.tags : [filter.tags];
-      return tags.filter((tag: string) => (page.tags ?? []).some((t: string) => t === tag)).length > 0;
+      return (
+        tags.filter((tag: string) =>
+          (page.tags ?? []).some((t: string) => t === tag),
+        ).length > 0
+      );
     }
     return true;
   });
@@ -42,31 +53,37 @@ export const getPages = async (filter?: PageFilter): Promise<Page[]> => {
 
 const getPageStructure = (id: number): Element[] => {
   return [
-      {
-        title: 'About Us',
-        description: 'This is the about page.',
-        image: '/assets/images/coding.jpg',
-        side: 'left',
-      } as Banner,
-      {
-        content: 'This is the about page content.',
-      } as Markdown,
-      {
-        title: 'Contact Us',
-        description: 'This is the contact page.',
-        image: '/assets/images/desk.jpg',
-        side: 'right',
-      } as Banner,
-    ];
+    {
+      title: 'About Us',
+      description: 'This is the about page.',
+      image: '/assets/images/coding.jpg',
+      side: 'left',
+    } as Banner,
+    {
+      content: 'This is the about page content.',
+    } as Md,
+    {
+      title: 'Contact Us',
+      description: 'This is the contact page.',
+      image: '/assets/images/desk.jpg',
+      side: 'right',
+    } as Banner,
+  ];
 };
 
 export const isBanner = (element: Element): element is Banner => {
-  return (element as Banner).title !== undefined &&
-         (element as Banner).description !== undefined &&
-         (element as Banner).image !== undefined &&
-         (element as Banner).side !== undefined;
+  return (
+    (element as Banner).title !== undefined &&
+    (element as Banner).description !== undefined &&
+    (element as Banner).image !== undefined &&
+    (element as Banner).side !== undefined
+  );
 };
 
-export const isMarkdown = (element: Element): element is Markdown => {
-  return (element as Markdown).content !== undefined;
+export const isMarkdown = (element: Element): element is Md => {
+  return (element as Md).content !== undefined;
+};
+
+export const isTimeline = (element: Element): element is Timeline => {
+  return false; // Placeholder for future implementation
 };

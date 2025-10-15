@@ -1,4 +1,8 @@
-import { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } from '@apollo/gateway';
+import {
+  ApolloGateway,
+  IntrospectAndCompose,
+  RemoteGraphQLDataSource,
+} from '@apollo/gateway';
 import { existsSync, readFileSync, watch } from 'fs';
 import { readFile } from 'fs/promises';
 import { join } from 'path';

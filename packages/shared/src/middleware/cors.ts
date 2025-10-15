@@ -6,13 +6,18 @@ export const cors = (req: Request, res: Response, next: NextFunction) => {
   ) ?? ['http://localhost:3000'];
   const origin: string = req.headers.origin ?? '';
 
-  console.debug(`[${process.env.APP_NAME}] Request received from: ${origin}`, req.headers);
+  console.debug(
+    `[${process.env.APP_NAME}] Request received from: ${origin}`,
+    req.headers,
+  );
   // 1. No ‘Access-Control-Allow-Origin’ Header
   if (allowedOrigin.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   } else {
     // eslint-disable-next-line no-console
-    console.error(`[${process.env.APP_NAME}] Origin mismatch: ${origin} vs ${allowedOrigin}`);
+    console.error(
+      `[${process.env.APP_NAME}] Origin mismatch: ${origin} vs ${allowedOrigin}`,
+    );
   }
 
   // 2. Credentials Not Allowed
