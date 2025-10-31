@@ -36,7 +36,12 @@ const Layout: FC<PropsWithChildren> = async ({ children }) => {
             <Header title={config.title}>
               <Navigation links={config.navigation} />
             </Header>
-            {children}
+            <section
+              id='main'
+              className='container fadeIn shiftInFromLeft shiftInFromTop'
+            >
+              {children}
+            </section>
             <Footer
               copyright={{
                 owner: config.owner ?? 'Nick Green',

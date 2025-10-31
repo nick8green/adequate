@@ -4,6 +4,12 @@ extend schema
     import: ["@key", "@shareable"]
   )
 
+type Mutation {
+  createPage(input: PageInput!): Page!
+  deletePage(id: ID!): Boolean!
+  updatePage(id: ID!, input: PageInput!): Page!
+}
+
 type Query {
   config: Config!
   pages(cursor: ID, filter: PageFilter, limit: Int): PageConnection!
@@ -28,6 +34,20 @@ enum AppStatus {
   The application is down
   """
   DOWN
+}
+
+"""
+The type of navigation
+"""
+enum NavigationType {
+  """
+  Navigation in the header of the application
+  """
+  HEADER
+  """
+  Navigation in the footer of the application
+  """
+  FOOTER
 }
 
 """
@@ -95,6 +115,20 @@ type Config {
 }
 
 """
+Navigation element for the structure
+"""
+type Navigation {
+  """
+  The type of the navigation
+  """
+  type: NavigationType!
+  """
+  The priority of the navigation item
+  """
+  priority: Int!
+}
+
+"""
 Markdown element for the structure
 """
 type MD {
@@ -116,6 +150,10 @@ type PageMeta {
   The description of the page
   """
   description: String
+  """
+  The navigation items associated with the page
+  """
+  navigation: [Navigation!]
 }
 
 """
@@ -265,6 +303,16 @@ type TimelineEvent {
 # Inputs
 
 """
+Input for each page structure element
+"""
+input ElementInput {
+  id: ID
+  # banner: BannerInput
+  # md: MDInput
+  # timeline: TimelineInput
+}
+
+"""
 Page filtering options
 This allows filtering by ID, slug, and tags.
 IDs are an array of IDs, slug is a single string, and tags are an array of strings.
@@ -283,6 +331,22 @@ input PageFilter {
   Filter by page tags
   """
   tags: [String!]
+  """
+  Filter by navigation type
+  """
+  navigation: NavigationType
+}
+
+input PageInput {
+  meta: PageMetaInput!
+  slug: String!
+  # structure: [ElementInput]!
+  tags: [String!]
+  title: String!
+  type: PageType
+}
+input PageMetaInput {
+  description: String
 }
 
 # Union types

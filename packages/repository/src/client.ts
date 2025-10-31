@@ -40,7 +40,7 @@ export class Client implements RepositoryClient {
     return await this.client.get<T>(type, conditions);
   }
 
-  public async add<T>(type: string, value: T): Promise<T> {
+  public async add<T>(type: string, value: T): Promise<number> {
     if (!this.client) {
       throw new Error('Client not initialized');
     }

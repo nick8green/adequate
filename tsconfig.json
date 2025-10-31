@@ -16,6 +16,7 @@
 
     "baseUrl": ".",
     "paths": {
+      "@acl/*": ["./packages/acl/src/*"],
       "@admin/*": ["./apps/admin/src/*"],
       "@app/*": ["./apps/app/src/*"],
       "@content/*": ["./apps/content/src/*"],

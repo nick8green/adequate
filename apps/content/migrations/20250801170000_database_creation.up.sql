@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `Page` (
     `title` VARCHAR(50) NOT NULL,
     `meta_description` VARCHAR(255) DEFAULT NULL,
     `uuid` VARCHAR(36) NOT NULL DEFAULT (UUID()),
+    `tags` VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
@@ -30,21 +31,34 @@ CREATE TABLE IF NOT EXISTS `Type` (
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `PageType` (
-    `id` INT(4) NOT NULL AUTO_INCREMENT,
     `page` INT(4) NOT NULL,
     `type` INT(4) NOT NULL,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`page`, `type`),
     FOREIGN KEY (`page`) REFERENCES `Page`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`type`) REFERENCES `Type`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `Content` (
-    `id` INT(4) NOT NULL AUTO_INCREMENT,
     `priority` INT NOT NULL,
     `page` INT(4) NOT NULL,
     `data` JSON NOT NULL,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`page`, `priority`),
     FOREIGN KEY (`page`) REFERENCES `Page`(`id`) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `Navigation` (
+    `id` INT(4) NOT NULL AUTO_INCREMENT,
+    `type` VARCHAR(10) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `PageNavigation` (
+    `page` INT(4) NOT NULL,
+    `navigation` INT(4) NOT NULL,
+    `priority` INT(4) NOT NULL,
+    PRIMARY KEY (`page`, `navigation`),
+    FOREIGN KEY (`page`) REFERENCES `Page`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`navigation`) REFERENCES `Navigation`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 -- ------------------------------------
@@ -52,16 +66,13 @@ CREATE TABLE IF NOT EXISTS `Content` (
 -- ------------------------------------
 
 CREATE OR REPLACE VIEW `Pages` AS
-WITH RECURSIVE slug_parts AS (
+WITH RECURSIVE `slug_parts` AS (
     SELECT
         `p`.`id`,
         `p`.`slug`,
         `p`.`uuid`,
-        SUBSTRING_INDEX(`p`.`slug`, '/', 1) AS `current_slug`,
-        SUBSTRING_INDEX(`p`.`slug`, '/', 1) AS `part`,
         SUBSTRING(`p`.`slug`, LENGTH(SUBSTRING_INDEX(`p`.`slug`, '/', 1)) + 2) AS `remainder`,
-        (SELECT `title` FROM `Page` WHERE `slug` = SUBSTRING_INDEX(`p`.`slug`, '/', 1)) AS `meta_title`,
-        1 AS `depth`
+        (SELECT `title` FROM `Page` WHERE `slug` = SUBSTRING_INDEX(`p`.`slug`, '/', 1)) AS `meta_title`
     FROM
         `Page` AS `p`
     WHERE
@@ -71,20 +82,42 @@ WITH RECURSIVE slug_parts AS (
         `sp`.`id`,
         `sp`.`slug`,
         `sp`.`uuid`,
-        SUBSTRING_INDEX(`sp`.`slug`, '/', `sp`.`depth` + 1) AS `current_slug`,
-        SUBSTRING_INDEX(`sp`.`remainder`, '/', 1) AS `part`,
         SUBSTRING(`sp`.`remainder`, LENGTH(SUBSTRING_INDEX(`sp`.`remainder`, '/', 1)) + 2) AS `remainder`,
         CONCAT(
             `sp`.`meta_title`,
             (SELECT `value` FROM `Config` WHERE `name` = 'TITLE_SEPARATOR'),
-            (SELECT `title` FROM `Page` WHERE `slug` = SUBSTRING_INDEX(`sp`.`slug`, '/', `sp`.`depth` + 1))
-        ) AS `meta_title`,
-        `sp`.`depth` + 1 AS `depth`
+            (SELECT `title` FROM `Page` WHERE `slug` = SUBSTRING_INDEX(`sp`.`slug`, '/', (LENGTH(`sp`.`slug`) - LENGTH(REPLACE(`sp`.`remainder`, '/', '')) / LENGTH('/')) + 1))
+        ) AS `meta_title`
     FROM
         `slug_parts` AS `sp`
     WHERE
         `sp`.`remainder` != ''
+    ),
+    `parent_lookup` AS (
+        SELECT
+            `id`,
+            `slug`,
+            SUBSTRING_INDEX(`slug`, '/', -2) AS `parent_slug`
+        FROM
+            `Page`
+        WHERE
+            `slug` LIKE '%/%'
+    ),
+    `parent_join` AS (
+        SELECT
+            `p`.`id`,
+            `p`.`slug`,
+            SUBSTRING_INDEX(`p`.`slug`, '/', -2) AS `parent_slug`,
+            `parent`.`title` AS `parent_title`,
+            `parent`.`uuid` AS `parent_id`
+        FROM
+            `Page` AS `p`
+            LEFT JOIN `Page` AS `parent`
+                ON `parent`.`slug` = SUBSTRING_INDEX(`p`.`slug`, '/', -2)
+        WHERE
+            `p`.`slug` LIKE '%/%'
     )
+
     SELECT
         `p`.`id`,
         `p`.`slug`,
@@ -96,7 +129,13 @@ WITH RECURSIVE slug_parts AS (
             COALESCE(`sp`.`meta_title`, `p`.`title`)
         ) AS `meta_title`,
         `p`.`meta_description`,
-        `t`.`name` AS `type`
+        `t`.`name` AS `type`,
+        `pj`.`parent_id`,
+        `pj`.`parent_slug`,
+        `pj`.`parent_title`,
+        `nav`.`navigation_types`,
+        `nav`.`navigation_priorities`,
+        `p`.`tags`
     FROM
         `Page` AS `p` LEFT JOIN (
             SELECT
@@ -109,7 +148,31 @@ WITH RECURSIVE slug_parts AS (
         JOIN `PageType` AS `pt`
             ON `p`.`id` = `pt`.`page`
         JOIN `Type` AS `t`
-            ON `pt`.`type` = `t`.`id`;
+            ON `pt`.`type` = `t`.`id`
+        LEFT JOIN `parent_join` AS `pj`
+            ON `p`.`id` = `pj`.`id`
+        LEFT JOIN (
+            SELECT
+                `pn`.`page`,
+                GROUP_CONCAT(`n`.`type` ORDER BY `pn`.`priority` SEPARATOR ',') AS `navigation_types`,
+                GROUP_CONCAT(`pn`.`priority` ORDER BY `pn`.`priority` SEPARATOR ',') AS `navigation_priorities`
+            FROM
+                `PageNavigation` AS `pn`
+                JOIN `Navigation` AS `n`
+                    ON `pn`.`navigation` = `n`.`id`
+            GROUP BY
+                `pn`.`page`
+        ) AS `nav`
+            ON `p`.`id` = `nav`.`page`;
+
+CREATE OR REPLACE VIEW `PageElement` AS
+    SELECT
+        `c`.`priority`,
+        `c`.`data`,
+        `p`.`uuid` as `page`
+    FROM
+        `Content` AS `c` JOIN `Page` AS `p`
+            ON `c`.`page` = `p`.`id`;
 
 -- ------------------------------------
 -- Populate
@@ -131,20 +194,34 @@ VALUES
     ('TITLE_SEPARATOR', ' | ');
 
 INSERT INTO
-    `Page` (`slug`, `title`)
+    `Navigation` (`id`, `type`)
 VALUES
-    ('', 'Home'),
-    ('about', 'About Adequate'),
-    ('contact', 'Contact Us'),
-    ('about/me', 'About Me');
+    (1, 'HEADER'),
+    (2, 'FOOTER');
+
+INSERT INTO
+    `Page` (`id`, `slug`, `title`)
+VALUES
+    (1, '', 'Home'),
+    (2, 'about', 'About Adequate'),
+    (3, 'contact', 'Contact Us'),
+    (4, 'about/me', 'About Me');
+
+INSERT INTO
+    `PageNavigation` (`page`, `navigation`, `priority`)
+VALUES
+    (1, 1, 1),
+    (2, 1, 2),
+    (3, 1, 3),
+    (4, 1, 4),
+    (1, 2, 1),
+    (3, 2, 3);
 
 INSERT INTO
     `Type` (`id`, `name`)
 VALUES
     (1, 'page'),
-    (2, 'blog'),
-    (3, 'page'),
-    (4, 'page');
+    (2, 'blog');
 
 INSERT INTO
     `PageType` (`page`, `type`)

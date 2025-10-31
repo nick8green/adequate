@@ -24,6 +24,9 @@ export type Incremental<T> =
       [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
     };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & {
+  [P in K]-?: NonNullable<T[P]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string };
@@ -76,12 +79,54 @@ export type Config = {
 
 export type Element = Banner | Md | Timeline;
 
+/** Input for each page structure element */
+export type ElementInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
 /** Markdown element for the structure */
 export type Md = {
   __typename?: 'MD';
   /** The content of the markdown element */
   content: Scalars['Markdown']['output'];
 };
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  createPage: Page;
+  deletePage: Scalars['Boolean']['output'];
+  updatePage: Page;
+};
+
+export type MutationCreatePageArgs = {
+  input: PageInput;
+};
+
+export type MutationDeletePageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type MutationUpdatePageArgs = {
+  id: Scalars['ID']['input'];
+  input: PageInput;
+};
+
+/** Navigation element for the structure */
+export type Navigation = {
+  __typename?: 'Navigation';
+  /** The priority of the navigation item */
+  priority: Scalars['Int']['output'];
+  /** The type of the navigation */
+  type: NavigationType;
+};
+
+/** The type of navigation */
+export enum NavigationType {
+  /** Navigation in the footer of the application */
+  Footer = 'FOOTER',
+  /** Navigation in the header of the application */
+  Header = 'HEADER',
+}
 
 /** Page data */
 export type Page = {
@@ -122,6 +167,8 @@ export type PageConnection = {
 export type PageFilter = {
   /** Filter by page IDs */
   id?: InputMaybe<Array<Scalars['ID']['input']>>;
+  /** Filter by navigation type */
+  navigation?: InputMaybe<NavigationType>;
   /** Filter by page slug */
   slug?: InputMaybe<Scalars['String']['input']>;
   /** Filter by page tags */
@@ -141,13 +188,27 @@ export type PageInfo = {
   startCursor: Scalars['ID']['output'];
 };
 
+export type PageInput = {
+  meta: PageMetaInput;
+  slug: Scalars['String']['input'];
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  title: Scalars['String']['input'];
+  type?: InputMaybe<PageType>;
+};
+
 /** Meta data for the page */
 export type PageMeta = {
   __typename?: 'PageMeta';
   /** The description of the page */
   description?: Maybe<Scalars['String']['output']>;
+  /** The navigation items associated with the page */
+  navigation?: Maybe<Array<Navigation>>;
   /** The title of the page */
   title: Scalars['String']['output'];
+};
+
+export type PageMetaInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** The type of the page */
@@ -334,10 +395,14 @@ export type ResolversTypes = ResolversObject<{
   Config: ResolverTypeWrapper<Config>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Element: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['Element']>;
+  ElementInput: ElementInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MD: ResolverTypeWrapper<Md>;
   Markdown: ResolverTypeWrapper<Scalars['Markdown']['output']>;
+  Mutation: ResolverTypeWrapper<{}>;
+  Navigation: ResolverTypeWrapper<Navigation>;
+  NavigationType: NavigationType;
   Page: ResolverTypeWrapper<
     Omit<Page, 'structure'> & {
       structure: Array<Maybe<ResolversTypes['Element']>>;
@@ -348,7 +413,9 @@ export type ResolversTypes = ResolversObject<{
   >;
   PageFilter: PageFilter;
   PageInfo: ResolverTypeWrapper<PageInfo>;
+  PageInput: PageInput;
   PageMeta: ResolverTypeWrapper<PageMeta>;
+  PageMetaInput: PageMetaInput;
   PageType: PageType;
   Query: ResolverTypeWrapper<{}>;
   State: ResolverTypeWrapper<State>;
@@ -364,10 +431,13 @@ export type ResolversParentTypes = ResolversObject<{
   Config: Config;
   DateTime: Scalars['DateTime']['output'];
   Element: ResolversUnionTypes<ResolversParentTypes>['Element'];
+  ElementInput: ElementInput;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   MD: Md;
   Markdown: Scalars['Markdown']['output'];
+  Mutation: {};
+  Navigation: Navigation;
   Page: Omit<Page, 'structure'> & {
     structure: Array<Maybe<ResolversParentTypes['Element']>>;
   };
@@ -376,7 +446,9 @@ export type ResolversParentTypes = ResolversObject<{
   };
   PageFilter: PageFilter;
   PageInfo: PageInfo;
+  PageInput: PageInput;
   PageMeta: PageMeta;
+  PageMetaInput: PageMetaInput;
   Query: {};
   State: State;
   String: Scalars['String']['output'];
@@ -446,6 +518,41 @@ export interface MarkdownScalarConfig
   name: 'Markdown';
 }
 
+export type MutationResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
+> = ResolversObject<{
+  createPage?: Resolver<
+    ResolversTypes['Page'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreatePageArgs, 'input'>
+  >;
+  deletePage?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeletePageArgs, 'id'>
+  >;
+  updatePage?: Resolver<
+    ResolversTypes['Page'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationUpdatePageArgs, 'id' | 'input'>
+  >;
+}>;
+
+export type NavigationResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes['Navigation'] = ResolversParentTypes['Navigation'],
+> = ResolversObject<{
+  priority?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['NavigationType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PageResolvers<
   ContextType = any,
   ParentType extends
@@ -507,6 +614,11 @@ export type PageMetaResolvers<
 > = ResolversObject<{
   description?: Resolver<
     Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
+  navigation?: Resolver<
+    Maybe<Array<ResolversTypes['Navigation']>>,
     ParentType,
     ContextType
   >;
@@ -577,6 +689,8 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   Element?: ElementResolvers<ContextType>;
   MD?: MdResolvers<ContextType>;
   Markdown?: GraphQLScalarType;
+  Mutation?: MutationResolvers<ContextType>;
+  Navigation?: NavigationResolvers<ContextType>;
   Page?: PageResolvers<ContextType>;
   PageConnection?: PageConnectionResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;

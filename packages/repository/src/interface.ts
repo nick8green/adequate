@@ -4,7 +4,7 @@ export default interface RepositoryClient {
   isConnected(): boolean;
 
   get<T>(type: string, conditions?: Conditions): Promise<T[]>;
-  add<T>(type: string, value: T): Promise<T>;
+  add<T>(type: string, value: T): Promise<number>;
   update<T>(type: string, value: T, conditions?: Conditions): Promise<T>;
   delete(type: string, conditions?: Conditions): Promise<void>;
 

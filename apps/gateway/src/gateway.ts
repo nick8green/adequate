@@ -47,7 +47,7 @@ const getDevelopmentGateway = () => {
     supergraphSdl: new IntrospectAndCompose({
       subgraphs: JSON.parse(readFileSync(config, 'utf-8')),
     }),
-    pollIntervalInMs: 15000,
+    pollIntervalInMs: 5000,
   });
 };
 

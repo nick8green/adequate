@@ -1,3 +1,4 @@
+import { Action, enforce, Entity } from '@acl/enforce';
 import type {
   Config,
   Element,
@@ -9,10 +10,13 @@ import type {
 } from '@content/graph/generated/types';
 import { getConfig } from '@content/resolvers/config';
 import {
+  createPage,
+  deletePage,
   getPages,
   isBanner,
   isMarkdown,
   isTimeline,
+  updatePage,
 } from '@content/resolvers/pages';
 import { CursorType, paginate } from '@content/resolvers/pagination';
 import { getState } from '@content/resolvers/status';
@@ -21,11 +25,31 @@ import { getState } from '@content/resolvers/status';
 // async (parent, args, contextValue, info) => { ... }
 
 const resolvers: Resolvers = {
+  Mutation: {
+    createPage: async (_, { input }, context): Promise<Page> => {
+      enforce(context.token, Action.WRITE, Entity.PAGE);
+      return await createPage(input);
+    },
+    deletePage: async (_, { id }, context): Promise<boolean> => {
+      enforce(context.token, Action.WRITE, Entity.PAGE);
+      return await deletePage(id);
+    },
+    updatePage: async (_, { id, input }, context): Promise<Page> => {
+      enforce(context.token, Action.WRITE, Entity.PAGE);
+      return await updatePage(id, input);
+    },
+  },
   Query: {
-    config: async (): Promise<Config> => {
+    config: async (_, __, context): Promise<Config> => {
+      enforce(context.token, Action.READ, Entity.CONFIG);
       return await getConfig();
     },
-    pages: async (_, args: QueryPagesArgs): Promise<PageConnection> => {
+    pages: async (
+      _,
+      args: QueryPagesArgs,
+      context,
+    ): Promise<PageConnection> => {
+      enforce(context.token, Action.READ, Entity.PAGE);
       const { cursor, filter, limit } = args;
       const rawData = await getPages(filter);
       const [pageInfo, pages] = paginate<Page>(

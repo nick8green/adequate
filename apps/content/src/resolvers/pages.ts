@@ -4,20 +4,13 @@ import {
   Md,
   Page,
   PageFilter,
+  PageInput,
   Timeline,
 } from '@content/graph/generated/types';
-import {
-  getContentStructure as getPageStructure,
-  getPages as getPagesData,
-} from '@content/repository/pages';
+import repo from '@content/repository/Pages';
 
 export const getPages = async (filter?: null | PageFilter): Promise<Page[]> => {
-  const data: (Page & { uuid: string })[] = await getPagesData();
-  for (const page of data) {
-    const structure = await getPageStructure(page.id);
-    page.structure = structure;
-    page.id = page.uuid;
-  }
+  const data: Page[] = await repo.getAll();
 
   if (!filter) {
     return data;
@@ -39,8 +32,52 @@ export const getPages = async (filter?: null | PageFilter): Promise<Page[]> => {
         ).length > 0
       );
     }
+    if (filter?.navigation) {
+      return page.meta.navigation?.some(
+        (nav) => nav.type === filter.navigation,
+      );
+    }
     return true;
   });
+};
+
+export const createPage = async (input: PageInput): Promise<Page> => {
+  // validate there is no existing page with the same slug
+  const existing = await getPages();
+  if (existing.find((p) => p.slug === input.slug)) {
+    throw new Error('a page with the same slug already exists');
+  }
+  console.log('creating page', input);
+
+  const newPage: Page = await repo.create(input);
+  if (!newPage) {
+    throw new Error('failed to create page');
+  }
+
+  return newPage;
+};
+
+export const updatePage = async (
+  id: string,
+  input: PageInput,
+): Promise<Page> => {
+  // validate there is no existing page with the same slug
+  const existing = await getPages();
+  if (existing.find((p) => p.slug === input.slug && p.id !== id)) {
+    throw new Error('a page with the same slug already exists');
+  }
+  console.log('updating page', id, input);
+
+  const updatedPage: Page = await repo.update(id, input);
+  if (!updatedPage) {
+    throw new Error('failed to update page');
+  }
+
+  return updatedPage;
+};
+
+export const deletePage = async (id: string): Promise<boolean> => {
+  return await repo.delete(id);
 };
 
 // structure element type guards

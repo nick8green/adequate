@@ -8,8 +8,8 @@ export type PageProps = {
 
 const Page = async ({
   structure = [],
-}: Readonly<PageProps>): Promise<React.ReactElement | null> => {
-  return <Renderer structure={structure} />;
-};
+}: Readonly<PageProps>): Promise<React.ReactElement | null> => (
+  <Renderer structure={structure} />
+);
 
 export default Page;

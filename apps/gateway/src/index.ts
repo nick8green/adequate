@@ -29,6 +29,11 @@ interface Context {
       console.error(
         `${formattedError.message} [code: ${formattedError.extensions?.code}] [source: ${formattedError.extensions?.serviceName}] [stack: ${formattedError.extensions?.stacktrace}]`,
       );
+
+      if (process.env.NODE_ENV !== 'production') {
+        return formattedError;
+      }
+
       return {
         message: formattedError.message,
         code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,

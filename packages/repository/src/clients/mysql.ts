@@ -6,6 +6,7 @@ import mysql, {
   Pool,
   PoolConnection,
   QueryResult,
+  ResultSetHeader,
   RowDataPacket,
 } from 'mysql2/promise';
 
@@ -16,7 +17,7 @@ type Pools = {
   write?: Pool;
 };
 
-enum Interactions {
+export enum Interactions {
   CREATE,
   DELETE,
   GET,
@@ -27,7 +28,7 @@ export default class MySQLClient implements RepositoryClient {
   private static instance: MySQLClient;
   private readonly pools: Pools;
 
-  private constructor() {
+  protected constructor() {
     this.pools = {};
     this.connect();
   }
@@ -84,25 +85,23 @@ export default class MySQLClient implements RepositoryClient {
     });
   }
 
-  public async add<T>(type: string, value: T): Promise<T> {
+  public async add<T>(type: string, value: T): Promise<number> {
     console.log('MySQLClient.add called with', { type, value }); // eslint-disable-line no-console
 
     const query = this.buildQuery(
-      Interactions.UPDATE,
+      Interactions.CREATE,
       type,
       {},
       value as Record<string, boolean | number | null | string>,
     );
 
     try {
-      const [result, fields] = await this.execute(this.pools?.write, query, [
+      const [result] = await this.execute(this.pools?.write, query, [
         ...Object.values(
           value as Record<string, boolean | number | null | string>,
         ),
       ]);
-      // return (await this.get<T>(type, conditions) as T[])[0];
-      console.log('ADD RESULTS:', result, fields);
-      return value;
+      return (result as ResultSetHeader).insertId;
     } catch (error) {
       console.error('failed to execute update', error); // eslint-disable-line no-console
       throw error;
@@ -138,9 +137,14 @@ export default class MySQLClient implements RepositoryClient {
     }
   }
 
-  public delete(type: string, conditions?: Conditions): Promise<void> {
+  public async delete(type: string, conditions?: Conditions): Promise<void> {
     console.log('MySQLClient.delete called with', { type, conditions }); // eslint-disable-line no-console
-    throw new Error('Method not implemented.');
+
+    await this.execute(
+      this.pools?.write,
+      this.buildQuery(Interactions.DELETE, type, conditions),
+      Object.values(conditions || {}),
+    );
   }
 
   public async migrate(direction: 'up' | 'down'): Promise<void> {
@@ -198,7 +202,7 @@ export default class MySQLClient implements RepositoryClient {
 
   // private methods
 
-  private buildQuery(
+  protected buildQuery(
     interaction: Interactions,
     type: string,
     conditions?: Conditions,
@@ -207,7 +211,10 @@ export default class MySQLClient implements RepositoryClient {
     const constraints = Object.keys(conditions || {}).map(
       (key: string) => `${key} = ?`,
     );
-    const table = type.replace(/^(\w)/g, (s: string) => s.toLocaleUpperCase());
+    const table = type
+      .trim()
+      .replace(/(^\w| \w)/g, (s: string) => s.toLocaleUpperCase())
+      .replaceAll(' ', '');
 
     switch (interaction) {
       case Interactions.CREATE:

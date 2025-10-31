@@ -4,6 +4,7 @@ import { ApolloServerPluginInlineTraceDisabled } from '@apollo/server/plugin/dis
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { expressMiddleware } from '@as-integrations/express5';
+import RequestContext from '@content/context';
 import resolvers from '@content/resolvers';
 import { client } from '@repository/client';
 import { express as serveMetrics } from '@shared/metrics/serve';
@@ -16,10 +17,7 @@ import { gql } from 'graphql-tag';
 import helmet from 'helmet';
 import http from 'http';
 import { join } from 'path';
-
-interface Context {
-  token?: string;
-}
+import { v4 as uuid } from 'uuid';
 
 (async () => {
   await client.init();
@@ -45,12 +43,17 @@ interface Context {
   `;
 
   console.debug('Apollo Server starting...'); // eslint-disable-line no-console
-  const server = new ApolloServer<Context>({
+  const server = new ApolloServer<RequestContext>({
     formatError: (formattedError: GraphQLFormattedError) => {
       // eslint-disable-next-line no-console
       console.error(
         `${formattedError.message} [code: ${formattedError.extensions?.code}] [path: ${formattedError.path?.join(' -> ')}] [stack: ${formattedError.extensions?.stacktrace}]`,
       );
+
+      if (process.env.NODE_ENV !== 'production') {
+        return formattedError;
+      }
+
       return {
         message: formattedError.message,
         code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
@@ -66,7 +69,17 @@ interface Context {
   app.use(
     '/graphql',
     expressMiddleware(server, {
-      context: async ({ req: { headers } }) => ({ token: headers.token }),
+      context: async ({ req: { headers } }) => {
+        const trace = headers['x-trace'] ?? uuid();
+
+        let token: string | undefined;
+        if (headers.authorization) {
+          token = headers.authorization.replace('Bearer ', '');
+          // validate token here if it exists
+        }
+
+        return { token, trace };
+      },
     }),
   );
 

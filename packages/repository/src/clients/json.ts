@@ -57,7 +57,7 @@ export default class JsonClient implements RepositoryClient {
     return data as unknown as T[];
   }
 
-  public async add<T>(type: string, value: T): Promise<T> {
+  public async add<T>(type: string, value: T): Promise<number> {
     const file = this.getFilePath(type);
     const data: T = this.parseData(file);
 
@@ -69,7 +69,7 @@ export default class JsonClient implements RepositoryClient {
 
     this.writeToFile(file, data);
 
-    return value;
+    return data.indexOf(value);
   }
 
   public async update<T>(

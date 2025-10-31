@@ -12,3 +12,65 @@ html {
     sans-serif
   );
 }
+
+body {
+  margin: 0;
+  max-width: 100%;
+  padding: 0;
+}
+
+section#main {
+  margin: 0;
+}
+section#main * {
+  opacity: 1;
+  translate: 0;
+
+  transition: all 0.9s ease;
+  transition-timing-function: ease-in-out;
+  transition-duration: 800ms;
+
+  @starting-style {
+    opacity: 0;
+    translate: -0.2em -0.2em;
+  }
+}
+section#main *:nth-child(1n) {
+  transition-delay: 0.1s;
+}
+section#main *:nth-child(2n) {
+  transition-delay: 0.2s;
+}
+section#main *:nth-child(3n) {
+  transition-delay: 0.3s;
+}
+section#main *:nth-child(4n) {
+  transition-delay: 0.4s;
+}
+section#main *:nth-child(5n) {
+  transition-delay: 0.5s;
+}
+section#main *:nth-child(6n) {
+  transition-delay: 0.6s;
+}
+section#main *:nth-child(7n) {
+  transition-delay: 0.7s;
+}
+section#main *:nth-child(8n) {
+  transition-delay: 0.8s;
+}
+section#main *:nth-child(9n) {
+  transition-delay: 0.9s;
+}
+section#main *:nth-child(10n) {
+  transition-delay: 1s;
+}
+section#main p,
+section#main h2,
+section#main h3,
+section#main h4,
+section#main h5,
+section#main h6 {
+  margin-left: 0.75em;
+  margin-right: 0.75em;
+}
