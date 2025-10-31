@@ -2,9 +2,8 @@
  * @jest-environment node
  */
 
+import { middleware } from '@shared/middleware/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-
-import { middleware } from './middleware';
 const mockGetRateLimiter = require('@shared/rateLimit').default; // eslint-disable-line @typescript-eslint/no-require-imports
 const mockGetIp = require('@shared/rateLimit').getIp; // eslint-disable-line @typescript-eslint/no-require-imports
 

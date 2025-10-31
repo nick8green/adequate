@@ -2,10 +2,12 @@ services:
   admin:
     command: yarn workspace admin dev
     container_name: adequate-admin
+    environment:
+      APP_NAME: adequate-admin
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
     image: node:${NODE_VERSION:-24}
     networks:
@@ -20,13 +22,13 @@ services:
     command: yarn workspace app dev
     container_name: adequate-app
     environment:
-      - APP_NAME=adequate-dev
+      APP_NAME: adequate-app
     env_file:
       - .env.local
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
-      interval: 30s
-      timeout: 10s
+      interval: 15s
+      timeout: 5s
       retries: 3
     image: node:${NODE_VERSION:-24}
     networks:
@@ -37,6 +39,96 @@ services:
     volumes:
       - .:/app
       - ./development/app/images:/app/apps/app/public/assets/images
+
+  content:
+    command: yarn workspace content-service dev
+    container_name: adequate-content
+    environment:
+      APP_NAME: adequate-content
+      DOMAIN: http://localhost:3000,http://localhost:3002,https://studio.apollographql.com
+      DB_HOST: adequate-db
+      DB_NAME: content
+      DB_USER: content-service-migrate # ONLY FOR DEV
+      DB_PASSWORD: migrate # ONLY FOR DEV
+      DB_READER_USER: content-service-read
+      DB_READER_PASSWORD: reader
+      DB_WRITER_USER: content-service-write
+      DB_WRITER_PASSWORD: writer
+      DB_MIGRATIONS: /app/migrations
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    image: node:${NODE_VERSION:-24}
+    networks:
+      - service
+    ports:
+      - '3002:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
+  db:
+    container_name: adequate-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-overrideme}
+    env_file:
+      - .env.local
+    image: mysql:${MYSQL_VERSION:-9.4.0}
+    networks:
+      - service
+    volumes:
+      - ./scripts/dev.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql-data:/var/lib/mysql
+
+  docs:
+    command: yarn workspace docs start --host 0.0.0.0 --no-open --poll 2000
+    container_name: adequate-docs
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    image: node:${NODE_VERSION:-24}
+    ports:
+      - '3030:3000'
+    working_dir: /app
+    volumes:
+      - .:/app
+
+  gateway:
+    command: yarn workspace gateway dev
+    container_name: adequate-gateway
+    depends_on:
+      content:
+        condition: service_healthy
+    environment:
+      APP_NAME: adequate-gateway
+      DOMAIN: http://localhost:3000,https://studio.apollographql.com
+      SUBGRAPHS_CONFIG: /config/subgraphs.json
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'curl',
+          '-f',
+          '--header "origin: http://healthcheck"',
+          'http://localhost:4000/status',
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    image: node:${NODE_VERSION:-24}
+    networks:
+      - app
+      - service
+    ports:
+      - '4000:4000'
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./development/service/subgraphs.json:/config/subgraphs.json
 
   grafana:
     container_name: adequate-grafana
@@ -77,21 +169,6 @@ services:
     ports:
       - '9091:9091'
 
-  docs:
-    command: yarn workspace docs start --host 0.0.0.0 --no-open --poll 2000
-    container_name: adequate-docs
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    image: node:${NODE_VERSION:-24}
-    ports:
-      - '3030:3000'
-    working_dir: /app
-    volumes:
-      - .:/app
-
 networks:
   admin:
     name: adequate-admin
@@ -99,7 +176,11 @@ networks:
     name: adequate-dev
   monitoring:
     name: adequate-monitoring
+  service:
+    name: adequate-federation
 
 volumes:
   grafana-storage:
     name: adequate-grafana-storage
+  mysql-data:
+    name: adequate-data

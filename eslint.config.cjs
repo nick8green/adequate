@@ -26,6 +26,8 @@ module.exports = defineConfig([
     'eslint.config.cjs',
     './**/jest.config.cjs',
     './**/coverage/**',
+    './**/dist/**',
+    './**/generated/**',
   ]),
   {
     languageOptions: {

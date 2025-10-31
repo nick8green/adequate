@@ -1,0 +1,13 @@
+{
+  "name": "gateway",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "nodemon --watch 'src/**/*' --exec \"ts-node --project ./tsconfig.json -r tsconfig-paths/register ./src/index.ts\" --ext js,json,ts"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/gateway": "^2.11.2",
+    "@apollo/server": "^5.0.0",
+    "graphql": "^16.11.0"
+  }
+}
