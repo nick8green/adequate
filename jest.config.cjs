@@ -5,9 +5,11 @@ module.exports = {
   projects: [
     '<rootDir>/apps/app',
     '<rootDir>/apps/admin',
-    '<rootDir>/apps/service',
-    '<rootDir>/packages/shared',
+    '<rootDir>/apps/content',
+    '<rootDir>/apps/gateway',
     '<rootDir>/packages/docs',
+    '<rootDir>/packages/repository',
+    '<rootDir>/packages/shared',
   ],
   reporters: [
     'default',
@@ -27,4 +29,5 @@ module.exports = {
       },
     ],
   ],
+  watchPathIgnorePatterns: ['**/node_modules/', '**/dist/', '**/coverage/'],
 };
