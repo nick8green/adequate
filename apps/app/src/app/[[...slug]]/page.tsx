@@ -21,8 +21,6 @@ export const generateMetadata = async (
   const { slug } = await params;
   const data = await getPageData(slug?.join('/') ?? '');
 
-  console.debug('generateMetadata parent:', await parent); // eslint-disable-line no-console
-
   return {
     title: data.meta.title ?? 'N8G Adequate',
     description:

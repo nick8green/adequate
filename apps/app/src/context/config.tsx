@@ -10,7 +10,10 @@ export type SiteConfig = {
   description?: string;
   keywords?: string[];
   lang: string;
-  navigation: Link[];
+  navigation: {
+    header: Link[];
+    footer: Link[];
+  };
   owner?: string;
   title: string;
   brand: string;
@@ -19,7 +22,7 @@ export type SiteConfig = {
 
 const defaultConfig: SiteConfig = {
   lang: 'en',
-  navigation: [],
+  navigation: { header: [], footer: [] },
   owner: 'Nick 8 Green',
   title: 'N8G Adequate',
   brand: 'n8g',

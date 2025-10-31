@@ -12,7 +12,7 @@ export const getPageData = cache(async (slug: string): Promise<Page> => {
 
   const { data } = await client.query({
     query: GET_PAGE_BY_SLUG,
-    variables: { slug },
+    variables: { slug: `/${slug}` },
   });
 
   return (data as { pages: PageConnection }).pages.pages[0];

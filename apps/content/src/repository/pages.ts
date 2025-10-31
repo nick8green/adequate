@@ -23,6 +23,7 @@ type PageRepository = Omit<
   meta_title?: string;
   navigation_types?: string;
   navigation_priorities?: string;
+  parent_id?: string;
   tags?: string;
   uuid?: string;
   id?: number;
@@ -167,6 +168,10 @@ class Pages extends DataLoader<Page, PageRepository, PageInput> {
         type: type as NavigationType,
         priority: priorities[index],
       }));
+    }
+
+    if (page.parent_id) {
+      meta.parent = { id: page.parent_id };
     }
 
     return meta;

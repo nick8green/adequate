@@ -154,6 +154,10 @@ type PageMeta {
   The navigation items associated with the page
   """
   navigation: [Navigation!]
+  """
+  The parent page reference
+  """
+  parent: PageParent
 }
 
 """
@@ -228,6 +232,16 @@ type PageInfo {
   The first element in the response list
   """
   startCursor: ID!
+}
+
+"""
+Parent page reference
+"""
+type PageParent {
+  """
+  The ID of the parent page
+  """
+  id: ID!
 }
 
 """

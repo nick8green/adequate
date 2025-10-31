@@ -107,15 +107,21 @@ WITH RECURSIVE `slug_parts` AS (
         SELECT
             `p`.`id`,
             `p`.`slug`,
-            SUBSTRING_INDEX(`p`.`slug`, '/', -2) AS `parent_slug`,
+            CASE
+                WHEN LOCATE('/', REVERSE(`p`.`slug`)) > 0 THEN
+                    LEFT(`p`.`slug`, LENGTH(`p`.`slug`) - LOCATE('/', REVERSE(`p`.`slug`)))
+                ELSE NULL
+            END AS `parent_slug`,
             `parent`.`title` AS `parent_title`,
             `parent`.`uuid` AS `parent_id`
         FROM
-            `Page` AS `p`
-            LEFT JOIN `Page` AS `parent`
-                ON `parent`.`slug` = SUBSTRING_INDEX(`p`.`slug`, '/', -2)
-        WHERE
-            `p`.`slug` LIKE '%/%'
+            `Page` AS `p` LEFT JOIN `Page` AS `parent`
+                ON `parent`.`slug` = CASE
+                    WHEN LOCATE('/', REVERSE(`p`.`slug`)) > 0 THEN
+                        LEFT(`p`.`slug`, LENGTH(`p`.`slug`) - LOCATE('/', REVERSE(`p`.`slug`)))
+                ELSE NULL
+            END
+        WHERE `p`.`slug` LIKE '%/%'
     )
 
     SELECT
@@ -202,10 +208,11 @@ VALUES
 INSERT INTO
     `Page` (`id`, `slug`, `title`)
 VALUES
-    (1, '', 'Home'),
-    (2, 'about', 'About Adequate'),
-    (3, 'contact', 'Contact Us'),
-    (4, 'about/me', 'About Me');
+    (1, '/', 'Home'),
+    (2, '/about', 'About Adequate'),
+    (3, '/contact', 'Contact Us'),
+    (4, '/about/me', 'About Me'),
+    (5, '/cookies', 'Cookies');
 
 INSERT INTO
     `PageNavigation` (`page`, `navigation`, `priority`)
@@ -215,7 +222,8 @@ VALUES
     (3, 1, 3),
     (4, 1, 4),
     (1, 2, 1),
-    (3, 2, 3);
+    (3, 2, 3),
+    (5, 2, 2);
 
 INSERT INTO
     `Type` (`id`, `name`)

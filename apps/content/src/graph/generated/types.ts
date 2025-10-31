@@ -1,41 +1,22 @@
-import {
-  GraphQLResolveInfo,
-  GraphQLScalarType,
-  GraphQLScalarTypeConfig,
-} from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T,
-> = { [_ in K]?: never };
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type RequireFields<T, K extends keyof T> = Omit<T, K> & {
-  [P in K]-?: NonNullable<T[P]>;
-};
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
-  DateTime: { input: any; output: any };
-  Markdown: { input: any; output: any };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: any; output: any; }
+  Markdown: { input: any; output: any; }
 };
 
 export enum AppStatus {
@@ -44,7 +25,7 @@ export enum AppStatus {
   /** The application is down */
   Down = 'DOWN',
   /** The application is running normally */
-  Ok = 'OK',
+  Ok = 'OK'
 }
 
 /** Banner element for the structure */
@@ -98,13 +79,16 @@ export type Mutation = {
   updatePage: Page;
 };
 
+
 export type MutationCreatePageArgs = {
   input: PageInput;
 };
 
+
 export type MutationDeletePageArgs = {
   id: Scalars['ID']['input'];
 };
+
 
 export type MutationUpdatePageArgs = {
   id: Scalars['ID']['input'];
@@ -125,7 +109,7 @@ export enum NavigationType {
   /** Navigation in the footer of the application */
   Footer = 'FOOTER',
   /** Navigation in the header of the application */
-  Header = 'HEADER',
+  Header = 'HEADER'
 }
 
 /** Page data */
@@ -203,6 +187,8 @@ export type PageMeta = {
   description?: Maybe<Scalars['String']['output']>;
   /** The navigation items associated with the page */
   navigation?: Maybe<Array<Navigation>>;
+  /** The parent page reference */
+  parent?: Maybe<PageParent>;
   /** The title of the page */
   title: Scalars['String']['output'];
 };
@@ -211,12 +197,19 @@ export type PageMetaInput = {
   description?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Parent page reference */
+export type PageParent = {
+  __typename?: 'PageParent';
+  /** The ID of the parent page */
+  id: Scalars['ID']['output'];
+};
+
 /** The type of the page */
 export enum PageType {
   /** A blog post page */
   Blog = 'BLOG',
   /** A general page */
-  Page = 'PAGE',
+  Page = 'PAGE'
 }
 
 export type Query = {
@@ -225,6 +218,7 @@ export type Query = {
   pages: PageConnection;
   status: State;
 };
+
 
 export type QueryPagesArgs = {
   cursor?: InputMaybe<Scalars['ID']['input']>;
@@ -278,53 +272,36 @@ export type ResolversObject<TObject> = WithIndex<TObject>;
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
+
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> =
-  | ResolverFn<TResult, TParent, TContext, TArgs>
-  | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo,
+  info: GraphQLResolveInfo
 ) => Promise<TResult> | TResult;
 
 export type SubscriptionSubscribeFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo,
+  info: GraphQLResolveInfo
 ) => AsyncIterable<TResult> | Promise<AsyncIterable<TResult>>;
 
 export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo,
+  info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
-export interface SubscriptionSubscriberObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs,
-> {
-  subscribe: SubscriptionSubscribeFn<
-    { [key in TKey]: TResult },
-    TParent,
-    TContext,
-    TArgs
-  >;
-  resolve?: SubscriptionResolveFn<
-    TResult,
-    { [key in TKey]: TResult },
-    TContext,
-    TArgs
-  >;
+export interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
+  subscribe: SubscriptionSubscribeFn<{ [key in TKey]: TResult }, TParent, TContext, TArgs>;
+  resolve?: SubscriptionResolveFn<TResult, { [key in TKey]: TResult }, TContext, TArgs>;
 }
 
 export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
@@ -332,60 +309,37 @@ export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
   resolve: SubscriptionResolveFn<TResult, any, TContext, TArgs>;
 }
 
-export type SubscriptionObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs,
-> =
+export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, TArgs> =
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<
-  TResult,
-  TKey extends string,
-  TParent = {},
-  TContext = {},
-  TArgs = {},
-> =
-  | ((
-      ...args: any[]
-    ) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
+export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
+  | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
 export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
   parent: TParent,
   context: TContext,
-  info: GraphQLResolveInfo,
+  info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (
-  obj: T,
-  context: TContext,
-  info: GraphQLResolveInfo,
-) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<
-  TResult = {},
-  TParent = {},
-  TContext = {},
-  TArgs = {},
-> = (
+export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo,
+  info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
 /** Mapping of union types */
-export type ResolversUnionTypes<_RefType extends Record<string, unknown>> =
-  ResolversObject<{
-    Element: Banner | Md | Timeline;
-  }>;
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
+  Element: ( Banner ) | ( Md ) | ( Timeline );
+}>;
+
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
@@ -403,19 +357,14 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Navigation: ResolverTypeWrapper<Navigation>;
   NavigationType: NavigationType;
-  Page: ResolverTypeWrapper<
-    Omit<Page, 'structure'> & {
-      structure: Array<Maybe<ResolversTypes['Element']>>;
-    }
-  >;
-  PageConnection: ResolverTypeWrapper<
-    Omit<PageConnection, 'pages'> & { pages: Array<ResolversTypes['Page']> }
-  >;
+  Page: ResolverTypeWrapper<Omit<Page, 'structure'> & { structure: Array<Maybe<ResolversTypes['Element']>> }>;
+  PageConnection: ResolverTypeWrapper<Omit<PageConnection, 'pages'> & { pages: Array<ResolversTypes['Page']> }>;
   PageFilter: PageFilter;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PageInput: PageInput;
   PageMeta: ResolverTypeWrapper<PageMeta>;
   PageMetaInput: PageMetaInput;
+  PageParent: ResolverTypeWrapper<PageParent>;
   PageType: PageType;
   Query: ResolverTypeWrapper<{}>;
   State: ResolverTypeWrapper<State>;
@@ -438,17 +387,14 @@ export type ResolversParentTypes = ResolversObject<{
   Markdown: Scalars['Markdown']['output'];
   Mutation: {};
   Navigation: Navigation;
-  Page: Omit<Page, 'structure'> & {
-    structure: Array<Maybe<ResolversParentTypes['Element']>>;
-  };
-  PageConnection: Omit<PageConnection, 'pages'> & {
-    pages: Array<ResolversParentTypes['Page']>;
-  };
+  Page: Omit<Page, 'structure'> & { structure: Array<Maybe<ResolversParentTypes['Element']>> };
+  PageConnection: Omit<PageConnection, 'pages'> & { pages: Array<ResolversParentTypes['Page']> };
   PageFilter: PageFilter;
   PageInfo: PageInfo;
   PageInput: PageInput;
   PageMeta: PageMeta;
   PageMetaInput: PageMetaInput;
+  PageParent: PageParent;
   Query: {};
   State: State;
   String: Scalars['String']['output'];
@@ -456,27 +402,15 @@ export type ResolversParentTypes = ResolversObject<{
   TimelineEvent: TimelineEvent;
 }>;
 
-export type BannerResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Banner'] = ResolversParentTypes['Banner'],
-> = ResolversObject<{
-  description?: Resolver<
-    Maybe<ResolversTypes['String']>,
-    ParentType,
-    ContextType
-  >;
+export type BannerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Banner'] = ResolversParentTypes['Banner']> = ResolversObject<{
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   side?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ConfigResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Config'] = ResolversParentTypes['Config'],
-> = ResolversObject<{
+export type ConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['Config'] = ResolversParentTypes['Config']> = ResolversObject<{
   brand?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   keywords?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -488,190 +422,95 @@ export type ConfigResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface DateTimeScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
+export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
 
-export type ElementResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Element'] = ResolversParentTypes['Element'],
-> = ResolversObject<{
-  __resolveType: TypeResolveFn<
-    'Banner' | 'MD' | 'Timeline',
-    ParentType,
-    ContextType
-  >;
+export type ElementResolvers<ContextType = any, ParentType extends ResolversParentTypes['Element'] = ResolversParentTypes['Element']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'Banner' | 'MD' | 'Timeline', ParentType, ContextType>;
 }>;
 
-export type MdResolvers<
-  ContextType = any,
-  ParentType extends ResolversParentTypes['MD'] = ResolversParentTypes['MD'],
-> = ResolversObject<{
+export type MdResolvers<ContextType = any, ParentType extends ResolversParentTypes['MD'] = ResolversParentTypes['MD']> = ResolversObject<{
   content?: Resolver<ResolversTypes['Markdown'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface MarkdownScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['Markdown'], any> {
+export interface MarkdownScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Markdown'], any> {
   name: 'Markdown';
 }
 
-export type MutationResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
-> = ResolversObject<{
-  createPage?: Resolver<
-    ResolversTypes['Page'],
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreatePageArgs, 'input'>
-  >;
-  deletePage?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeletePageArgs, 'id'>
-  >;
-  updatePage?: Resolver<
-    ResolversTypes['Page'],
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdatePageArgs, 'id' | 'input'>
-  >;
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  createPage?: Resolver<ResolversTypes['Page'], ParentType, ContextType, RequireFields<MutationCreatePageArgs, 'input'>>;
+  deletePage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePageArgs, 'id'>>;
+  updatePage?: Resolver<ResolversTypes['Page'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'id' | 'input'>>;
 }>;
 
-export type NavigationResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Navigation'] = ResolversParentTypes['Navigation'],
-> = ResolversObject<{
+export type NavigationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Navigation'] = ResolversParentTypes['Navigation']> = ResolversObject<{
   priority?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['NavigationType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PageResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Page'] = ResolversParentTypes['Page'],
-> = ResolversObject<{
+export type PageResolvers<ContextType = any, ParentType extends ResolversParentTypes['Page'] = ResolversParentTypes['Page']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   meta?: Resolver<ResolversTypes['PageMeta'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  structure?: Resolver<
-    Array<Maybe<ResolversTypes['Element']>>,
-    ParentType,
-    ContextType
-  >;
-  tags?: Resolver<
-    Maybe<Array<ResolversTypes['String']>>,
-    ParentType,
-    ContextType
-  >;
+  structure?: Resolver<Array<Maybe<ResolversTypes['Element']>>, ParentType, ContextType>;
+  tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PageConnectionResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['PageConnection'] = ResolversParentTypes['PageConnection'],
-> = ResolversObject<{
-  pageInfo?: Resolver<
-    Maybe<ResolversTypes['PageInfo']>,
-    ParentType,
-    ContextType
-  >;
+export type PageConnectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['PageConnection'] = ResolversParentTypes['PageConnection']> = ResolversObject<{
+  pageInfo?: Resolver<Maybe<ResolversTypes['PageInfo']>, ParentType, ContextType>;
   pages?: Resolver<Array<ResolversTypes['Page']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PageInfoResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo'],
-> = ResolversObject<{
+export type PageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  hasPreviousPage?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType
-  >;
+  hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   startCursor?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PageMetaResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['PageMeta'] = ResolversParentTypes['PageMeta'],
-> = ResolversObject<{
-  description?: Resolver<
-    Maybe<ResolversTypes['String']>,
-    ParentType,
-    ContextType
-  >;
-  navigation?: Resolver<
-    Maybe<Array<ResolversTypes['Navigation']>>,
-    ParentType,
-    ContextType
-  >;
+export type PageMetaResolvers<ContextType = any, ParentType extends ResolversParentTypes['PageMeta'] = ResolversParentTypes['PageMeta']> = ResolversObject<{
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  navigation?: Resolver<Maybe<Array<ResolversTypes['Navigation']>>, ParentType, ContextType>;
+  parent?: Resolver<Maybe<ResolversTypes['PageParent']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
-> = ResolversObject<{
+export type PageParentResolvers<ContextType = any, ParentType extends ResolversParentTypes['PageParent'] = ResolversParentTypes['PageParent']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   config?: Resolver<ResolversTypes['Config'], ParentType, ContextType>;
-  pages?: Resolver<
-    ResolversTypes['PageConnection'],
-    ParentType,
-    ContextType,
-    Partial<QueryPagesArgs>
-  >;
+  pages?: Resolver<ResolversTypes['PageConnection'], ParentType, ContextType, Partial<QueryPagesArgs>>;
   status?: Resolver<ResolversTypes['State'], ParentType, ContextType>;
 }>;
 
-export type StateResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['State'] = ResolversParentTypes['State'],
-> = ResolversObject<{
+export type StateResolvers<ContextType = any, ParentType extends ResolversParentTypes['State'] = ResolversParentTypes['State']> = ResolversObject<{
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['AppStatus'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TimelineResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['Timeline'] = ResolversParentTypes['Timeline'],
-> = ResolversObject<{
-  events?: Resolver<
-    Array<ResolversTypes['TimelineEvent']>,
-    ParentType,
-    ContextType
-  >;
+export type TimelineResolvers<ContextType = any, ParentType extends ResolversParentTypes['Timeline'] = ResolversParentTypes['Timeline']> = ResolversObject<{
+  events?: Resolver<Array<ResolversTypes['TimelineEvent']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TimelineEventResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes['TimelineEvent'] = ResolversParentTypes['TimelineEvent'],
-> = ResolversObject<{
+export type TimelineEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['TimelineEvent'] = ResolversParentTypes['TimelineEvent']> = ResolversObject<{
   content?: Resolver<ResolversTypes['Markdown'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -695,8 +534,10 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   PageConnection?: PageConnectionResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   PageMeta?: PageMetaResolvers<ContextType>;
+  PageParent?: PageParentResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   State?: StateResolvers<ContextType>;
   Timeline?: TimelineResolvers<ContextType>;
   TimelineEvent?: TimelineEventResolvers<ContextType>;
 }>;
+
