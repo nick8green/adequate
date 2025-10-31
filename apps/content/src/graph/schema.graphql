@@ -21,6 +21,19 @@ scalar Markdown
 
 # Enums
 
+"""
+The type of action being carried out on an entity
+"""
+enum Action {
+  CREATE
+  DELETE
+  PUBLISH
+  UPDATE
+}
+
+"""
+The status of the application
+"""
 enum AppStatus {
   """
   The application is running normally
@@ -51,6 +64,20 @@ enum NavigationType {
 }
 
 """
+The order of items
+"""
+enum Order {
+  """
+  Ascending order
+  """
+  ASC
+  """
+  Descending order
+  """
+  DESC
+}
+
+"""
 The type of the page
 """
 enum PageType {
@@ -65,6 +92,24 @@ enum PageType {
 }
 
 # Service types
+
+"""
+Audit information for changes
+"""
+type Audit {
+  """
+  The action that was performed
+  """
+  action: Action!
+  """
+  The timestamp of the audit entry
+  """
+  timestamp: DateTime!
+  """
+  The user who made the change
+  """
+  user: User!
+}
 
 """
 Banner element for the structure
@@ -143,13 +188,17 @@ Meta data for the page
 """
 type PageMeta {
   """
-  The title of the page
+  The audit information for the page
   """
-  title: String!
+  audit: [Audit!]!
   """
   The description of the page
   """
   description: String
+  # """
+  # The UUID of the page
+  # """
+  # id: ID!
   """
   The navigation items associated with the page
   """
@@ -158,6 +207,10 @@ type PageMeta {
   The parent page reference
   """
   parent: PageParent
+  """
+  The title of the page
+  """
+  title: String!
 }
 
 """
@@ -245,6 +298,43 @@ type PageParent {
 }
 
 """
+Post element for the structure
+"""
+type Post {
+  """
+  The main content of the post
+  """
+  content: Markdown!
+  """
+  An excerpt of the post
+  """
+  excerpt: String
+  id: ID!
+  """
+  The meta information for the post
+  """
+  meta: PostMeta!
+  """
+  The slug identifier for the post
+  """
+  slug: String!
+  """
+  The title of the post
+  """
+  title: String!
+}
+
+"""
+Post meta data
+"""
+type PostMeta {
+  """
+  The audit information for the post
+  """
+  audit: [Audit!]!
+}
+
+"""
 State of the application
 """
 type State {
@@ -267,31 +357,31 @@ Timeline data
 """
 type Timeline {
   """
-  The UUID of the timeline
+  The date format to use
   """
-  id: ID!
+  dateFormat: String
   """
-  The name of the timeline
+  The location of the date
   """
-  name: String!
+  dateLocation: String
+  """
+  The display format for the timeline
+  """
+  display: String
   """
   The events within the timeline
   """
-  events: [TimelineEvent!]!
+  events: [TimelineEvent]!
+  """
+  The order of the events
+  """
+  order: Order
 }
 
 """
 Timeline event data
 """
 type TimelineEvent {
-  """
-  The UUID of the event
-  """
-  id: ID!
-  """
-  The title of the event
-  """
-  title: String!
   """
   The information in the event
   """
@@ -301,17 +391,32 @@ type TimelineEvent {
   """
   date: DateTime!
   """
-  An optional link for the event
-  """
-  link: String
-  """
   An optional icon for the event
   """
   icon: String
   """
+  An optional link for the event
+  """
+  link: String
+  """
   An optional tag for the event
   """
   tag: String
+  """
+  The title of the event
+  """
+  title: String
+}
+
+type User {
+  """
+  The name of the user
+  """
+  name: String!
+  """
+  The user's username
+  """
+  username: String!
 }
 
 # Inputs
@@ -365,4 +470,4 @@ input PageMetaInput {
 
 # Union types
 
-union Element = Banner | MD | Timeline
+union Element = Banner | MD | Post | Timeline

@@ -3,9 +3,30 @@
  */
 
 import { middleware } from '@shared/middleware/nextjs';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+
 const mockGetRateLimiter = require('@shared/rateLimit').default; // eslint-disable-line @typescript-eslint/no-require-imports
 const mockGetIp = require('@shared/rateLimit').getIp; // eslint-disable-line @typescript-eslint/no-require-imports
+
+jest.mock('next/server', () => {
+  const mockNextResponse = jest.fn().mockImplementation((body, init) => ({
+    status: init?.status ?? 200,
+    headers: new Map(),
+    text: () => Promise.resolve(body),
+  }));
+
+  mockNextResponse.next = jest.fn(() => ({
+    status: 200,
+    headers: new Map(),
+    text: () => Promise.resolve(''),
+  }));
+
+  return {
+    __esModule: true,
+    NextRequest: jest.fn(),
+    NextResponse: mockNextResponse,
+  };
+});
 
 jest.mock('@shared/rateLimit', () => ({
   __esModule: true,
@@ -20,7 +41,14 @@ describe('middleware', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
+      cookies: {
+        get: jest.fn().mockReturnValue(undefined),
+      },
+      headers: {
+        get: jest.fn().mockReturnValue(null),
+      },
       nextUrl: { pathname: '/api/test' },
+      url: 'http://example.com/api/test',
     };
     mockGetIp.mockReturnValue('127.0.0.1');
     limitMock = jest.fn();
@@ -33,7 +61,6 @@ describe('middleware', () => {
     // @ts-expect-error could be an issue with the data/logic
     const res = await middleware(mockRequest as NextRequest);
 
-    expect(res).toBeInstanceOf(NextResponse);
     expect(res.status).toBe(200);
   });
 
@@ -43,7 +70,6 @@ describe('middleware', () => {
     // @ts-expect-error could be an issue with the data/logic
     const res = await middleware(mockRequest as NextRequest);
 
-    expect(res).toBeInstanceOf(NextResponse);
     expect(res.status).toBe(429);
     const text = await res.text();
     expect(text).toBe('Too many requests');
@@ -56,8 +82,12 @@ describe('middleware', () => {
     // @ts-expect-error could be an issue with the data/logic
     const res = await middleware(mockRequest as NextRequest);
 
-    expect(res).toBeInstanceOf(NextResponse);
-    expect(res.status).toBe(404);
+    expect(res).toEqual(
+      expect.objectContaining({
+        status: 404,
+        text: expect.any(Function),
+      }),
+    );
   });
 
   it('returns 404 for /.well-known path', async () => {
@@ -67,8 +97,12 @@ describe('middleware', () => {
     // @ts-expect-error could be an issue with the data/logic
     const res = await middleware(mockRequest as NextRequest);
 
-    expect(res).toBeInstanceOf(NextResponse);
-    expect(res.status).toBe(404);
+    expect(res).toEqual(
+      expect.objectContaining({
+        status: 404,
+        text: expect.any(Function),
+      }),
+    );
   });
 
   it('calls getIp with the request', async () => {

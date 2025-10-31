@@ -1,0 +1,7 @@
+{
+  "accordion": {
+    "border": {
+      "colour": { "value": "{colour.secondary}", "type": "color" }
+    }
+  }
+}

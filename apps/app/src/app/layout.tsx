@@ -34,7 +34,7 @@ const Layout: FC<PropsWithChildren> = async ({ children }) => {
         <ApolloWrapper>
           <ConfigProvider config={config}>
             <Header title={config.title}>
-              <Navigation type="main" links={config.navigation.header} />
+              <Navigation type='main' links={config.navigation.header} />
             </Header>
             <section
               id='main'

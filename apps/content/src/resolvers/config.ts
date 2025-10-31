@@ -1,11 +1,8 @@
 import { Config } from '@content/graph/generated/types';
-import {
-  ConfigRepository,
-  getConfig as sourceConfig,
-} from '@content/repository/config';
+import repo, { ConfigRepository } from '@content/repository/Config';
 
 export const getConfig = async (): Promise<Config> => {
-  const siteConfig: ConfigRepository[] = await sourceConfig();
+  const siteConfig: ConfigRepository[] = await repo.getAll();
   const config: Config = {
     description: '',
     keywords: [],
@@ -14,7 +11,7 @@ export const getConfig = async (): Promise<Config> => {
     title: '',
   };
 
-  siteConfig.forEach(({ name, value }: ConfigRepository) => {
+  for (const { name, value } of siteConfig) {
     switch (name) {
       case 'SITE_LANGUAGE':
         config.language = value;
@@ -45,6 +42,6 @@ export const getConfig = async (): Promise<Config> => {
       default:
         throw new Error(`unknown config name: ${name}`);
     }
-  });
+  }
   return config;
 };

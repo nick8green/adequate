@@ -5,11 +5,16 @@ import {
   PageInput,
   PageMeta,
   PageType,
+  Post,
 } from '@content/graph/generated/types';
+import postRepo, {
+  Post as PostLoader,
+  PostRepository,
+} from '@content/repository/Blog';
 import DataLoader from '@content/repository/DataLoader';
 import structureRepo, {
-  PageElementRepository,
-  PageStructure,
+  ElementRepository,
+  PageStructure as PageStructureLoader,
 } from '@content/repository/PageStructure';
 import typeRepo, {
   PageType as PageTypeLoader,
@@ -28,13 +33,17 @@ type PageRepository = Omit<
   uuid?: string;
   id?: number;
 };
+type PageMetaRepository = PageMeta & { id: number };
 
 class Pages extends DataLoader<Page, PageRepository, PageInput> {
-  private structureRepo: PageStructure;
-  private typeRepo: PageTypeLoader;
+  private readonly postRepo: PostLoader;
+  private readonly structureRepo: PageStructureLoader;
+  private readonly typeRepo: PageTypeLoader;
 
   constructor() {
     super('pages', 10);
+
+    this.postRepo = postRepo;
     this.structureRepo = structureRepo;
     this.typeRepo = typeRepo;
   }
@@ -111,12 +120,7 @@ class Pages extends DataLoader<Page, PageRepository, PageInput> {
 
   protected async repositoryToDomain(item: PageRepository): Promise<Page> {
     const page: Page = { ...item } as unknown as Page;
-    const structure = (await this.structureRepo.getRawData())
-      .filter((el: PageElementRepository) => el.page === item.uuid)
-      .sort(
-        (a: PageElementRepository, b: PageElementRepository) =>
-          a.priority - b.priority,
-      ) as unknown as Element[];
+    let structure: (Element | Post)[] = [];
 
     const tags =
       item.tags && typeof item.tags === 'string'
@@ -128,6 +132,21 @@ class Pages extends DataLoader<Page, PageRepository, PageInput> {
 
     if (!item.uuid) {
       throw new Error('page has no uuid');
+    }
+
+    if (page.type === PageType.Blog) {
+      structure = (
+        (await this.postRepo.getRawData()).filter(
+          (p: PostRepository) => p.page === item.id,
+        ) as unknown as Post[]
+      ).map((post) => ({ ...post, meta: { audit: [], id: post.id || 0 } }));
+    } else {
+      structure = (await this.structureRepo.getRawData())
+        .filter((el: ElementRepository) => el.page === item.uuid)
+        .sort(
+          (a: ElementRepository, b: ElementRepository) =>
+            a.priority - b.priority,
+        ) as unknown as Element[];
     }
 
     return { ...page, id: item.uuid, structure, tags };
@@ -145,10 +164,12 @@ class Pages extends DataLoader<Page, PageRepository, PageInput> {
     return repoItem;
   }
 
-  private formatMeta(page: PageRepository): PageMeta {
-    const meta: PageMeta = {
-      title: page?.meta_title ?? '',
+  private formatMeta(page: PageRepository): PageMetaRepository {
+    const meta: PageMetaRepository = {
+      audit: [],
+      id: page.id ?? 0,
       navigation: [],
+      title: page?.meta_title ?? '',
     };
 
     for (const key in page) {

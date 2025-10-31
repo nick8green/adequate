@@ -5,13 +5,14 @@ import {
   Page,
   PageFilter,
   PageInput,
+  Post,
   Timeline,
 } from '@content/graph/generated/types';
 import repo from '@content/repository/Pages';
 
 export const getPages = async (filter?: null | PageFilter): Promise<Page[]> => {
   const data: Page[] = await repo.getAll();
-
+  console.log('fetched pages', data.length, filter, JSON.stringify(data));
   if (!filter) {
     return data;
   }
@@ -80,21 +81,30 @@ export const deletePage = async (id: string): Promise<boolean> => {
   return await repo.delete(id);
 };
 
+export const resolveElementType = (element: Element) => {
+  if (isBanner(element)) return 'Banner';
+  if (isPost(element)) return 'Post';
+  if (isTimeline(element)) return 'Timeline';
+  if (isMarkdown(element)) return 'MD';
+  throw new Error(`Unknown element type: ${JSON.stringify(element)}`);
+};
+
 // structure element type guards
 
-export const isBanner = (element: Element): element is Banner => {
-  return (
-    (element as Banner).title !== undefined &&
-    (element as Banner).description !== undefined &&
-    (element as Banner).image !== undefined &&
-    (element as Banner).side !== undefined
-  );
-};
+export const isBanner = (element: Element): element is Banner =>
+  (element as Banner).title !== undefined &&
+  (element as Banner).description !== undefined &&
+  (element as Banner).image !== undefined &&
+  (element as Banner).side !== undefined;
 
-export const isMarkdown = (element: Element): element is Md => {
-  return (element as Md).content !== undefined;
-};
+export const isMarkdown = (element: Element): element is Md =>
+  (element as Md).content !== undefined;
 
-export const isTimeline = (element: Element): element is Timeline => {
-  return false; // Placeholder for future implementation
-};
+export const isPost = (element: Element): element is Post =>
+  (element as Post).content !== undefined &&
+  (element as Post).id !== undefined &&
+  (element as Post).slug !== undefined &&
+  (element as Post).title !== undefined;
+
+export const isTimeline = (element: Element): element is Timeline =>
+  (element as Timeline).events !== undefined;

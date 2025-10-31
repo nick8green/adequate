@@ -1,17 +1,18 @@
 import DataLoader from '@content/repository/DataLoader';
 import { client } from '@repository/client';
 
-export type PageTypeRepository = {
+type PageTypeDomain = { type: string };
+type PageTypeRepository = {
   page: number;
   type: number;
 };
-export type PageTypeInput = {
+type PageTypeInput = {
   name: string;
   page: number;
 };
 
 export class PageType extends DataLoader<
-  { type: string },
+  PageTypeDomain,
   PageTypeRepository,
   PageTypeInput
 > {
@@ -19,7 +20,7 @@ export class PageType extends DataLoader<
     super('page type');
   }
 
-  public async create(item: PageTypeInput): Promise<{ type: string }> {
+  public async create(item: PageTypeInput): Promise<PageTypeDomain> {
     await super.create(item);
     return { type: item.name };
   }
@@ -27,7 +28,7 @@ export class PageType extends DataLoader<
   public async update(
     id: number,
     item: PageTypeInput,
-  ): Promise<{ type: string }> {
+  ): Promise<PageTypeDomain> {
     await client.update<PageTypeRepository>(
       'page type',
       await this.inputToRepository(item),

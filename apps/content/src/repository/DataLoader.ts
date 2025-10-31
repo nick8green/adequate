@@ -4,6 +4,13 @@ interface RepositoryItem {
   id: string | number;
 }
 
+/**
+ * Data Loader abstract class to handle caching and CRUD operations
+ * against the repository client.
+ * B - Business/domain type
+ * R - Repository type
+ * I - Input type
+ */
 export default abstract class DataLoader<B, R, I> {
   private loadedAt: Date | null;
   private data: R[] | null;

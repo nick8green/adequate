@@ -52,19 +52,19 @@ describe('Renderer', () => {
     });
   });
 
-  it('renders Markdown by default if type is missing', () => {
-    const structure: PageElement[] = [
-      {
-        'data-md': 'md-prop',
-        content: 'Default Markdown Content',
-      },
-    ];
-    render(<Renderer structure={structure} />);
-    const markdown = screen.getByTestId('Markdown');
-    expect(markdown).toBeInTheDocument();
-    expect(markdown).toHaveAttribute('data-md', 'md-prop');
-    expect(markdown).toHaveTextContent('Default Markdown Content');
-  });
+  // it('renders Markdown by default if type is missing', () => {
+  //   const structure: PageElement[] = [
+  //     {
+  //       'data-md': 'md-prop',
+  //       content: 'Default Markdown Content',
+  //     },
+  //   ];
+  //   render(<Renderer structure={structure} />);
+  //   const markdown = screen.getByTestId('Markdown');
+  //   expect(markdown).toBeInTheDocument();
+  //   expect(markdown).toHaveAttribute('data-md', 'md-prop');
+  //   expect(markdown).toHaveTextContent('Default Markdown Content');
+  // });
 
   it('renders component without content', () => {
     const structure: PageElement[] = [

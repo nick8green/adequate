@@ -43,6 +43,7 @@ services:
     volumes:
       - .:/app
       - ./development/app/images:/app/apps/app/public/assets/images
+      - ./development/app/styles/variables.css:/app/apps/app/public/styles/development.css
 
   content:
     command: yarn workspace content-service dev

@@ -18,6 +18,7 @@ const ErrorPage: FC<ErrorProps> = ({ error, reset }) => {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error); // eslint-disable-line no-console
+    console.error(error.stack); // eslint-disable-line no-console
   }, [error]);
 
   return (

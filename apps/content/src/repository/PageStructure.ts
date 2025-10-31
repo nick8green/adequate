@@ -1,14 +1,14 @@
 import { Element, ElementInput } from '@content/graph/generated/types';
 import DataLoader from '@content/repository/DataLoader';
 
-export type PageElementRepository = Element & {
+export type ElementRepository = Element & {
   page: string;
   priority: number;
 };
 
 export class PageStructure extends DataLoader<
   Element,
-  PageElementRepository,
+  ElementRepository,
   ElementInput
 > {
   constructor() {

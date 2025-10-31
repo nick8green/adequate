@@ -4,7 +4,7 @@ import { useReportWebVitals } from 'next/web-vitals';
 const WebVitals = () => {
   useReportWebVitals(async (metric) => {
     try {
-      await fetch('/api/metrics', {
+      await fetch('/metrics', {
         method: 'POST',
         body: JSON.stringify(metric),
         headers: {
