@@ -1,10 +1,13 @@
 import type {
+  Config,
   Element,
   Page,
   PageConnection,
   QueryPagesArgs,
   Resolvers,
+  State,
 } from '@content/graph/generated/types';
+import { getConfig } from '@content/resolvers/config';
 import {
   getPages,
   isBanner,
@@ -12,12 +15,16 @@ import {
   isTimeline,
 } from '@content/resolvers/pages';
 import { CursorType, paginate } from '@content/resolvers/pagination';
+import { getState } from '@content/resolvers/status';
 
 // Resolver functions
 // async (parent, args, contextValue, info) => { ... }
 
 const resolvers: Resolvers = {
   Query: {
+    config: async (): Promise<Config> => {
+      return await getConfig();
+    },
     pages: async (_, args: QueryPagesArgs): Promise<PageConnection> => {
       const { cursor, filter, limit } = args;
       const rawData = await getPages(filter);
@@ -32,6 +39,9 @@ const resolvers: Resolvers = {
         pageInfo,
         totalCount: rawData.length,
       };
+    },
+    status: async (): Promise<State> => {
+      return await getState();
     },
   },
   Page: {

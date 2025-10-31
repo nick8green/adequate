@@ -5,7 +5,7 @@ import { FC, ReactNode } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Components: { [key: string]: ReactNode | FC<any> } = {
   Banner,
-  Markdown,
+  MD: Markdown,
   Timeline,
 };
 

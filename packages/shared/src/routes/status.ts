@@ -103,7 +103,13 @@ export const getServiceStatus = async (
       process.env['__NEXT_PRIVATE_ORIGIN'] ?? 'http://localhost:3000',
     );
     if (resp.status !== 200 || resp.ok !== true) {
-      throw new Error(await resp.text());
+      // eslint-disable-next-line no-console
+      console.error(
+        'error fetching self status:',
+        resp.status,
+        resp.statusText,
+      );
+      return ['DOWN', 'application is down'];
     }
   } catch (e) {
     console.error('error fetching service status:', e); // eslint-disable-line no-console

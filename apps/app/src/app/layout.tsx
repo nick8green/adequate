@@ -1,72 +1,83 @@
-'use client';
 import '../../public/styles/variables.css';
 import '../../public/styles/base.css';
 import '@nick8green/components/dist/index.css';
 
+import { getConfig } from '@app/actions/config';
+import ApolloWrapper from '@app/components/ApolloWrapper';
 import WebVitals from '@app/components/webVitals';
-import { ConfigContext, ConfigProvider, SiteConfig } from '@app/context/config';
+import { ConfigProvider, SiteConfig } from '@app/context/config';
 import {
   Footer,
   Header,
   Navigation,
   SocialMediaList,
-  SocialMediaPlatform,
+  // SocialMediaPlatform,
 } from '@nick8green/components';
-import { type FC, type PropsWithChildren, useContext } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
-const Layout: FC<PropsWithChildren> = ({ children }) => {
-  const brand = 'n8g';
-  const theme = ''; // This can be set dynamically based on user preference or system settings
-  const { lang, navigation, owner, title }: SiteConfig =
-    useContext(ConfigContext);
+export const generateMetadata = async () => {
+  const config: SiteConfig = await getConfig();
+  return {
+    title: config.title,
+    description: config.description,
+    keywords: config.keywords,
+  };
+};
+
+const Layout: FC<PropsWithChildren> = async ({ children }) => {
+  const config: SiteConfig = await getConfig();
 
   return (
-    <html lang={lang}>
-      <body data-theme={theme} data-brand={brand}>
+    <html lang={config.lang}>
+      <body data-theme={config.theme} data-brand={config.brand}>
         <WebVitals />
-        <ConfigProvider>
-          <Header title={title}>
-            <Navigation links={navigation} />
-          </Header>
-          {children}
-          <Footer
-            copyright={{
-              owner: owner ?? 'Nick Green',
-              year: new Date().getFullYear(),
-            }}
-            links={[
-              {
-                label: 'Home',
-                url: '/',
-              },
-            ]}
-          >
-            <SocialMediaList
-              socials={[
+        <ApolloWrapper>
+          <ConfigProvider config={config}>
+            <Header title={config.title}>
+              <Navigation links={config.navigation} />
+            </Header>
+            {children}
+            <Footer
+              copyright={{
+                owner: config.owner ?? 'Nick Green',
+                year: new Date().getFullYear(),
+              }}
+              links={[
                 {
-                  handle: 'Facebook Profile',
-                  platform: SocialMediaPlatform.Facebook,
-                  url: '#',
-                },
-                {
-                  handle: 'Instagram Profile',
-                  platform: SocialMediaPlatform.Instagram,
-                  url: '#',
-                },
-                {
-                  handle: 'LinkedIn Profile',
-                  platform: SocialMediaPlatform.LinkedIn,
-                  url: '#',
-                },
-                {
-                  handle: 'Twitter Handle',
-                  platform: SocialMediaPlatform.X,
-                  url: '#',
+                  label: 'Home',
+                  url: '/',
                 },
               ]}
-            />
-          </Footer>
-        </ConfigProvider>
+            >
+              <SocialMediaList
+                socials={
+                  [
+                    // {
+                    //   handle: 'Facebook Profile',
+                    //   platform: SocialMediaPlatform.Facebook,
+                    //   url: '#',
+                    // },
+                    // {
+                    //   handle: 'Instagram Profile',
+                    //   platform: SocialMediaPlatform.Instagram,
+                    //   url: '#',
+                    // },
+                    // {
+                    //   handle: 'LinkedIn Profile',
+                    //   platform: SocialMediaPlatform.LinkedIn,
+                    //   url: '#',
+                    // },
+                    // {
+                    //   handle: 'Twitter Handle',
+                    //   platform: SocialMediaPlatform.X,
+                    //   url: '#',
+                    // },
+                  ]
+                }
+              />
+            </Footer>
+          </ConfigProvider>
+        </ApolloWrapper>
       </body>
     </html>
   );

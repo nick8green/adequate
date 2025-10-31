@@ -5,11 +5,44 @@ extend schema
   )
 
 type Query {
+  config: Config!
   pages(cursor: ID, filter: PageFilter, limit: Int): PageConnection!
+  status: State!
 }
 
 scalar DateTime
 scalar Markdown
+
+# Enums
+
+enum AppStatus {
+  """
+  The application is running normally
+  """
+  OK
+  """
+  The application is experiencing issues
+  """
+  DEGRADED
+  """
+  The application is down
+  """
+  DOWN
+}
+
+"""
+The type of the page
+"""
+enum PageType {
+  """
+  A general page
+  """
+  PAGE
+  """
+  A blog post page
+  """
+  BLOG
+}
 
 # Service types
 
@@ -24,6 +57,44 @@ type Banner {
 }
 
 """
+Config data type
+"""
+type Config {
+  """
+  The title of the application
+  """
+  title: String!
+  """
+  The description of the application
+  """
+  description: String!
+  """
+  The keywords used in the application
+  """
+  keywords: [String!]!
+  """
+  The separator used in the title
+  """
+  separator: String!
+  """
+  The owner of the application
+  """
+  owner: String
+  """
+  The brand of the application
+  """
+  brand: String
+  """
+  The theme of the application
+  """
+  theme: String
+  """
+  The language of the application
+  """
+  language: String!
+}
+
+"""
 Markdown element for the structure
 """
 type MD {
@@ -34,6 +105,20 @@ type MD {
 }
 
 """
+Meta data for the page
+"""
+type PageMeta {
+  """
+  The title of the page
+  """
+  title: String!
+  """
+  The description of the page
+  """
+  description: String
+}
+
+"""
 Page data
 """
 type Page @key(fields: "id") {
@@ -41,6 +126,10 @@ type Page @key(fields: "id") {
   The UUID of the page
   """
   id: ID!
+  """
+  The meta data for the page
+  """
+  meta: PageMeta!
   """
   The slug identified for the page
   """
@@ -57,6 +146,10 @@ type Page @key(fields: "id") {
   The page title
   """
   title: String!
+  """
+  The type of the page
+  """
+  type: PageType!
 }
 
 """
@@ -97,6 +190,24 @@ type PageInfo {
   The first element in the response list
   """
   startCursor: ID!
+}
+
+"""
+State of the application
+"""
+type State {
+  """
+  The current state of the application
+  """
+  status: AppStatus!
+  """
+  A message about the current state
+  """
+  message: String!
+  """
+  The version of the application
+  """
+  version: String!
 }
 
 """

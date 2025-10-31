@@ -3,6 +3,37 @@ import React, { useContext } from 'react';
 
 import { ConfigContext, ConfigProvider, SiteConfig } from './config';
 
+const testConfig: SiteConfig = {
+  lang: 'en',
+  navigation: [
+    { url: '/', label: 'Home' },
+    { url: '/about', label: 'About' },
+    { url: '/contact', label: 'Contact' },
+    {
+      url: '/blog',
+      label: 'Blog',
+      children: [
+        { url: '/blog/post-1', label: 'Post 1' },
+        { url: '/blog/post-2', label: 'Post 2' },
+        { url: '/blog/post-3', label: 'Post 3' },
+      ],
+    },
+  ],
+  owner: 'Nick Green',
+  title: 'N8G Adequate',
+  brand: 'n8g',
+  description: 'Basic framework for building a web application',
+  keywords: [
+    'framework',
+    'web',
+    'application',
+    'typescript',
+    'react',
+    'nextjs',
+  ],
+  theme: 'light',
+};
+
 describe('ConfigContext', () => {
   it('provides the default config values', () => {
     let contextValue: SiteConfig | undefined;
@@ -12,7 +43,7 @@ describe('ConfigContext', () => {
     };
 
     render(
-      <ConfigProvider>
+      <ConfigProvider config={testConfig}>
         <TestComponent />
       </ConfigProvider>,
     );
@@ -47,7 +78,6 @@ describe('ConfigContext', () => {
         'nextjs',
       ]),
     );
-    expect(contextValue?.separator).toBe(' | ');
     expect(contextValue?.description).toBe(
       'Basic framework for building a web application',
     );
@@ -55,7 +85,7 @@ describe('ConfigContext', () => {
 
   it('renders children', () => {
     const { getByText } = render(
-      <ConfigProvider>
+      <ConfigProvider config={testConfig}>
         <div>Child Element</div>
       </ConfigProvider>,
     );

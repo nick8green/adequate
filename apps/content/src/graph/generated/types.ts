@@ -35,12 +35,42 @@ export type Scalars = {
   Markdown: { input: any; output: any };
 };
 
+export enum AppStatus {
+  /** The application is experiencing issues */
+  Degraded = 'DEGRADED',
+  /** The application is down */
+  Down = 'DOWN',
+  /** The application is running normally */
+  Ok = 'OK',
+}
+
 /** Banner element for the structure */
 export type Banner = {
   __typename?: 'Banner';
   description?: Maybe<Scalars['String']['output']>;
   image: Scalars['String']['output'];
   side: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+/** Config data type */
+export type Config = {
+  __typename?: 'Config';
+  /** The brand of the application */
+  brand?: Maybe<Scalars['String']['output']>;
+  /** The description of the application */
+  description: Scalars['String']['output'];
+  /** The keywords used in the application */
+  keywords: Array<Scalars['String']['output']>;
+  /** The language of the application */
+  language: Scalars['String']['output'];
+  /** The owner of the application */
+  owner?: Maybe<Scalars['String']['output']>;
+  /** The separator used in the title */
+  separator: Scalars['String']['output'];
+  /** The theme of the application */
+  theme?: Maybe<Scalars['String']['output']>;
+  /** The title of the application */
   title: Scalars['String']['output'];
 };
 
@@ -58,6 +88,8 @@ export type Page = {
   __typename?: 'Page';
   /** The UUID of the page */
   id: Scalars['ID']['output'];
+  /** The meta data for the page */
+  meta: PageMeta;
   /** The slug identified for the page */
   slug: Scalars['String']['output'];
   /** The structure of the page to be rendered */
@@ -66,6 +98,8 @@ export type Page = {
   tags?: Maybe<Array<Scalars['String']['output']>>;
   /** The page title */
   title: Scalars['String']['output'];
+  /** The type of the page */
+  type: PageType;
 };
 
 /** Definition of the page list including meta data */
@@ -107,15 +141,45 @@ export type PageInfo = {
   startCursor: Scalars['ID']['output'];
 };
 
+/** Meta data for the page */
+export type PageMeta = {
+  __typename?: 'PageMeta';
+  /** The description of the page */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The title of the page */
+  title: Scalars['String']['output'];
+};
+
+/** The type of the page */
+export enum PageType {
+  /** A blog post page */
+  Blog = 'BLOG',
+  /** A general page */
+  Page = 'PAGE',
+}
+
 export type Query = {
   __typename?: 'Query';
+  config: Config;
   pages: PageConnection;
+  status: State;
 };
 
 export type QueryPagesArgs = {
   cursor?: InputMaybe<Scalars['ID']['input']>;
   filter?: InputMaybe<PageFilter>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** State of the application */
+export type State = {
+  __typename?: 'State';
+  /** A message about the current state */
+  message: Scalars['String']['output'];
+  /** The current state of the application */
+  status: AppStatus;
+  /** The version of the application */
+  version: Scalars['String']['output'];
 };
 
 /** Timeline data */
@@ -264,8 +328,10 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> =
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AppStatus: AppStatus;
   Banner: ResolverTypeWrapper<Banner>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Config: ResolverTypeWrapper<Config>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Element: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['Element']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -282,7 +348,10 @@ export type ResolversTypes = ResolversObject<{
   >;
   PageFilter: PageFilter;
   PageInfo: ResolverTypeWrapper<PageInfo>;
+  PageMeta: ResolverTypeWrapper<PageMeta>;
+  PageType: PageType;
   Query: ResolverTypeWrapper<{}>;
+  State: ResolverTypeWrapper<State>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Timeline: ResolverTypeWrapper<Timeline>;
   TimelineEvent: ResolverTypeWrapper<TimelineEvent>;
@@ -292,6 +361,7 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Banner: Banner;
   Boolean: Scalars['Boolean']['output'];
+  Config: Config;
   DateTime: Scalars['DateTime']['output'];
   Element: ResolversUnionTypes<ResolversParentTypes>['Element'];
   ID: Scalars['ID']['output'];
@@ -306,7 +376,9 @@ export type ResolversParentTypes = ResolversObject<{
   };
   PageFilter: PageFilter;
   PageInfo: PageInfo;
+  PageMeta: PageMeta;
   Query: {};
+  State: State;
   String: Scalars['String']['output'];
   Timeline: Timeline;
   TimelineEvent: TimelineEvent;
@@ -324,6 +396,22 @@ export type BannerResolvers<
   >;
   image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   side?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ConfigResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes['Config'] = ResolversParentTypes['Config'],
+> = ResolversObject<{
+  brand?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keywords?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  language?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  separator?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  theme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -364,6 +452,7 @@ export type PageResolvers<
     ResolversParentTypes['Page'] = ResolversParentTypes['Page'],
 > = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  meta?: Resolver<ResolversTypes['PageMeta'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   structure?: Resolver<
     Array<Maybe<ResolversTypes['Element']>>,
@@ -376,6 +465,7 @@ export type PageResolvers<
     ContextType
   >;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -410,17 +500,44 @@ export type PageInfoResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PageMetaResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes['PageMeta'] = ResolversParentTypes['PageMeta'],
+> = ResolversObject<{
+  description?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<
   ContextType = any,
   ParentType extends
     ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
 > = ResolversObject<{
+  config?: Resolver<ResolversTypes['Config'], ParentType, ContextType>;
   pages?: Resolver<
     ResolversTypes['PageConnection'],
     ParentType,
     ContextType,
     Partial<QueryPagesArgs>
   >;
+  status?: Resolver<ResolversTypes['State'], ParentType, ContextType>;
+}>;
+
+export type StateResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes['State'] = ResolversParentTypes['State'],
+> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['AppStatus'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TimelineResolvers<
@@ -455,6 +572,7 @@ export type TimelineEventResolvers<
 
 export type Resolvers<ContextType = any> = ResolversObject<{
   Banner?: BannerResolvers<ContextType>;
+  Config?: ConfigResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Element?: ElementResolvers<ContextType>;
   MD?: MdResolvers<ContextType>;
@@ -462,7 +580,9 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   Page?: PageResolvers<ContextType>;
   PageConnection?: PageConnectionResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
+  PageMeta?: PageMetaResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  State?: StateResolvers<ContextType>;
   Timeline?: TimelineResolvers<ContextType>;
   TimelineEvent?: TimelineEventResolvers<ContextType>;
 }>;

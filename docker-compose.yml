@@ -23,13 +23,17 @@ services:
     container_name: adequate-app
     environment:
       APP_NAME: adequate-app
+      NEXT_DISABLE_SWC: 1
+
+      NEXT_PUBLIC_GRAPHQL_ENDPOINT: http://localhost:4000/graphql
+      GRAPHQL_ENDPOINT: http://adequate-gateway:4000/graphql
     env_file:
       - .env.local
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
-      interval: 15s
-      timeout: 5s
-      retries: 3
+    # healthcheck:
+    #   test: ['CMD', 'curl', '-f', 'http://localhost:3000/status']
+    #   interval: 15s
+    #   timeout: 5s
+    #   retries: 3
     image: node:${NODE_VERSION:-24}
     networks:
       - app

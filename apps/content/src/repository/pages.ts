@@ -1,24 +1,44 @@
-import { Element, Page } from '@content/graph/generated/types';
+import { Element, Page, PageType } from '@content/graph/generated/types';
 import { client } from '@repository/client';
 
-type PageRepository = Page & { uuid: string };
+type PageRepository = Page & {
+  meta_description: string;
+  meta_title: string;
+  uuid: string;
+};
 type PageElement = Element & { page: string; priority: number };
 
 let pages: PageRepository[] | null = null;
 let structure: PageElement[] | null = null;
 
-const dataType = 'page';
+const dataType = 'pages';
 
 export const getPages = async (): Promise<PageRepository[]> => {
   console.log('Fetching pages from repository...'); // eslint-disable-line no-console
   if (pages) {
     return pages;
   }
+
   console.log('Cache miss, loading pages from repository...'); // eslint-disable-line no-console
   pages = await client.get<PageRepository>(dataType);
+
+  pages.forEach((page) => {
+    // @ts-expect-error creating a new meta object which is invalid until data is assigned
+    page.meta = {};
+    for (const key in page) {
+      if (key.startsWith('meta_')) {
+        const metaKey = key.replace('meta_', '');
+        // @ts-expect-error due to dynamic key assignment
+        page.meta[metaKey] = page[key];
+      }
+    }
+    page.type = page.type.toUpperCase() as PageType;
+  });
+
   setTimeout(() => {
     pages = null;
   }, 1000);
+
   return pages;
 };
 
