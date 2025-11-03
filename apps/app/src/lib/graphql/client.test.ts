@@ -49,7 +49,7 @@ describe('getBrowserClient', () => {
   });
 
   it('returns a BrowserApolloClient instance', () => {
-    process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT = 'https://example.com/graphql';
+    process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT = 'https://example.com';
     const client = getBrowserClient();
     expect(client.__type).toBe('BrowserApolloClient');
     expect(client.config.link.config.uri).toBe('https://example.com/graphql');
@@ -57,7 +57,7 @@ describe('getBrowserClient', () => {
   });
 
   it('returns the same instance on subsequent calls', () => {
-    process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT = 'https://example.com/graphql';
+    process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT = 'https://example.com';
     const client1 = getBrowserClient();
     const client2 = getBrowserClient();
     expect(client1).toBe(client2);
@@ -87,18 +87,18 @@ describe('getServerClient', () => {
   });
 
   it('returns a ServerApolloClient instance', () => {
-    process.env.GRAPHQL_ENDPOINT = 'https://example.com/server-graphql';
+    process.env.GRAPHQL_ENDPOINT = 'https://example.com/server';
     const client = getServerClient();
     expect(client.__type).toBe('ServerApolloClient');
     expect(client.config.ssrMode).toBe(true);
     expect(client.config.link.config.uri).toBe(
-      'https://example.com/server-graphql',
+      'https://example.com/server/graphql',
     );
     expect(client.config.cache.__type).toBe('ServerInMemoryCache');
   });
 
   it('returns the same instance on subsequent calls', () => {
-    process.env.GRAPHQL_ENDPOINT = 'https://example.com/server-graphql';
+    process.env.GRAPHQL_ENDPOINT = 'https://example.com/server';
     const client1 = getServerClient();
     const client2 = getServerClient();
     expect(client1).toBe(client2);

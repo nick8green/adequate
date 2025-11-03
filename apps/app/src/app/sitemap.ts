@@ -12,11 +12,9 @@ type SiteMapPage = Page & {
 };
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const data: any = await getServerClient().query({ query: GET_SITE_MAP }),
-    host = getHost();
+  const host = getHost();
 
-  return data.data.pages.pages
+  return (await getPages())
     .toSorted(sortPages)
     .map((page: SiteMapPage, _: number, pages: SiteMapPage[]) => {
       const lastModified = page.meta?.audit?.toSorted(
@@ -44,6 +42,20 @@ const getNavigationPriority = (
 ): number | null => {
   const nav = (page.meta?.navigation ?? []).find((n) => n.type === type);
   return nav ? nav.priority : null;
+};
+
+const getPages = async (): Promise<SiteMapPage[]> => {
+  try {
+    const result = await getServerClient().query<{ pages: { pages: Page[] } }>({
+      query: GET_SITE_MAP,
+    });
+    return (
+      result.data?.pages.pages.map((page: Page) => page as SiteMapPage) ?? []
+    );
+  } catch (error) {
+    console.error('error fetching sitemap data:', error);
+    return [];
+  }
 };
 
 const getPagePriority = (
@@ -120,3 +132,4 @@ const sortPages = (p1: SiteMapPage, p2: SiteMapPage) => {
 };
 
 export default sitemap;
+export const dynamic = 'force-dynamic';

@@ -6,8 +6,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install --frozen-lockfile --ignore-scripts --production && \
-    yarn workspace app build
+ENV BUILDING=true
+
+RUN yarn install --frozen-lockfile --ignore-scripts && \
+    yarn workspace app build && \
+    yarn install --frozen-lockfile --ignore-scripts --production
 
 FROM node:${NODE_VERSION}-alpine AS production
 

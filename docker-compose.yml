@@ -25,8 +25,8 @@ services:
       APP_NAME: adequate-app
       NEXT_DISABLE_SWC: 1
 
-      NEXT_PUBLIC_GRAPHQL_ENDPOINT: http://localhost:4000/graphql
-      GRAPHQL_ENDPOINT: http://adequate-gateway:4000/graphql
+      GRAPHQL_ENDPOINT: http://adequate-gateway:4000
+      NEXT_PUBLIC_GRAPHQL_ENDPOINT: http://localhost:4000
     env_file:
       - .env.local
     # healthcheck:

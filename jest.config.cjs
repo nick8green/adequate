@@ -29,5 +29,10 @@ module.exports = {
       },
     ],
   ],
-  watchPathIgnorePatterns: ['**/node_modules/', '**/dist/', '**/coverage/'],
+  watchPathIgnorePatterns: [
+    '**/node_modules/',
+    '**/dist/',
+    '**/coverage/',
+    '**/.next/',
+  ],
 };

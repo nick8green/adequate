@@ -1,12 +1,6 @@
 import * as headers from 'next/headers';
 
-import {
-  checkBackend,
-  // getAdapters,
-  getServiceStatus,
-  getSwitches,
-  getUptime,
-} from './status';
+import { getServiceStatus, getSwitches, getUptime } from './status';
 
 jest.mock('next/headers', () => ({
   cookies: jest.fn().mockReturnValue({
@@ -38,64 +32,6 @@ afterAll(() => {
 });
 
 describe('status module', () => {
-  describe('checkBackend', () => {
-    const OLD_ENV = process.env;
-
-    beforeEach(() => {
-      jest.resetModules();
-      process.env = { ...OLD_ENV };
-      global.fetch = jest.fn();
-    });
-
-    afterEach(() => {
-      process.env = OLD_ENV;
-      jest.clearAllMocks();
-    });
-
-    it('returns UP if BACKEND_URL is not set', async () => {
-      delete process.env.BACKEND_URL;
-      const result = await checkBackend();
-      expect(result).toEqual({
-        description: 'no system specified',
-        name: 'backend',
-        status: 'UP',
-      });
-    });
-
-    it('returns UP if backend responds with 200', async () => {
-      process.env.BACKEND_URL = 'https://test/graphql';
-      (global.fetch as jest.Mock).mockResolvedValue({
-        status: 200,
-        ok: true,
-      });
-      const result = await checkBackend();
-      expect(result.status).toBe('UP');
-      expect(result.name).toBe('graphql');
-      expect(result.description).toBe('backend is up and running');
-    });
-
-    it('returns DOWN if backend responds with non-200', async () => {
-      process.env.BACKEND_URL = 'https://test/rest';
-      (global.fetch as jest.Mock).mockResolvedValue({
-        status: 500,
-        ok: false,
-        statusText: 'Internal Server Error',
-      });
-      const result = await checkBackend();
-      expect(result.status).toBe('DOWN');
-      expect(result.name).toBe('rest');
-      expect(result.description).toBe('backend is down');
-    });
-
-    it('returns DOWN if fetch throws', async () => {
-      process.env.BACKEND_URL = 'https://test/rest';
-      (global.fetch as jest.Mock).mockRejectedValue(new Error('fail'));
-      const result = await checkBackend();
-      expect(result.status).toBe('DOWN');
-      expect(result.description).toBe('backend is down');
-    });
-  });
-
   describe('getAdapters', () => {
     beforeEach(() => {
       jest.resetModules(); // ensure clean slate
@@ -116,7 +52,13 @@ describe('status module', () => {
 
     it('returns adapters with backend', async () => {
       const { getAdapters } = await import('./status');
-      const adapters = await getAdapters();
+      const adapters = await getAdapters({
+        backend: async () => ({
+          status: 'UP',
+          description: 'desc',
+          name: 'rest',
+        }),
+      });
 
       expect(adapters).toEqual({
         backend: {
@@ -266,7 +208,13 @@ describe('status module', () => {
       process.env.VERSION = '1.2.3';
 
       const { endpoint } = require('./status'); // eslint-disable-line @typescript-eslint/no-require-imports
-      const handler = endpoint('/status');
+      const handler = endpoint('/status', {
+        backend: async () => ({
+          status: 'UP',
+          description: 'desc',
+          name: 'rest',
+        }),
+      });
       const res: any = await handler();
 
       expect(res.options.status).toBe(200);
@@ -290,6 +238,7 @@ describe('status module', () => {
       const handler = endpoint('/status');
       const res: any = await handler();
       const body = JSON.parse(res.body);
+      console.log(body);
       expect(body.version).toBe('development');
     });
   });

@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import 'cross-fetch/polyfill';
 
 import { TextDecoder, TextEncoder } from 'fast-text-encoding';
 import { TransformStream } from 'web-streams-polyfill/ponyfill';

@@ -11,9 +11,20 @@ import {
 let browserClientInstance: BrowserApolloClient | null = null;
 let serverClientInstance: ServerApolloClient | null = null;
 
-export const getBrowserClient = () => {
+export const getBrowserClient = (): BrowserApolloClient => {
   if (browserClientInstance) {
     return browserClientInstance;
+  }
+
+  if (globalThis.window === undefined) {
+    console.warn('using mock browser Apollo client in non-browser environment');
+    return new BrowserApolloClient({
+      link: new HttpLink({
+        uri: '/mock',
+        fetch: mockFetch,
+      }),
+      cache: new BrowserInMemoryCache(),
+    });
   }
 
   if (!process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT) {
@@ -22,7 +33,7 @@ export const getBrowserClient = () => {
 
   browserClientInstance = new BrowserApolloClient({
     link: new HttpLink({
-      uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
+      uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`,
       credentials: 'same-origin',
     }),
     cache: new BrowserInMemoryCache(),
@@ -38,18 +49,23 @@ export const getBrowserClient = () => {
   return browserClientInstance;
 };
 
-export const getServerClient = () => {
+export const getServerClient = (): ServerApolloClient => {
   if (serverClientInstance) {
     return serverClientInstance;
   }
 
-  if (!process.env.GRAPHQL_ENDPOINT) {
+  const isBuild =
+    globalThis.window === undefined && process.env.NODE_ENV === 'production';
+  if (!process.env.GRAPHQL_ENDPOINT && !isBuild) {
     throw new Error('missing graphql server side endpoint');
   }
 
   serverClientInstance = new ServerApolloClient({
     ssrMode: true,
-    link: new HttpLink({ uri: process.env.GRAPHQL_ENDPOINT }),
+    link: new HttpLink({
+      fetch: isBuild ? mockFetch : fetch,
+      uri: `${process.env.GRAPHQL_ENDPOINT}/graphql`,
+    }),
     cache: new ServerInMemoryCache(),
   });
 
@@ -61,4 +77,26 @@ export const getServerClient = () => {
   ); // 5 minutes
 
   return serverClientInstance;
+};
+
+const mockFetch = async () => {
+  return new Response(
+    JSON.stringify({
+      data: {
+        footer: {
+          pages: [],
+        },
+        header: {
+          pages: [],
+        },
+        pages: {
+          pages: [],
+        },
+      },
+    }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
 };

@@ -83,12 +83,14 @@ const logRequest = async (details: RequestDetails, status: number) => {
     statusCode: String(status),
     responseTime: details.responseTime,
   });
-  reportMetric({
-    name: 'pageTransition',
-    from: `/${details.url.replace(hostname, '')}`,
-    session: details.session || '',
-    to: details.path,
-  });
+  if (details.referrer !== '') {
+    reportMetric({
+      name: 'pageTransition',
+      from: `/${details.referrer.replace(hostname, '')}`,
+      session: details.session || '',
+      to: details.path,
+    });
+  }
 
   console.log(
     `Page request [${details.time.toISOString()}] ${details.method} ${details.url} ${details.status} - ${details.responseTime}ms - IP: ${details.ip} - UA: ${details.userAgent} - Referrer: ${details.referrer} - ReqID: ${details.requestId}`,
@@ -96,6 +98,7 @@ const logRequest = async (details: RequestDetails, status: number) => {
 };
 
 const reportMetric = (body: object) => {
+  console.log('Reporting metric:', body, hostname);
   fetch(`${hostname}/metrics`, {
     body: JSON.stringify(body),
     method: 'POST',

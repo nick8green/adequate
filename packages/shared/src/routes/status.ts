@@ -2,21 +2,24 @@ import { withMetrics } from '@shared/metrics/withMetrics';
 import { cookies } from 'next/headers';
 import { NextResponse as Response } from 'next/server';
 
-type Adapter = {
+export type Adapter = {
   description: string;
   name?: string;
   status: ServiceStatus;
 };
 type Adapters = { [key: string]: Adapter };
 
-type ServiceStatus = 'UP' | 'DOWN' | 'DEGRADED' | 'MAINTENANCE';
+export type ServiceStatus = 'UP' | 'DOWN' | 'DEGRADED' | 'MAINTENANCE';
 
 type Switch = {
   name: string;
   value: string;
 };
 
-export const endpoint = (path: string) =>
+export const endpoint = (
+  path: string,
+  adapters: { [key: string]: () => Promise<Adapter> } = {},
+) =>
   withMetrics(async (): Promise<Response> => {
     let code = 200;
     const switches: Switch[] = [];
@@ -33,7 +36,7 @@ export const endpoint = (path: string) =>
     };
 
     try {
-      response.adapters = await getAdapters();
+      response.adapters = await getAdapters(adapters);
 
       const [status, description] = await getServiceStatus(response.adapters);
       response.status = status;
@@ -57,39 +60,14 @@ export const endpoint = (path: string) =>
     });
   }, path);
 
-export const checkBackend = async (): Promise<Adapter> => {
-  if (!process.env.BACKEND_URL) {
-    return {
-      description: 'no system specified',
-      name: 'backend',
-      status: 'UP',
-    };
+export const getAdapters = async (adapters: {
+  [key: string]: () => Promise<Adapter>;
+}): Promise<Adapters> => {
+  const results: Adapters = {};
+  for (const [key, getAdapter] of Object.entries(adapters)) {
+    results[key] = await getAdapter();
   }
-
-  let status: ServiceStatus = 'UP';
-  let description = 'backend is up and running';
-  const name = process.env.BACKEND_URL.includes('/graphql')
-    ? 'graphql'
-    : 'rest';
-
-  try {
-    const resp = await fetch(process.env.BACKEND_URL);
-    if (resp.status !== 200 || resp.ok !== true) {
-      throw new Error(resp.statusText);
-    }
-  } catch (e) {
-    console.error('error fetching backend status:', e); // eslint-disable-line no-console
-    status = 'DOWN';
-    description = 'backend is down';
-  }
-
-  return { status, description, name };
-};
-
-export const getAdapters = async (): Promise<Adapters> => {
-  const { checkBackend } = await import('./status');
-  const backend = await checkBackend();
-  return { backend };
+  return results;
 };
 
 export const getServiceStatus = async (
