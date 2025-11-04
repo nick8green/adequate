@@ -36,7 +36,7 @@ start: dev-config
 	docker compose --env-file .env.local up -d
 	docker ps -a
 
-stop:
+stop: dev-config
 	@echo "Stopping the application..."
 	docker compose down --remove-orphans --rmi local --volumes
 

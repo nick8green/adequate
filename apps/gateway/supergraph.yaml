@@ -1,0 +1,8 @@
+subgraphs:
+  content:
+    # the URL the gateway will use to send GraphQL operations to the subgraph at runtime
+    routing_url: http://adequate-content:3000/graphql
+    schema:
+      # the URL that Rover will use to fetch the subgraph schema during composition
+      # subgraph_url: http://adequate-content:3000/graphql
+      file: ../content/src/graph/schema.graphql

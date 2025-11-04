@@ -1,5 +1,7 @@
 import { collectDefaultMetrics, Registry } from 'prom-client';
 
+console.log('METRICS: Initializing metrics...'); // eslint-disable-line no-console
+
 export const register = new Registry();
 
 collectDefaultMetrics({

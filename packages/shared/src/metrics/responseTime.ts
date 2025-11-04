@@ -7,8 +7,8 @@ type ResponseTimeDetails = {
 };
 
 export const responseTime = new Histogram({
-  name: 'web_server_processing_time',
-  help: 'web_server data fetching and processing time',
+  name: 'server_response_time',
+  help: 'server response time',
   labelNames: ['route', 'statusCode'],
   buckets: [
     0.1, 5, 15, 50, 100, 250, 500, 750, 1000, 1500, 2000, 5000, 10000, 15000,

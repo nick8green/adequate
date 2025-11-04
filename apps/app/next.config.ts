@@ -1,13 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  // experimental: {
-  //   serverActions: true,
-  //   // This helps with stack traces
-  //   typedRoutes: true,
-  // },
-
+  output: 'standalone',
   rewrites: async () => {
     return [
       {
@@ -17,6 +11,10 @@ const nextConfig: NextConfig = {
       {
         source: '/metrics',
         destination: '/api/metrics',
+      },
+      {
+        source: '/_clear',
+        destination: '/api/clear',
       },
     ];
   },

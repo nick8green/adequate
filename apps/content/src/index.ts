@@ -1,0 +1,122 @@
+import { ApolloServer } from '@apollo/server';
+import { ApolloServerErrorCode } from '@apollo/server/errors';
+import { ApolloServerPluginInlineTraceDisabled } from '@apollo/server/plugin/disabled';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { expressMiddleware } from '@as-integrations/express5';
+import RequestContext from '@content/context';
+import resolvers from '@content/resolvers';
+import { client } from '@repository/client';
+import { express as serveMetrics } from '@shared/metrics/serve';
+import { cors } from '@shared/middleware/cors';
+// import { endpoint as statusEndpoint } from '@shared/routes/status';
+import express from 'express';
+import { readFileSync } from 'fs';
+import type { GraphQLFormattedError } from 'graphql';
+import { gql } from 'graphql-tag';
+import helmet from 'helmet';
+import http from 'http';
+import { join } from 'path';
+import { v4 as uuid } from 'uuid';
+
+(async () => {
+  await client.init();
+  await client.migrate();
+
+  const app = express();
+  const httpServer = http.createServer(app);
+
+  const port = process.env.PORT ?? 3000;
+
+  app.use(helmet());
+  app.use(cors);
+  app.use(express.json());
+
+  const plugins = [ApolloServerPluginDrainHttpServer({ httpServer })];
+  if (process.env.NODE_ENV === 'production') {
+    plugins.push(ApolloServerPluginInlineTraceDisabled());
+  }
+  const schema = readFileSync(join(__dirname, 'graph/schema.graphql'), 'utf8');
+  const typeDefs = gql`
+    #graphql
+    ${schema}
+  `;
+
+  console.debug('Apollo Server starting...'); // eslint-disable-line no-console
+  const server = new ApolloServer<RequestContext>({
+    formatError: (formattedError: GraphQLFormattedError) => {
+      // eslint-disable-next-line no-console
+      console.error(
+        `${formattedError.message} [code: ${formattedError.extensions?.code}] [path: ${formattedError.path?.join(' -> ')}] [stack: ${formattedError.extensions?.stacktrace}]`,
+      );
+
+      if (process.env.NODE_ENV !== 'production') {
+        return formattedError;
+      }
+
+      return {
+        message: formattedError.message,
+        code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
+      };
+    },
+    introspection: process.env.NODE_ENV !== 'production',
+    plugins,
+    schema: buildSubgraphSchema({ typeDefs, resolvers }),
+  });
+
+  await server.start();
+
+  app.use(
+    '/graphql',
+    expressMiddleware(server, {
+      context: async ({ req: { headers } }) => {
+        const trace = headers['x-trace'] ?? uuid();
+
+        let token: string | undefined;
+        if (headers.authorization) {
+          token = headers.authorization.replace('Bearer ', '');
+          // validate token here if it exists
+        }
+
+        return { token, trace };
+      },
+    }),
+  );
+
+  app.get('/status', (req, res) => {
+    const now = new Date();
+
+    res.status(200).json({
+      adapters: {},
+      currentTime: now.toISOString(),
+      description: 'application is up and running',
+      status: 'UP',
+      startTime: new Date(
+        now.getTime() - process.uptime() * 1000,
+      ).toISOString(),
+      switches: {},
+      uptime: process.uptime(),
+      version: process.env.VERSION ?? 'development',
+    });
+  });
+
+  app.get('/metrics', serveMetrics);
+
+  httpServer.listen({ port }, () => {
+    // eslint-disable-next-line no-console
+    console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+  });
+
+  const shutdown = async () => {
+    console.log('Shutting down server...'); // eslint-disable-line no-console
+    httpServer.close(async () => {
+      await client.close();
+      await server.stop();
+      process.exit(0);
+    });
+  };
+
+  // Graceful shutdown
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+})();

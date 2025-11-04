@@ -1,37 +1,65 @@
-'use client';
 import '../../public/styles/variables.css';
 import '../../public/styles/base.css';
 import '@nick8green/components/dist/index.css';
 
+import { getConfig } from '@app/actions/config';
 import WebVitals from '@app/components/webVitals';
-import { ConfigContext, ConfigProvider, SiteConfig } from '@app/context/config';
+import { ConfigProvider, SiteConfig } from '@app/context/config';
 import {
   Footer,
   Header,
   Navigation,
   SocialMediaList,
-  SocialMediaPlatform,
+  // SocialMediaPlatform,
 } from '@nick8green/components';
-import { type FC, type PropsWithChildren, useContext } from 'react';
+import Script from 'next/script';
+import type { FC, PropsWithChildren } from 'react';
 
-const Layout: FC<PropsWithChildren> = ({ children }) => {
-  const brand = 'n8g';
-  const theme = ''; // This can be set dynamically based on user preference or system settings
-  const { lang, navigation, owner, title }: SiteConfig =
-    useContext(ConfigContext);
+export const generateMetadata = async () => {
+  const config: SiteConfig = await getConfig();
+  return {
+    title: config.title,
+    description: config.description,
+    keywords: config.keywords,
+  };
+};
+
+const Layout: FC<PropsWithChildren> = async ({ children }) => {
+  const config: SiteConfig = await getConfig();
 
   return (
-    <html lang={lang}>
-      <body data-theme={theme} data-brand={brand}>
+    <html lang={config.language || 'en'}>
+      <head>
+        {process.env.NODE_ENV === 'development' && (
+          <Script
+            id='development-styles'
+            strategy='beforeInteractive'
+            dangerouslySetInnerHTML={{
+              __html: `
+              const link = document.createElement('link');
+              link.rel = 'stylesheet';
+              link.href = '/styles/development.css';
+              document.head.appendChild(link);
+            `,
+            }}
+          />
+        )}
+      </head>
+      <body data-theme={config.theme} data-brand={config.brand}>
         <WebVitals />
-        <ConfigProvider>
-          <Header title={title}>
-            <Navigation links={navigation} />
+        <ConfigProvider config={config}>
+          <Header title={config.title}>
+            <Navigation type='main' links={config.navigation.header} />
           </Header>
-          {children}
+          <section
+            id='main'
+            className='container fadeIn shiftInFromLeft shiftInFromTop'
+          >
+            {children}
+          </section>
           <Footer
             copyright={{
-              owner: owner ?? 'Nick Green',
+              owner: config.owner ?? 'Nick Green',
               year: new Date().getFullYear(),
             }}
             links={[
@@ -42,28 +70,30 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
             ]}
           >
             <SocialMediaList
-              socials={[
-                {
-                  handle: 'Facebook Profile',
-                  platform: SocialMediaPlatform.Facebook,
-                  url: '#',
-                },
-                {
-                  handle: 'Instagram Profile',
-                  platform: SocialMediaPlatform.Instagram,
-                  url: '#',
-                },
-                {
-                  handle: 'LinkedIn Profile',
-                  platform: SocialMediaPlatform.LinkedIn,
-                  url: '#',
-                },
-                {
-                  handle: 'Twitter Handle',
-                  platform: SocialMediaPlatform.X,
-                  url: '#',
-                },
-              ]}
+              socials={
+                [
+                  // {
+                  //   handle: 'Facebook Profile',
+                  //   platform: SocialMediaPlatform.Facebook,
+                  //   url: '#',
+                  // },
+                  // {
+                  //   handle: 'Instagram Profile',
+                  //   platform: SocialMediaPlatform.Instagram,
+                  //   url: '#',
+                  // },
+                  // {
+                  //   handle: 'LinkedIn Profile',
+                  //   platform: SocialMediaPlatform.LinkedIn,
+                  //   url: '#',
+                  // },
+                  // {
+                  //   handle: 'Twitter Handle',
+                  //   platform: SocialMediaPlatform.X,
+                  //   url: '#',
+                  // },
+                ]
+              }
             />
           </Footer>
         </ConfigProvider>

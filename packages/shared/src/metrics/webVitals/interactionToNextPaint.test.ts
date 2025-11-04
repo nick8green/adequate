@@ -13,7 +13,7 @@ jest.mock('prom-client', () => {
 });
 
 describe('interactionToNextPaint', () => {
-  const mockLabels = (inp as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const mockLabels = (inp as any).labels as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

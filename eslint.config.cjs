@@ -20,12 +20,15 @@ const compat = new FlatCompat({
 
 module.exports = defineConfig([
   globalIgnores([
-    './**/node_modules/*',
-    './**/.docusaurus/*',
-    './**/.next/*',
+    './**/node_modules/**',
+    './**/.docusaurus/**',
+    './**/.next/**',
     'eslint.config.cjs',
     './**/jest.config.cjs',
     './**/coverage/**',
+    './**/dist/**',
+    './**/generated/**',
+    './**/next-env.d.ts',
   ]),
   {
     languageOptions: {
@@ -74,6 +77,13 @@ module.exports = defineConfig([
       parserOptions: {
         project: ['tools/scripts/tsconfig.eslint.json'],
       },
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {

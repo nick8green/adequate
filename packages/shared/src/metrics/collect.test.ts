@@ -16,9 +16,7 @@ describe('endpoint', () => {
     metric1: { reportToPrometheus: mockReportToPrometheus },
   };
 
-  const createRequest = (
-    body: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  ) =>
+  const createRequest = (body: any) =>
     ({
       json: jest.fn().mockResolvedValue(body),
     }) as unknown as Request;

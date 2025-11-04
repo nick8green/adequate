@@ -1,4 +1,4 @@
-let promClient: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+let promClient: any;
 let reportToPrometheus: typeof import('@shared/metrics/httpRequestCount').reportToPrometheus;
 
 describe('reportToPrometheus', () => {
@@ -45,7 +45,7 @@ describe('reportToPrometheus', () => {
   });
 
   it('should handle missing logDetails gracefully', () => {
-    reportToPrometheus(undefined as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    reportToPrometheus(undefined as any);
 
     expect(labelsMock).toHaveBeenCalledWith(undefined, undefined, undefined);
     expect(incMock).toHaveBeenCalled();

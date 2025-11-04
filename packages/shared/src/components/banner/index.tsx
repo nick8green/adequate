@@ -18,7 +18,15 @@ export const Banner: FC<BannerProps> = ({
 }) => (
   <div className='banner'>
     <div className={`banner-image ${side}`}>
-      <Image alt={title} height={300} src={image} width={400} />
+      <Image
+        alt={title}
+        blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mPcvmFDPQAG1QKYq7uyLgAAAABJRU5ErkJggg=='
+        height={300}
+        src={image}
+        width={400}
+        placeholder='blur'
+        priority={true}
+      />
     </div>
     <div className={`banner-content`}>
       <h3 className='banner-title'>{title}</h3>

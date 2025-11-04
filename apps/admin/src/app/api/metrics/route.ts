@@ -1,6 +1,6 @@
 import { SupportedMetrics } from '@shared/metrics';
 import collectMetrics from '@shared/metrics/collect';
-import serveMetrics from '@shared/metrics/serve';
+import { next as serveMetrics } from '@shared/metrics/serve';
 
 const supportedMetrics: SupportedMetrics = {};
 

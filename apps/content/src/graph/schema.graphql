@@ -1,0 +1,473 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.0"
+    import: ["@key", "@shareable"]
+  )
+
+type Mutation {
+  createPage(input: PageInput!): Page!
+  deletePage(id: ID!): Boolean!
+  updatePage(id: ID!, input: PageInput!): Page!
+}
+
+type Query {
+  config: Config!
+  pages(cursor: ID, filter: PageFilter, limit: Int): PageConnection!
+  status: State!
+}
+
+scalar DateTime
+scalar Markdown
+
+# Enums
+
+"""
+The type of action being carried out on an entity
+"""
+enum Action {
+  CREATE
+  DELETE
+  PUBLISH
+  UPDATE
+}
+
+"""
+The status of the application
+"""
+enum AppStatus {
+  """
+  The application is running normally
+  """
+  OK
+  """
+  The application is experiencing issues
+  """
+  DEGRADED
+  """
+  The application is down
+  """
+  DOWN
+}
+
+"""
+The type of navigation
+"""
+enum NavigationType {
+  """
+  Navigation in the header of the application
+  """
+  HEADER
+  """
+  Navigation in the footer of the application
+  """
+  FOOTER
+}
+
+"""
+The order of items
+"""
+enum Order {
+  """
+  Ascending order
+  """
+  ASC
+  """
+  Descending order
+  """
+  DESC
+}
+
+"""
+The type of the page
+"""
+enum PageType {
+  """
+  A general page
+  """
+  PAGE
+  """
+  A blog post page
+  """
+  BLOG
+}
+
+# Service types
+
+"""
+Audit information for changes
+"""
+type Audit {
+  """
+  The action that was performed
+  """
+  action: Action!
+  """
+  The timestamp of the audit entry
+  """
+  timestamp: DateTime!
+  """
+  The user who made the change
+  """
+  user: User!
+}
+
+"""
+Banner element for the structure
+"""
+type Banner {
+  title: String!
+  description: String
+  image: String!
+  side: String!
+}
+
+"""
+Config data type
+"""
+type Config {
+  """
+  The title of the application
+  """
+  title: String!
+  """
+  The description of the application
+  """
+  description: String!
+  """
+  The keywords used in the application
+  """
+  keywords: [String!]!
+  """
+  The separator used in the title
+  """
+  separator: String!
+  """
+  The owner of the application
+  """
+  owner: String
+  """
+  The brand of the application
+  """
+  brand: String
+  """
+  The theme of the application
+  """
+  theme: String
+  """
+  The language of the application
+  """
+  language: String!
+}
+
+"""
+Navigation element for the structure
+"""
+type Navigation {
+  """
+  The type of the navigation
+  """
+  type: NavigationType!
+  """
+  The priority of the navigation item
+  """
+  priority: Int!
+}
+
+"""
+Markdown element for the structure
+"""
+type MD {
+  """
+  The content of the markdown element
+  """
+  content: Markdown!
+}
+
+"""
+Meta data for the page
+"""
+type PageMeta {
+  """
+  The audit information for the page
+  """
+  audit: [Audit!]!
+  """
+  The description of the page
+  """
+  description: String
+  # """
+  # The UUID of the page
+  # """
+  # id: ID!
+  """
+  The navigation items associated with the page
+  """
+  navigation: [Navigation!]
+  """
+  The parent page reference
+  """
+  parent: PageParent
+  """
+  The title of the page
+  """
+  title: String!
+}
+
+"""
+Page data
+"""
+type Page @key(fields: "id") {
+  """
+  The UUID of the page
+  """
+  id: ID!
+  """
+  The meta data for the page
+  """
+  meta: PageMeta!
+  """
+  The slug identified for the page
+  """
+  slug: String!
+  """
+  The structure of the page to be rendered
+  """
+  structure: [Element]!
+  """
+  Any tags that can be used on the page as potential identifiers
+  """
+  tags: [String!]
+  """
+  The page title
+  """
+  title: String!
+  """
+  The type of the page
+  """
+  type: PageType!
+}
+
+"""
+Definition of the page list including meta data
+"""
+type PageConnection {
+  """
+  A list of the pages
+  """
+  pages: [Page!]!
+  """
+  The total number of pages
+  """
+  totalCount: Int!
+  """
+  The pagination info for the query
+  """
+  pageInfo: PageInfo
+}
+
+"""
+The pagination information
+"""
+type PageInfo {
+  """
+  The last element in the response list
+  """
+  endCursor: ID!
+  """
+  Indicator for whether there is another page
+  """
+  hasNextPage: Boolean!
+  """
+  Indicator for whether there is a previous page
+  """
+  hasPreviousPage: Boolean!
+  """
+  The first element in the response list
+  """
+  startCursor: ID!
+}
+
+"""
+Parent page reference
+"""
+type PageParent {
+  """
+  The ID of the parent page
+  """
+  id: ID!
+}
+
+"""
+Post element for the structure
+"""
+type Post {
+  """
+  The main content of the post
+  """
+  content: Markdown!
+  """
+  An excerpt of the post
+  """
+  excerpt: String
+  id: ID!
+  """
+  The meta information for the post
+  """
+  meta: PostMeta!
+  """
+  The slug identifier for the post
+  """
+  slug: String!
+  """
+  The title of the post
+  """
+  title: String!
+}
+
+"""
+Post meta data
+"""
+type PostMeta {
+  """
+  The audit information for the post
+  """
+  audit: [Audit!]!
+}
+
+"""
+State of the application
+"""
+type State {
+  """
+  The current state of the application
+  """
+  status: AppStatus!
+  """
+  A message about the current state
+  """
+  message: String!
+  """
+  The version of the application
+  """
+  version: String!
+}
+
+"""
+Timeline data
+"""
+type Timeline {
+  """
+  The date format to use
+  """
+  dateFormat: String
+  """
+  The location of the date
+  """
+  dateLocation: String
+  """
+  The display format for the timeline
+  """
+  display: String
+  """
+  The events within the timeline
+  """
+  events: [TimelineEvent]!
+  """
+  The order of the events
+  """
+  order: Order
+}
+
+"""
+Timeline event data
+"""
+type TimelineEvent {
+  """
+  The information in the event
+  """
+  content: Markdown!
+  """
+  The date of the event
+  """
+  date: DateTime!
+  """
+  An optional icon for the event
+  """
+  icon: String
+  """
+  An optional link for the event
+  """
+  link: String
+  """
+  An optional tag for the event
+  """
+  tag: String
+  """
+  The title of the event
+  """
+  title: String
+}
+
+type User {
+  """
+  The name of the user
+  """
+  name: String!
+  """
+  The user's username
+  """
+  username: String!
+}
+
+# Inputs
+
+"""
+Input for each page structure element
+"""
+input ElementInput {
+  id: ID
+  # banner: BannerInput
+  # md: MDInput
+  # timeline: TimelineInput
+}
+
+"""
+Page filtering options
+This allows filtering by ID, slug, and tags.
+IDs are an array of IDs, slug is a single string, and tags are an array of strings.
+This is useful for querying specific pages based on their identifiers or attributes.
+"""
+input PageFilter {
+  """
+  Filter by page IDs
+  """
+  id: [ID!]
+  """
+  Filter by page slug
+  """
+  slug: String
+  """
+  Filter by page tags
+  """
+  tags: [String!]
+  """
+  Filter by navigation type
+  """
+  navigation: NavigationType
+}
+
+input PageInput {
+  meta: PageMetaInput!
+  slug: String!
+  # structure: [ElementInput]!
+  tags: [String!]
+  title: String!
+  type: PageType
+}
+input PageMetaInput {
+  description: String
+}
+
+# Union types
+
+union Element = Banner | MD | Post | Timeline

@@ -13,7 +13,7 @@ jest.mock('prom-client', () => {
 });
 
 describe('firstContentfulPaint', () => {
-  const mockLabels = (fcp as any).labels as jest.Mock; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const mockLabels = (fcp as any).labels as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

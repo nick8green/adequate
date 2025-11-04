@@ -1,0 +1,9 @@
+{
+  "name": "acl",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "jose": "6.1.0"
+  },
+  "devDependencies": {}
+}

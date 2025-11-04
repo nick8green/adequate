@@ -37,7 +37,7 @@ describe('WebVitals', () => {
     // Call the callback passed to useReportWebVitals
     await useReportWebVitalsMock.mock.calls[0][0](metric);
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/metrics', {
+    expect(global.fetch).toHaveBeenCalledWith('/metrics', {
       method: 'POST',
       body: JSON.stringify(metric),
       headers: {

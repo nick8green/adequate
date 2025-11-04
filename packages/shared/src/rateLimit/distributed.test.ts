@@ -23,7 +23,7 @@ describe('getRateLimiter', () => {
       REDIS_REST_TOKEN: 'redis-token',
     };
     mockRatelimit.fixedWindow = jest.fn();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     (mockRatelimit as any).mockImplementation(function (this: any, opts: any) {
       Object.assign(this, opts);
     });
