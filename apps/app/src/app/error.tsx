@@ -29,6 +29,12 @@ const ErrorPage: FC<ErrorProps> = ({ error, reset }) => {
         Please try again and if the problem persists, please contact an
         administrator.
       </p>
+      {process.env.NODE_ENV === 'development' && (
+        <p>
+          <span style={{ color: 'red', fontWeight: 'bold' }}>Error:</span>{' '}
+          {error.message}
+        </p>
+      )}
       <button
         onClick={
           // Attempt to recover by trying to re-render the segment

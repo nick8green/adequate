@@ -83,14 +83,15 @@ const logRequest = async (details: RequestDetails, status: number) => {
     statusCode: String(status),
     responseTime: details.responseTime,
   });
-  if (details.referrer !== '') {
-    reportMetric({
-      name: 'pageTransition',
-      from: `/${details.referrer.replace(hostname, '')}`,
-      session: details.session || '',
-      to: details.path,
-    });
-  }
+  console.log('referrer:', `${details.referrer}`);
+  // if (details.referrer !== '') {
+  //   reportMetric({
+  //     name: 'pageTransition',
+  //     from: details.referrer.replace(hostname, ''),
+  //     session: details.session || '',
+  //     to: details.path,
+  //   });
+  // }
 
   console.log(
     `Page request [${details.time.toISOString()}] ${details.method} ${details.url} ${details.status} - ${details.responseTime}ms - IP: ${details.ip} - UA: ${details.userAgent} - Referrer: ${details.referrer} - ReqID: ${details.requestId}`,

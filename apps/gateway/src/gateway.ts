@@ -28,12 +28,12 @@ const defaultConfig = {
     new DefaultHeaderAppendage({ url }),
 };
 
-export const getGateway = () =>
+export const getGateway = (): ApolloGateway =>
   process.env.NODE_ENV === 'production'
     ? getProductionGateway()
     : getDevelopmentGateway();
 
-const getDevelopmentGateway = () => {
+const getDevelopmentGateway = (): ApolloGateway => {
   const config =
     process.env.SUBGRAPHS_CONFIG ?? join(__dirname, '../config/subgraphs.json');
 
@@ -51,7 +51,7 @@ const getDevelopmentGateway = () => {
   });
 };
 
-const getProductionGateway = () => {
+const getProductionGateway = (): ApolloGateway => {
   const supergraphFile =
     process.env.SUPERGRAPH_FILE ??
     join(__dirname, '../config/supergraph.graphql');

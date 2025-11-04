@@ -12,7 +12,7 @@ import repo from '@content/repository/Pages';
 
 export const getPages = async (filter?: null | PageFilter): Promise<Page[]> => {
   const data: Page[] = await repo.getAll();
-  console.log('fetched pages', data.length, filter, JSON.stringify(data));
+  console.log('fetched pages', data.length, filter);
   if (!filter) {
     return data;
   }

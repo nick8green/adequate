@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": false,
     "module": "commonjs",
-    "target": "es2020"
+    "target": "ES2020",
+    "noEmit": false
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

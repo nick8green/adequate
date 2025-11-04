@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `Audit` (
     `id` INT(4) NOT NULL AUTO_INCREMENT,
     `timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `user` INT(4) NOT NULL,
-    `action` ENUM('CREATE', 'DELETE', 'PUBLISH', 'UPDATE') NOT NULL,
+    `event` ENUM('ACCESS', 'CREATE', 'DELETE', 'PUBLISH', 'UPDATE') NOT NULL,
     `entity` ENUM('PAGE', 'POST') NOT NULL,
     `entityId` INT(4) NOT NULL,
     PRIMARY KEY (`id`),
@@ -341,8 +341,9 @@ VALUES
     (3, 5, 'Third Blog Post', 'This is the excerpt for the third blog post.', 'third-blog-post', 'This is the content for the third blog post.');
 
 INSERT INTO
-    `Audit` (`user`, `action`, `entity`, `entityId`)
+    `Audit` (`user`, `event`, `entity`, `entityId`)
 VALUES
+    (1, 'CREATE', 'USER', 1),
     (1, 'CREATE', 'PAGE', 1),
     (1, 'CREATE', 'PAGE', 2),
     (1, 'CREATE', 'PAGE', 3),

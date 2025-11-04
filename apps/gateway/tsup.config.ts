@@ -1,7 +1,7 @@
-import copy from 'esbuild-plugin-copy';
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
+  bundle: true,
   entry: ['src/index.ts'],
   outDir: 'dist',
   format: ['cjs'],
@@ -10,14 +10,10 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   tsconfig: './tsconfig.json',
-  esbuildPlugins: [
-    copy({
-      assets: [
-        {
-          from: ['./src/graph/*'],
-          to: ['./graph/'],
-        },
-      ],
-    }),
-  ],
+  esbuildOptions(options) {
+    options.alias = {
+      '@gateway': './src',
+      '@shared': '../../packages/shared/src',
+    };
+  },
 });

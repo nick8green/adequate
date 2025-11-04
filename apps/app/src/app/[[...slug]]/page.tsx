@@ -1,7 +1,8 @@
 import { getPageData } from '@app/actions/page';
-import Blog, { type BlogProps } from '@app/components/Blog';
+import ApolloWrapper from '@app/components/ApolloWrapper';
+import Blog from '@app/components/Blog';
 import Page, { type PageProps } from '@app/components/Page';
-import type { Page as PageData, Post } from '@content/graph/generated/types';
+import type { Page as PageData } from '@content/graph/generated/types';
 import { PageElement } from '@shared/components/renderer';
 import { reportToPrometheus as httpRequestCount } from '@shared/metrics/httpRequestCount';
 import { Metadata } from 'next';
@@ -66,7 +67,7 @@ const PageRoute: FC<Props> = async ({
   }
 
   // @ts-expect-error as this is a dynamic assignment depending on the page type
-  let args: BlogProps | PageProps = {
+  let args: PageProps = {
     params: sp,
     slug,
   };
@@ -74,12 +75,9 @@ const PageRoute: FC<Props> = async ({
   switch (data.type) {
     case 'BLOG':
       return (
-        <Blog
-          posts={data.structure as Post[]}
-          params={sp}
-          slug={slug}
-          title={data.title}
-        />
+        <ApolloWrapper>
+          <Blog slug={slug} title={data.title} />
+        </ApolloWrapper>
       );
     case 'PAGE':
       args = { ...args, structure: data.structure ?? [] } as object & {
