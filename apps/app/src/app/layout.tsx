@@ -12,6 +12,7 @@ import {
   SocialMediaList,
   // SocialMediaPlatform,
 } from '@nick8green/components';
+import Script from 'next/script';
 import type { FC, PropsWithChildren } from 'react';
 
 export const generateMetadata = async () => {
@@ -28,6 +29,22 @@ const Layout: FC<PropsWithChildren> = async ({ children }) => {
 
   return (
     <html lang={config.language || 'en'}>
+      <head>
+        {process.env.NODE_ENV === 'development' && (
+          <Script
+            id='development-styles'
+            strategy='beforeInteractive'
+            dangerouslySetInnerHTML={{
+              __html: `
+              const link = document.createElement('link');
+              link.rel = 'stylesheet';
+              link.href = '/styles/development.css';
+              document.head.appendChild(link);
+            `,
+            }}
+          />
+        )}
+      </head>
       <body data-theme={config.theme} data-brand={config.brand}>
         <WebVitals />
         <ConfigProvider config={config}>
