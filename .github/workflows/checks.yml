@@ -102,7 +102,7 @@ jobs:
 
       - name: download all coverage artifacts
         if: ${{ env.SONAR_TOKEN != '' }}
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: coverage
           path: coverage
