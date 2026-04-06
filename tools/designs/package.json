@@ -2,7 +2,7 @@
   "name": "designs",
   "version": "1.0.0",
   "dependencies": {
-    "style-dictionary": "^5.0.0"
+    "style-dictionary": "^5.3.0"
   },
   "scripts": {
     "build": "style-dictionary build --config src/config.js",
