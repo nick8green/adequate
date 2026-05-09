@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@nick8green/components": "1.0.0",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.0",
     "next": "16.1.7",

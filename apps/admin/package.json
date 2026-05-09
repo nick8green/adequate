@@ -10,9 +10,11 @@
     "predev": "rm -rf .next"
   },
   "dependencies": {
+    "@nick8green/components": "1.0.0",
     "next": "16.1.7",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "shared": "*"
   },
   "devDependencies": {
     "@types/react": "19.2.14",
