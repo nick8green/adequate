@@ -2,6 +2,7 @@
   "name": "app",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "echo \"building app\" && next build",
@@ -9,5 +10,27 @@
     "lint": "next lint",
     "predev": "rm -rf .next"
   },
-  "type": "module"
+  "dependencies": {
+    "@nick8green/components": "1.0.0",
+    "@opentelemetry/api-logs": "0.212.0",
+    "@opentelemetry/instrumentation": "0.212.0",
+    "@opentelemetry/sdk-logs": "0.212.0",
+    "@vercel/otel": "2.1.1",
+    "next": "16.1.7",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "shared": "*"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@types/jest": "30.0.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "jest": "30.3.0",
+    "jest-environment-jsdom": "30.3.0",
+    "ts-jest": "29.4.9",
+    "typescript": "6.0.2"
+  }
 }
