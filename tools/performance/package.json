@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "artillery": "^2.0.23",
-    "artillery-plugin-publish-metrics": "^2.28.0"
+    "artillery": "^2.0.31",
+    "artillery-plugin-publish-metrics": "^2.36.0"
   },
   "scripts": {
     "test": "artillery run --output report.json"
