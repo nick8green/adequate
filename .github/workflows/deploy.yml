@@ -114,7 +114,7 @@ jobs:
           fetch-depth: 0
 
       - name: create pr
-        uses: devops-infra/action-pull-request@b2895bff2ff66579f6704d717a1ea75fad919e84
+        uses: devops-infra/action-pull-request@c5a99ac1b5457fc14b5586d68b15f2f23fda8f6f
         with:
           github_token: ${{ secrets.GH_PR_TOKEN }}
           label: automatic
