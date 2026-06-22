@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     name: test
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: 🧱 setup workspace
         uses: nick8green/workflows/actions/node/setup@f20240f2265c8e777e01982c8cd31b057b8c1155
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: 🧱 setup workspace
         uses: nick8green/workflows/actions/node/setup@f20240f2265c8e777e01982c8cd31b057b8c1155
